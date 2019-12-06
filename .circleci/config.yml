@@ -76,7 +76,3 @@ jobs:
           name: Build app
           command: |
             /tmp/sysconfcpus/bin/sysconfcpus -n 2 npm run build
-
-      # - add_ssh_keys:
-      #     fingerprints:
-      #       - "78:00:b5:02:f0:01:f0:ec:53:a7:9d:b9:84:ae:ac:a9"
