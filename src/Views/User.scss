@@ -1,0 +1,24 @@
+.User {
+  position: relative;
+
+  &__avatar {
+    $size: 40px;
+    border-radius: $size;
+    display: block;
+    height: $size;
+    width: $size;
+  }
+
+  &Menu {
+    background: #000;
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 1;
+
+    &__link {
+      display: block;
+      padding: 10px 15px;
+    }
+  }
+}

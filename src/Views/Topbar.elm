@@ -5,6 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Route
 import Views.Search as Search exposing (..)
+import Views.User as User exposing (..)
 
 
 view : Session -> Html msg
@@ -16,4 +17,5 @@ view _ =
             , button [ class "TopBarNavigation__item Button nude disabled" ] [ i [ class "icon-next" ] [] ]
             ]
         , Search.view
+        , User.view
         ]
