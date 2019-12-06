@@ -3,7 +3,6 @@ module Page.Home exposing (Model, Msg(..), init, subscriptions, update, view)
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Page.Artist as Artist
 
 
 type alias Model =

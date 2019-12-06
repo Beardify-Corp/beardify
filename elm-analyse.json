@@ -5,7 +5,7 @@
         "ExposeAll": false,
         "ImportAll": false,
         "RedefineVariable": false,
-        "SingleFieldRecord": true,
+        "SingleFieldRecord": false,
         "TriggerWords": false,
         "UseConsOverConcat": false
     }
