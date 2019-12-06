@@ -1,0 +1,82 @@
+version: 2
+jobs:
+  build:
+    branches:
+      ignore:
+        - gh-pages
+
+    docker:
+      - image: circleci/node:lts-stretch
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - deps-{{ checksum "package.json" }}-{{ checksum "elm.json" }}
+          - deps-
+
+      - run:
+          name: Set PATH
+          command: echo 'export PATH=./node_modules/.bin:$PATH' >> $BASH_ENV
+
+      - run:
+          name: Install dependencies
+          command: |
+            npm install
+            npm rebuild node-sass
+
+      - run:
+          name: Install jq
+          command: |
+            sudo apt-get update && sudo apt-get install jq
+
+      - run:
+          name: Make build faster!
+          command: |
+            if [ ! -d sysconfcpus/bin ];
+            then
+              git clone https://github.com/obmarg/libsysconfcpus.git;
+              cd libsysconfcpus;
+              ./configure --prefix=/tmp/sysconfcpus;
+              make && make install;
+              cd ..;
+            fi
+
+      - save_cache:
+          paths:
+            - node_modules
+            - elm-stuff
+          key: deps-{{ checksum "package.json" }}-{{ checksum "elm.json" }}
+
+      - run:
+          name: Run static code analysis
+          command: |
+            /tmp/sysconfcpus/bin/sysconfcpus -n 2 elm-analyse
+
+      - run:
+          name: Lint SASS styles
+          command: |
+            /tmp/sysconfcpus/bin/sysconfcpus -n 2 npm run sass-lint
+
+      - run:
+          name: Run tests
+          command: |
+            mkdir -p test-reports
+            /tmp/sysconfcpus/bin/sysconfcpus -n 2 npm run ci-test
+
+      - store_artifacts:
+          path: test-reports/
+          destination: tr1
+
+      - store_test_results:
+          path: test-reports/
+
+      - run:
+          name: Build app
+          command: |
+            /tmp/sysconfcpus/bin/sysconfcpus -n 2 npm run build
+
+      # - add_ssh_keys:
+      #     fingerprints:
+      #       - "78:00:b5:02:f0:01:f0:ec:53:a7:9d:b9:84:ae:ac:a9"
