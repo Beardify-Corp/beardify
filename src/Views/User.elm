@@ -8,6 +8,7 @@ view : Html msg
 view =
     div [ class "User" ]
         [ img [ class "User__avatar", src "https://i.imgur.com/WHnO4oy.png" ] []
+        , i [ class "User__moreIcon icon-caret-down" ] []
         , div [ class "UserMenu" ]
             [ div [ class "UserMenu__infos" ]
                 [ div [ class "UserMenu__displayName" ] [ text "Guy Montagné" ]

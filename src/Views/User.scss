@@ -13,6 +13,14 @@
     width: $size;
   }
 
+  &__moreIcon {
+    background: Color.$background;
+    border-radius: 10px;
+    bottom: 0;
+    position: absolute;
+    right: -5px;
+  }
+
   &Menu {
     background-color: color.scale(Color.$background, $lightness: 7%);
     border-radius: 3px;
@@ -25,14 +33,14 @@
     &__displayName {
       font-weight: 700;
     }
+
     &__email {
       font-style: italic;
       opacity: .4;
     }
 
     &__infos {
-      border-bottom: 1px solid color.scale(Color.$background, $lightness: 15%);
-      padding: 15px 25px;
+      padding: 15px 25px 5px;
     }
 
     &Actions {
