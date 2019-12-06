@@ -15,6 +15,7 @@
 
 ## Development
 `npm start`
+And go to : http://localhost:3000/
 
 ## Deployment
 `npm run deploy`
