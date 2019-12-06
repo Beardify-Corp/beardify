@@ -16,19 +16,51 @@
   &Menu {
     background-color: color.scale(Color.$background, $lightness: 7%);
     border-radius: 3px;
+    min-width: 250px;
     position: absolute;
     right: 0;
     top: 100%;
     z-index: 1;
 
-    &__infos {
-      padding: 15px;
+    &__displayName {
+      font-weight: 700;
+    }
+    &__email {
+      font-style: italic;
+      opacity: .4;
     }
 
-    &__link {
-      color: Color.$font;
-      display: block;
-      padding: 10px 15px;
+    &__infos {
+      border-bottom: 1px solid color.scale(Color.$background, $lightness: 15%);
+      padding: 15px 25px;
     }
+
+    &Actions {
+      list-style: none;
+      margin: 0;
+      padding: 10px;
+
+      &__icon {
+        margin-right: 10px;
+        opacity: .4;
+        position: relative;
+        top: 2px;
+      }
+
+      &__item {
+        border-radius: 3px;
+        color: Color.$font;
+        display: block;
+        font-weight: 700;
+        padding: 10px 15px;
+        text-decoration: none;
+
+        &:hover {
+          background: color.scale(Color.$background, $lightness: 10%);
+          color: #fff;
+        }
+      }
+    }
+
   }
 }
