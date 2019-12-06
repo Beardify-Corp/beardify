@@ -24,12 +24,7 @@ jobs:
           name: Install dependencies
           command: |
             npm install
-            npm rebuild node-sass
 
-      - run:
-          name: Install jq
-          command: |
-            sudo apt-get update && sudo apt-get install jq
 
       - run:
           name: Make build faster!
