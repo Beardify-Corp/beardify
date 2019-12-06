@@ -1,4 +1,4 @@
-module Data.User exposing (User, decode)
+module Data.User exposing (User, countryToString, decode, idToString)
 
 import Data.Image as Image exposing (Image)
 import Json.Decode as Decode exposing (Decoder)
