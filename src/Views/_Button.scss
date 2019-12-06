@@ -1,0 +1,67 @@
+@use "../Color";
+@use "sass:color";
+
+.Button {
+  background-color: color.scale(Color.$background, $lightness: 7%);
+  border: 0;
+  border-radius: 30px;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+  line-height: 1;
+  outline: 0;
+  padding: 7px 15px;
+  position: relative;
+  transition: all ease .2s;
+
+  &:hover {
+    background-color: color.scale(Color.$background, $lightness: 12%);
+  }
+
+  &.big {
+    font-size: 1.2rem;
+    padding: 10px 20px;
+  }
+
+  &.nude {
+    background: transparent;
+    border: 0;
+    color: rgba(#fff, .6);
+    font-size: 1.2rem;
+    padding-top: 8px;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &.disabled {
+    opacity: .3;
+    pointer-events: none;
+  }
+
+  &.primary {
+    background: Color.$primary;
+
+    &:hover {
+      background-color: color.scale(Color.$primary, $lightness: 10%);
+    }
+  }
+
+  &.spotify {
+    background: color.scale(#1ed760, $lightness: -60%);
+    padding-left: 35px;
+  }
+
+  &__icon {
+    font-size: 1.4rem;
+    left: 5px;
+    position: absolute;
+    top: 37%;
+    transform: translateY(-50%);
+
+    &.spotify {
+      color: #1ed760;
+    }
+  }
+}

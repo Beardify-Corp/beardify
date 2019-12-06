@@ -1,0 +1,24 @@
+@use "../Color";
+
+.Topbar {
+  align-items: center;
+  border-bottom: 1px solid Color.$border;
+  display: grid;
+  gap: 40px;
+  grid-template-columns: auto auto 1fr;
+  padding: 10px 15px;
+
+  &__logo {
+    height: 30px;
+    margin-right: 7px;
+
+    &__name {
+      position: relative;
+      top: -2px;
+    }
+  }
+
+  &User {
+    padding-right: 15px;
+  }
+}

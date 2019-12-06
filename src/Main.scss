@@ -1,0 +1,89 @@
+@use "Color";
+@use "sass:color";
+
+@use "../node_modules/normalize.css/normalize";
+
+// Views
+@use "Views/Album";
+@use "Views/ArtistLink";
+@use "Views/Button";
+@use "Views/Flex";
+@use "Views/Heading";
+@use "Views/Helper";
+@use "Views/Link";
+@use "Views/List";
+@use "Views/Modal";
+@use "Views/Notif";
+@use "Views/Page";
+@use "Views/Search";
+@use "Views/Sidebar";
+@use "Views/Topbar";
+@use "Views/Track";
+@use "Views/Device";
+@use "Views/Player";
+
+// Pages
+@use "Page/Login";
+@use "Page/Artist";
+
+.App {
+  background: Color.$background;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  &__body {
+    display: flex;
+    flex: 1;
+  }
+}
+
+b,
+strong {
+  font-weight: 700;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -ms-overflow-style:-ms-autohiding-scrollbar;
+  scrollbar-color: color.scale(Color.$background, $lightness: 7%) rgba(0, 0, 0, 0);
+  scrollbar-width: thin;
+}
+
+::-webkit-scrollbar {
+  width: 17px;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-clip: content-box;
+  background-color: color.scale(Color.$background, $lightness: 7%);
+  border: 5px solid transparent;
+  border-radius: 20px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+i {
+  line-height: 0;
+}
+
+html {
+  background: Color.$background;
+  overflow: hidden;
+}
+
+body {
+  color: Color.$font;
+  font-family: "Nunito Sans", sans-serif;
+  font-weight: 400;
+  line-height: 1.4;
+  overflow: hidden;
+}

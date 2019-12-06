@@ -1,0 +1,38 @@
+{
+  "name": "beardify",
+  "version": "0.0.1",
+  "description": "",
+  "author": "Beardify corporation",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm run copy-assets && npm run sass-build && elm make src/Main.elm --optimize --output=build/app.js && npm run optimize",
+    "copy-assets": "rimraf build && mkdir build && cp -r public/* build",
+    "debug": "elm-live src/Main.elm --port=3000 --dir=public/ -- --output=public/app.js --debug",
+    "deploy": "npm run build && gh-pages --dist build/",
+    "live": "elm-live src/Main.elm -p 3000 -d public/ -H -- --output=public/app.js",
+    "optimize": "uglifyjs build/app.js -c $npm_package_uglify_params | uglifyjs -m --output=build/app.js",
+    "sass": "sass src/Main.scss:public/main.css --source-map-urls=absolute --watch --poll",
+    "sass-build": "sass src/Main.scss:public/main.css --style=compressed",
+    "start": "npm-run-all --parallel sass live",
+    "test": "elm-test"
+  },
+  "uglify": {
+    "params": "pure_funcs=\"F2,F3,F4,F5,F6,F7,F8,F9,A2,A3,A4,A5,A6,A7,A8,A9\",pure_getters,keep_fargs=false,unsafe_comps,unsafe"
+  },
+  "devDependencies": {
+    "elm": "^0.19.1-3",
+    "elm-format": "^0.8.2",
+    "elm-live": "^3.4.1",
+    "elm-test": "^0.19.1",
+    "gh-pages": "^2.0.1",
+    "normalize.css": "^8.0.1",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^2.6.1",
+    "sass": "^1.23.3",
+    "stylelint": "^11.1.1",
+    "stylelint-config-standard": "^19.0.0",
+    "stylelint-order": "^3.1.1",
+    "stylelint-scss": "^3.12.1",
+    "uglify-js": "^3.4.9"
+  }
+}
