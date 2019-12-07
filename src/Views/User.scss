@@ -5,7 +5,7 @@
   position: relative;
 
   &__avatar {
-    $size: 40px;
+    $size: 35px;
     border-radius: $size;
     cursor: pointer;
     display: block;
@@ -17,6 +17,7 @@
     background: Color.$background;
     border-radius: 10px;
     bottom: 0;
+    font-size: .8rem;
     position: absolute;
     right: -5px;
   }
