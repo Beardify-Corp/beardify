@@ -3,12 +3,23 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>elm-kitchen</title>
+  <title>Beardify</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,200i,300,300i,400,400i,700,700i,800,800i&display=swap" rel="stylesheet" />
+  <meta name="apple-mobile-web-app-status-bar" content="#11151b">
+  <meta name="theme-color" content="#00bbc5">
+  <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,200i,300,300i,400,400i,700,700i" rel="stylesheet" />
   <link href="icons/styles.css" rel="stylesheet" />
   <link href="main.css" rel="stylesheet" />
   <link rel="icon" type="image/png" href="img/favicon.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/img/icon-512x512.png">
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js')
+        .then(reg => console.log('service worker registered'))
+        .catch(err => console.log('service worker not registered', err));
+    }
+  </script>
 </head>
 
 <body>
