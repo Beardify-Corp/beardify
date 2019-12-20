@@ -5,10 +5,11 @@ import Data.User as User exposing (User)
 import Http
 import Request.Api as Api
 import Task exposing (Task)
+import Url exposing (Url)
 
 
-get : Session -> Task ( Session, Http.Error ) User
-get session =
+get : Session -> Url -> Task ( Session, Http.Error ) ( User, Url )
+get session url =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
@@ -17,4 +18,5 @@ get session =
         , resolver = User.decode |> Api.jsonResolver
         , timeout = Nothing
         }
+        |> Task.map (\user -> ( user, url ))
         |> Api.mapError session

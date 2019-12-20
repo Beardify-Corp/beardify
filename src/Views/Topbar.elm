@@ -9,7 +9,7 @@ import Views.User as User exposing (..)
 
 
 view : Session -> Html msg
-view _ =
+view session =
     div [ class "Topbar" ]
         [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]
         , div [ class "TopbarNavigation" ]
@@ -17,5 +17,10 @@ view _ =
             , button [ class "Button nude disabled" ] [ i [ class "icon-next TopbarNavigation__icon " ] [] ]
             ]
         , Search.view
-        , User.view
+        , case session.user of
+            Just user ->
+                User.view user
+
+            Nothing ->
+                text ""
         ]

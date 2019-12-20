@@ -1,32 +1,28 @@
 module Views.User exposing (view)
 
+import Data.Image as Image
+import Data.User exposing (User)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-view : Html msg
-view =
+view : User -> Html msg
+view user =
+    let
+        avatar =
+            Image.filterByWidth 0 user.avatar
+    in
     div [ class "User" ]
-        [ img [ class "User__avatar", src "https://i.imgur.com/WHnO4oy.png" ] []
-        , i [ class "User__moreIcon icon-caret-down" ] []
+        [ img [ class "User__avatar", src avatar.url ] []
         , div [ class "UserMenu" ]
             [ div [ class "UserMenu__infos" ]
-                [ div [ class "UserMenu__displayName" ] [ text "Guy Montagné" ]
-                , div [ class "UserMenu__email" ] [ text "gmontagne@gmail.com" ]
+                [ div [] [ text user.displayName ]
                 ]
-            , ul [ class "UserMenuActions" ]
-                [ li []
-                    [ a [ class "UserMenuActions__item", href "" ]
-                        [ i [ class "icon-logout UserMenuActions__icon" ] []
-                        , text "Logout"
-                        ]
-                    ]
-                , li []
-                    [ a [ class "UserMenuActions__item", href "" ]
-                        [ i [ class "icon-settings UserMenuActions__icon" ] []
-                        , text "Settings"
-                        ]
-                    ]
-                ]
+
+            -- , ul [ class "List unstyled" ]
+            --     [ li [] [ a [ class "UserMenu__link", href "" ] [ text "Logout" ] ]
+            --     , li [] [ a [ class "UserMenu__link", href "" ] [ text "aodhazdiuzdah" ] ]
+            --     , li [] [ a [ class "UserMenu__link", href "" ] [ text "adlkzadij" ] ]
+            --     ]
             ]
         ]

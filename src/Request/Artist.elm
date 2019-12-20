@@ -9,6 +9,7 @@ import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (Artist)
 import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
+import Data.User as User
 import Http
 import Json.Decode as Decode
 import Request.Api as Api
@@ -30,10 +31,15 @@ get session id =
 
 getTopTrack : Session -> Artist.Id -> Task ( Session, Http.Error ) (List Track)
 getTopTrack session id =
+    let
+        country =
+            Maybe.map (.country >> User.countryToString) session.user
+                |> Maybe.withDefault "US"
+    in
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/top-tracks?country=FR"
+        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/top-tracks?country=" ++ country
         , body = Http.emptyBody
         , resolver = Decode.at [ "tracks" ] (Decode.list Track.decode) |> Api.jsonResolver
         , timeout = Nothing

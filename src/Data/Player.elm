@@ -72,8 +72,8 @@ decode =
 decodeContext : Decoder Context
 decodeContext =
     Decode.map4 Context
-        (Decode.field "uri" Decode.string)
         (Decode.field "href" Decode.string)
+        (Decode.field "uri" Decode.string)
         (Decode.field "external_urls"
             (Decode.map ExternalUrl
                 (Decode.field "spotify" Decode.string)
