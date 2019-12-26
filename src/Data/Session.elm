@@ -15,10 +15,12 @@ module Data.Session exposing
     , tickNotifications
     , updateAuth
     , updateState
+    , updateUser
     )
 
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization exposing (Authorization)
+import Data.User exposing (User)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
 
@@ -31,6 +33,7 @@ type alias Session =
     , randomBytes : String
     , store : Store
     , notifications : List Notif
+    , user : Maybe User
     }
 
 
@@ -97,6 +100,11 @@ updateState newState ({ store } as session) =
 updateAuth : Maybe Authorization -> Session -> Session
 updateAuth auth ({ store } as session) =
     { session | store = { store | auth = auth } }
+
+
+updateUser : User -> Session -> Session
+updateUser user session =
+    { session | user = Just user }
 
 
 

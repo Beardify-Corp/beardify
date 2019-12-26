@@ -114,8 +114,8 @@ albumsListView albums =
 
 
 view : Model -> ( String, List (Html Msg) )
-view model =
-    ( "Artists"
+view ({ artist } as model) =
+    ( Maybe.withDefault "Artists" (Maybe.map .name artist)
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]

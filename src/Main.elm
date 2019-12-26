@@ -6,12 +6,16 @@ import Data.Authorization as Authorization
 import Data.Device exposing (Device)
 import Data.Player as PlayerData exposing (PlayerContext)
 import Data.Session as Session exposing (Notif, Session)
+import Data.User exposing (User)
 import Html exposing (..)
+import Http
 import Page.Artist as Artist
 import Page.Home as Home
 import Page.Login as Login
 import Ports
+import Request.User as RequestUser
 import Route exposing (Route)
+import Task
 import Time exposing (Posix)
 import Url exposing (Url)
 import Views.Device as Device
@@ -53,6 +57,7 @@ type Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
+    | UserFetched (Result ( Session, Http.Error ) ( User, Maybe Url ))
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
 
@@ -137,55 +142,46 @@ init flags url navKey =
             , authUrl = flags.authUrl
             , randomBytes = flags.randomBytes
             , notifications = []
+            , user = Nothing
             , store = Session.deserializeStore flags.rawStore
             }
+
+        model =
+            { page = Blank
+            , session = session
+            , devices = []
+            , player = PlayerData.defaultPlayerContext
+            }
     in
-    (case ( url.fragment, url.query ) of
+    case ( url.fragment, url.query ) of
         ( Just fragment, Nothing ) ->
             case Authorization.parseAuth fragment of
                 Authorization.Empty ->
-                    setRoute (Route.fromUrl url)
-                        { page = Blank
-                        , devices = []
-                        , player = PlayerData.defaultPlayerContext
-                        , session = session
-                        }
+                    ( model
+                    , Task.attempt UserFetched (RequestUser.get session (Just url))
+                    )
 
                 Authorization.AuthError _ ->
                     --TODO: How do we diplay us this error to user?
-                    setRoute (Route.fromUrl url)
-                        { page = Blank
-                        , devices = []
-                        , player = PlayerData.defaultPlayerContext
-                        , session = session
-                        }
+                    ( model, Route.pushUrl session.navKey Route.Login )
 
                 Authorization.AuthSuccess auth ->
                     if auth.state /= session.store.state then
                         -- TODO: auth state is corrupted, we need display something to the user
-                        ( { session = session
-                          , devices = []
-                          , player = PlayerData.defaultPlayerContext
-                          , page = Blank
-                          }
-                        , Route.pushUrl session.navKey Route.Login
-                        )
+                        ( model, Route.pushUrl session.navKey Route.Login )
 
                     else
                         let
                             newSession =
                                 Session.updateAuth (Just auth) session
                         in
-                        ( { session = newSession
-                          , devices = []
-                          , player = PlayerData.defaultPlayerContext
-                          , page = Blank
-                          }
+                        ( { model | session = newSession }
                         , Cmd.batch
                             [ newSession.store
                                 |> Session.serializeStore
                                 |> Ports.saveStore
-                            , Route.pushUrl session.navKey Route.Home
+                            , RequestUser.get newSession Nothing
+                                |> Task.attempt UserFetched
                             ]
                         )
 
@@ -193,30 +189,13 @@ init flags url navKey =
         ( Nothing, Just query ) ->
             case Authorization.parseAuth query of
                 Authorization.AuthError _ ->
-                    setRoute (Route.fromUrl url)
-                        { page = Blank
-                        , devices = []
-                        , player = PlayerData.defaultPlayerContext
-                        , session = session
-                        }
+                    setRoute (Route.fromUrl url) model
 
                 _ ->
-                    setRoute (Route.fromUrl url)
-                        { page = Blank
-                        , devices = []
-                        , player = PlayerData.defaultPlayerContext
-                        , session = session
-                        }
+                    setRoute (Route.fromUrl url) model
 
         ( _, _ ) ->
-            setRoute (Route.fromUrl url)
-                { page = Blank
-                , devices = []
-                , player = PlayerData.defaultPlayerContext
-                , session = session
-                }
-    )
-        |> initComponent
+            setRoute (Route.fromUrl url) model
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -352,8 +331,30 @@ update msg ({ page, session } as model) =
         ( UrlChanged url, _ ) ->
             setRoute (Route.fromUrl url) model
 
+        ( UserFetched (Ok ( user, url )), _ ) ->
+            case url of
+                Just url_ ->
+                    setRoute (Route.fromUrl url_)
+                        { page = Blank
+                        , devices = []
+                        , player = PlayerData.defaultPlayerContext
+                        , session = Session.updateUser user model.session
+                        }
+                        |> initComponent
+
+                Nothing ->
+                    ( { model | session = Session.updateUser user model.session }, Route.pushUrl session.navKey Route.Home )
+                        |> initComponent
+
+        ( UserFetched (Err ( newSession, _ )), _ ) ->
+            ( { model | session = newSession }, Route.pushUrl session.navKey Route.Login )
+
         ( RefreshNotifications _, _ ) ->
-            ( { model | session = session |> Session.tickNotifications Session.notificationTick }
+            ( { model
+                | session =
+                    session
+                        |> Session.tickNotifications Session.notificationTick
+              }
             , Cmd.none
             )
 

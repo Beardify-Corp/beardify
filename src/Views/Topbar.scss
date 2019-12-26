@@ -5,16 +5,24 @@
   border-bottom: 1px solid Color.$border;
   display: grid;
   gap: 40px;
-  grid-template-columns: auto auto 1fr;
+  grid-template-columns: auto auto 1fr auto;
   padding: 10px 15px;
 
   &__logo {
+    display: block;
     height: 30px;
     margin-right: 7px;
 
     &__name {
       position: relative;
       top: -2px;
+    }
+  }
+
+  &Navigation {
+
+    &__icon {
+      display: block;
     }
   }
 

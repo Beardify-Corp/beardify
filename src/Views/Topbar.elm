@@ -5,15 +5,22 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Route
 import Views.Search as Search exposing (..)
+import Views.User as User exposing (..)
 
 
 view : Session -> Html msg
-view _ =
+view session =
     div [ class "Topbar" ]
         [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]
-        , div [ class "TopBarNavigation" ]
-            [ button [ class "TopBarNavigation__item Button nude" ] [ i [ class "icon-previous" ] [] ]
-            , button [ class "TopBarNavigation__item Button nude disabled" ] [ i [ class "icon-next" ] [] ]
+        , div [ class "TopbarNavigation" ]
+            [ button [ class "Button nude" ] [ i [ class "icon-previous TopbarNavigation__icon " ] [] ]
+            , button [ class "Button nude disabled" ] [ i [ class "icon-next TopbarNavigation__icon " ] [] ]
             ]
         , Search.view
+        , case session.user of
+            Just user ->
+                User.view user
+
+            Nothing ->
+                text ""
         ]

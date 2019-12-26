@@ -179,3 +179,12 @@
 .icon-close:before {
   content: "\55";
 }
+.icon-settings:before {
+  content: "\56";
+}
+.icon-logout:before {
+  content: "\57";
+}
+.icon-caret-down:before {
+  content: "\58";
+}
