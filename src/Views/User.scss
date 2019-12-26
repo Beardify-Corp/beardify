@@ -25,11 +25,16 @@
   &Menu {
     background-color: color.scale(Color.$background, $lightness: 7%);
     border-radius: 3px;
+    display: none;
     min-width: 250px;
     position: absolute;
     right: 0;
     top: 100%;
     z-index: 1;
+
+    .active {
+      display: block;
+    }
 
     &__displayName {
       font-weight: 700;
