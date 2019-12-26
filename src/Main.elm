@@ -343,7 +343,7 @@ update msg ({ page, session } as model) =
                         |> initComponent
 
                 Nothing ->
-                    ( model, Route.pushUrl session.navKey Route.Home )
+                    ( { model | session = Session.updateUser user model.session }, Route.pushUrl session.navKey Route.Home )
                         |> initComponent
 
         ( UserFetched (Err ( newSession, _ )), _ ) ->
