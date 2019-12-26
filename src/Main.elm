@@ -18,7 +18,6 @@ import Route exposing (Route)
 import Task
 import Time exposing (Posix)
 import Url exposing (Url)
-import Url.Builder as UrlBuilder
 import Views.Device as Device
 import Views.Page as Page
 import Views.Player as Player
