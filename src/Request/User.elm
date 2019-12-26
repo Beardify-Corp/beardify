@@ -8,7 +8,7 @@ import Task exposing (Task)
 import Url exposing (Url)
 
 
-get : Session -> Url -> Task ( Session, Http.Error ) ( User, Url )
+get : Session -> Maybe Url -> Task ( Session, Http.Error ) ( User, Maybe Url )
 get session url =
     Http.task
         { method = "GET"

@@ -18,6 +18,7 @@ import Route exposing (Route)
 import Task
 import Time exposing (Posix)
 import Url exposing (Url)
+import Url.Builder as UrlBuilder
 import Views.Device as Device
 import Views.Page as Page
 import Views.Player as Player
@@ -57,7 +58,7 @@ type Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
-    | UserFetched (Result ( Session, Http.Error ) ( User, Url ))
+    | UserFetched (Result ( Session, Http.Error ) ( User, Maybe Url ))
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
 
@@ -158,21 +159,17 @@ init flags url navKey =
             case Authorization.parseAuth fragment of
                 Authorization.Empty ->
                     ( model
-                    , Task.attempt UserFetched (RequestUser.get session url)
+                    , Task.attempt UserFetched (RequestUser.get session (Just url))
                     )
 
                 Authorization.AuthError _ ->
                     --TODO: How do we diplay us this error to user?
-                    ( model
-                    , Route.pushUrl session.navKey Route.Login
-                    )
+                    ( model, Route.pushUrl session.navKey Route.Login )
 
                 Authorization.AuthSuccess auth ->
                     if auth.state /= session.store.state then
                         -- TODO: auth state is corrupted, we need display something to the user
-                        ( model
-                        , Route.pushUrl session.navKey Route.Login
-                        )
+                        ( model, Route.pushUrl session.navKey Route.Login )
 
                     else
                         let
@@ -184,8 +181,8 @@ init flags url navKey =
                             [ newSession.store
                                 |> Session.serializeStore
                                 |> Ports.saveStore
-                            , Task.attempt UserFetched (RequestUser.get session url)
-                            , Route.pushUrl session.navKey Route.Home
+                            , RequestUser.get newSession Nothing
+                                |> Task.attempt UserFetched
                             ]
                         )
 
@@ -336,13 +333,19 @@ update msg ({ page, session } as model) =
             setRoute (Route.fromUrl url) model
 
         ( UserFetched (Ok ( user, url )), _ ) ->
-            setRoute (Route.fromUrl url)
-                { page = Blank
-                , devices = []
-                , player = PlayerData.defaultPlayerContext
-                , session = Session.updateUser user model.session
-                }
-                |> initComponent
+            case url of
+                Just url_ ->
+                    setRoute (Route.fromUrl url_)
+                        { page = Blank
+                        , devices = []
+                        , player = PlayerData.defaultPlayerContext
+                        , session = Session.updateUser user model.session
+                        }
+                        |> initComponent
+
+                Nothing ->
+                    ( model, Route.pushUrl session.navKey Route.Home )
+                        |> initComponent
 
         ( UserFetched (Err ( newSession, _ )), _ ) ->
             ( { model | session = newSession }, Route.pushUrl session.navKey Route.Login )
