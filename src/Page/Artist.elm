@@ -91,8 +91,8 @@ topTrackViews tracks =
         |> List.take 5
 
 
-albumsListView : List AlbumSimplified -> Html msg
-albumsListView albums =
+albumsListView : List AlbumSimplified -> String -> Html msg
+albumsListView albums listName =
     let
         viewAlbum album =
             let
@@ -109,8 +109,15 @@ albumsListView albums =
                 , div [ class "Album__release" ] [ text album.releaseDate ]
                 ]
     in
-    List.map viewAlbum albums
-        |> div [ class "Artist__releaseList AlbumList" ]
+    if List.length albums > 0 then
+        div []
+            [ h2 [ class "Heading second" ] [ text listName ]
+            , List.map viewAlbum albums
+                |> div [ class "Artist__releaseList AlbumList" ]
+            ]
+
+    else
+        text ""
 
 
 view : Model -> ( String, List (Html Msg) )
@@ -137,21 +144,9 @@ view ({ artist } as model) =
                             |> (::) (h2 [ class "Heading second" ] [ text "Similar artists" ])
                             |> div [ class "ArtistSimilar" ]
                         ]
-                    , div []
-                        [ h2 [ class "Heading second" ] [ text "Albums" ]
-                        , List.filter (\a -> a.type_ == Album.Album) model.albums
-                            |> albumsListView
-                        ]
-                    , div []
-                        [ h2 [ class "Heading second" ] [ text "EPs" ]
-                        , List.filter (\a -> a.type_ == Album.Compilation) model.albums
-                            |> albumsListView
-                        ]
-                    , div []
-                        [ h2 [ class "Heading second" ] [ text "Singles" ]
-                        , List.filter (\a -> a.type_ == Album.Single) model.albums
-                            |> albumsListView
-                        ]
+                    , albumsListView (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
+                    , albumsListView (List.filter (\a -> a.type_ == Album.Compilation) model.albums) "EPs"
+                    , albumsListView (List.filter (\a -> a.type_ == Album.Single) model.albums) "Singles"
                     ]
                 ]
             , div [ class "Artist__videos HelperScrollArea" ]
