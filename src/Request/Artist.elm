@@ -49,10 +49,15 @@ getTopTrack session id =
 
 getAlbums : Session -> Artist.Id -> Task ( Session, Http.Error ) (List AlbumSimplified)
 getAlbums session id =
+    let
+        country =
+            Maybe.map (.country >> User.countryToString) session.user
+                |> Maybe.withDefault "US"
+    in
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/albums"
+        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/albums" ++ "?country=" ++ country
         , body = Http.emptyBody
         , resolver = Decode.at [ "items" ] (Decode.list Album.decodeSimplified) |> Api.jsonResolver
         , timeout = Nothing
