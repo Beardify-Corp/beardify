@@ -18,6 +18,7 @@ type alias Model =
     , albums : List AlbumSimplified
     , tracks : List Track
     , relatedArtists : List Artist
+    , followed : List Bool
     }
 
 
@@ -32,13 +33,15 @@ init id session =
       , albums = []
       , tracks = []
       , relatedArtists = []
+      , followed = []
       }
     , session
-    , Task.map4 (Model << Just)
+    , Task.map5 (Model << Just)
         (Request.get session id)
         (Request.getAlbums session id)
         (Request.getTopTrack session id)
         (Request.getRelatedArtists session id)
+        (Request.getFollowedArtist session id)
         |> Task.attempt Fetched
     )
 
@@ -121,14 +124,22 @@ albumsListView albums listName =
 
 
 view : Model -> ( String, List (Html Msg) )
-view ({ artist } as model) =
+view ({ artist, followed } as model) =
+    let
+        _ =
+            Debug.log "artist" followed
+    in
     ( Maybe.withDefault "Artists" (Maybe.map .name artist)
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ Maybe.map .name model.artist |> Maybe.withDefault "" |> text ]
-                        , button [ class "Button big" ] [ text "Follow" ]
+                        , if followed /= [ True ] then
+                            button [ class "Button big" ] [ text "Follow" ]
+
+                          else
+                            button [ class "Button big primary" ] [ text "Followed" ]
                         ]
                     , div [ class "Artist__links External" ]
                         [ a [ class "External__item", href "#" ] [ i [ class "External__icon icon-wikipedia" ] [], text "Wikipedia" ]

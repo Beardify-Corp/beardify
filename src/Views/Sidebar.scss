@@ -24,13 +24,13 @@
   }
 
   &__title {
-    background: color.adjust(Color.$background, $lightness: 2%);
-    border-bottom: 1px solid Color.$border;
-    color: color.adjust(Color.$background, $lightness: 40%);
-    font-size: .85rem;
-    letter-spacing: .3px;
-    margin:0;
+    color: rgba(white, 0.2);
+    font-size: 0.85rem;
+    letter-spacing: 0.3px;
+    margin: 0;
+    font-style: italic;
     padding: 8px 15px 5px;
     text-transform: uppercase;
+    background-image: linear-gradient(to bottom, #00000021, transparent);
   }
 }

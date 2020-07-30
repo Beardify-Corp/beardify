@@ -3,6 +3,7 @@ module Request.Artist exposing
     , getAlbums
     , getRelatedArtists
     , getTopTrack
+    , getFollowedArtist
     )
 
 import Data.Album as Album exposing (AlbumSimplified)
@@ -76,3 +77,17 @@ getRelatedArtists session id =
         , timeout = Nothing
         }
         |> Api.mapError session
+
+
+getFollowedArtist : Session -> Artist.Id -> Task ( Session, Http.Error ) (List Bool)
+getFollowedArtist session id =
+    Http.task
+        { method = "GET"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "me/following/contains?type=artist&ids=" ++ Artist.idToString id
+        , body = Http.emptyBody
+        , resolver = Artist.isFollowing |> Api.jsonResolver
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
