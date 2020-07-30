@@ -11,7 +11,7 @@
     "debug": "elm-live src/Main.elm --port=3000 --dir=public/ -- --output=public/app.js --debug",
     "deploy": "npm run build && gh-pages --dist build/",
     "live": "elm-live src/Main.elm -p 3000 -d public/ -H -- --output=public/app.js",
-    "optimize": "uglifyjs build/app.js -c $npm_package_uglify_params | uglifyjs -m --output=build/app.js",
+    "optimize": "uglifyjs build/app.js -c $npm_package_uglify_params | uglifyjs -m --output build/app.js",
     "sass": "sass src/Main.scss:public/main.css --source-map-urls=absolute --watch --poll",
     "sass-build": "sass src/Main.scss:public/main.css --style=compressed",
     "sass-lint": "stylelint \"src/**/*.scss\" --syntax scss",
