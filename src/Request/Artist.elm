@@ -92,29 +92,3 @@ getFollowedArtist session id =
         }
         |> Api.mapError session
 
--- putFollowArtist : Session -> Artist.Id -> Task ( Session, Http.Error ) ()
--- putFollowArtist session id =
---     Http.task
---         { method = "PUT"
---         , headers = [ Api.authHeader session ]
---         , url = Api.url ++ "me/following?type=artist&ids=" ++ Artist.idToString id
---         , body = Http.emptyBody
---         , resolver = Http.expectStringResponse (\_ -> Ok ())
---         , timeout = Nothing
---         }
---         |> Api.mapError session
-
--- type Msg = Uploaded (Result Http.Error ())
-
-
--- putFollowArtist : Session -> Artist.Id -> Cmd Msg
--- putFollowArtist session id =
---     Http.request
---         { method = "PUT"
---         , headers = [ Api.authHeader session ]
---         , url = Api.url ++ "me/following?type=artist&ids=" ++ Artist.idToString id
---         , body = Http.emptyBody
---         , expect = Http.expectWhatever Uploaded
---         , timeout = Nothing
---         , tracker = Nothing
---         }
