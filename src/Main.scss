@@ -48,7 +48,7 @@ strong {
 *::before,
 *::after {
   box-sizing: border-box;
-  -ms-overflow-style:-ms-autohiding-scrollbar;
+  -ms-overflow-style: -ms-autohiding-scrollbar;
   scrollbar-color: color.scale(Color.$background, $lightness: 7%) rgba(0, 0, 0, 0);
   scrollbar-width: thin;
 }
@@ -79,6 +79,7 @@ i {
 html {
   background: Color.$background;
   overflow: hidden;
+  font-size: 0.9em;
 }
 
 body {

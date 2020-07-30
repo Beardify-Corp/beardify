@@ -7,7 +7,9 @@ import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
 import Http
+import Request.Api as Api
 import Request.Artist as Request
 import Route
 import Task
@@ -24,7 +26,9 @@ type alias Model =
 
 type Msg
     = Fetched (Result ( Session, Http.Error ) Model)
-    | Follow
+    | Follow String
+    | UnFollow String
+    | Uploaded (Result Http.Error ())
 
 
 init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -46,17 +50,48 @@ init id session =
     )
 
 
+putFollowArtist : Session -> String -> Cmd Msg
+putFollowArtist session id =
+    Http.request
+        { method = "PUT"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "me/following?type=artist&ids=" ++ id
+        , body = Http.emptyBody
+        , expect = Http.expectWhatever Uploaded
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+deleteFollowArtist : Session -> String -> Cmd Msg
+deleteFollowArtist session id =
+    Http.request
+        { method = "DELETE"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "me/following?type=artist&ids=" ++ id
+        , body = Http.emptyBody
+        , expect = Http.expectWhatever Uploaded
+        , timeout = Nothing
+        , tracker = Nothing
+        }
+
+
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
-        Follow ->
-            ( model, session, Cmd.none )
+        Follow id ->
+            ( { model | followed = [ True ] }, session, Cmd.batch [ putFollowArtist session id ] )
+
+        UnFollow id ->
+            ( { model | followed = [ False ] }, session, Cmd.batch [ deleteFollowArtist session id ] )
 
         Fetched (Ok newModel) ->
             ( newModel, session, Cmd.none )
 
         Fetched (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
+
+        Uploaded _ ->
+            ( model, session, Cmd.none )
 
 
 relatedArtistsView : List Artist -> List (Html msg)
@@ -125,6 +160,18 @@ albumsListView albums listName =
 
 view : Model -> ( String, List (Html Msg) )
 view ({ artist, followed } as model) =
+    let
+        getArtistId =
+            Maybe.map .id artist
+
+        getArtistIdString =
+            case getArtistId of
+                Just a ->
+                    Artist.idToString a
+
+                Nothing ->
+                    ""
+    in
     ( Maybe.withDefault "Artists" (Maybe.map .name artist)
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
@@ -132,10 +179,10 @@ view ({ artist, followed } as model) =
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ Maybe.map .name model.artist |> Maybe.withDefault "" |> text ]
                         , if followed /= [ True ] then
-                            button [ class "Button big" ] [ text "Follow" ]
+                            button [ onClick <| Follow getArtistIdString, class "Button big" ] [ text "Follow" ]
 
                           else
-                            button [ class "Button big primary" ] [ text "Followed" ]
+                            button [ onClick <| UnFollow getArtistIdString, class "Button big primary" ] [ text "Followed" ]
                         ]
                     , div [ class "Artist__links External" ]
                         [ a [ class "External__item", href "#" ] [ i [ class "External__icon icon-wikipedia" ] [], text "Wikipedia" ]
