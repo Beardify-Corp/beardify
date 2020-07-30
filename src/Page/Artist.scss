@@ -41,7 +41,7 @@
 
     &__item {
       align-items: center;
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, .8);
       display: flex;
       margin-bottom: 13px;
       text-decoration: none;
@@ -61,12 +61,12 @@
   }
 
   &__item {
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, .3);
     margin-right: 15px;
     text-decoration: none;
 
     &:hover {
-      color: rgba(255, 255, 255, 0.8);
+      color: rgba(255, 255, 255, .8);
     }
   }
 }
@@ -75,7 +75,7 @@
   padding: 15px;
 
   &__channel {
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, .4);
     font-style: italic;
   }
 

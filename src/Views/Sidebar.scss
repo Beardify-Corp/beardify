@@ -2,11 +2,11 @@
 @use "sass:color";
 
 .Sidebar {
+  background-color: Color.$backgroundDarker;
   border-right: 1px solid Color.$border;
   display: flex;
   flex-basis: 280px;
   flex-direction: column;
-  background-color: Color.$backgroundDarker;
 
   &__item {
     display: flex;
@@ -24,11 +24,11 @@
   }
 
   &__title {
-    color: rgba(white, 0.2);
-    font-size: 0.85rem;
-    letter-spacing: 0.3px;
-    margin: 0;
+    color: rgba(white, .2);
+    font-size: .85rem;
     font-style: italic;
+    letter-spacing: .3px;
+    margin: 0;
     padding: 8px 15px 5px;
     text-transform: uppercase;
   }

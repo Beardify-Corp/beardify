@@ -2,12 +2,12 @@
 
 .Topbar {
   align-items: center;
+  background-color: darken(Color.$background, 2);
   border-bottom: 1px solid Color.$border;
   display: grid;
   gap: 40px;
   grid-template-columns: auto auto 1fr auto;
   padding: 10px 15px;
-  background-color: darken(Color.$background, 2);
 
   &__logo {
     display: block;
