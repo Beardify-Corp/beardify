@@ -12,7 +12,7 @@
   outline: 0;
   padding: 7px 15px;
   position: relative;
-  transition: all ease .2s;
+  transition: all ease 0.2s;
 
   &:hover {
     background-color: color.scale(Color.$background, $lightness: 12%);
@@ -26,7 +26,7 @@
   &.nude {
     background: transparent;
     border: 0;
-    color: rgba(#fff, .6);
+    color: rgba(#fff, 0.6);
     font-size: 1.2rem;
     padding-top: 8px;
 
@@ -36,12 +36,13 @@
   }
 
   &.disabled {
-    opacity: .3;
+    opacity: 0.3;
     pointer-events: none;
   }
 
   &.primary {
     background: Color.$primary;
+    color: Color.$background;
 
     &:hover {
       background-color: color.scale(Color.$primary, $lightness: 10%);

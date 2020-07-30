@@ -2,7 +2,6 @@
 @use "sass:color";
 
 .Artist {
-
   &__body {
     padding: 20px 30px;
   }
@@ -42,14 +41,13 @@
 
     &__item {
       align-items: center;
-      color: rgba(255, 255, 255, .8);
+      color: rgba(255, 255, 255, 0.8);
       display: flex;
-      font-weight: 700;
       margin-bottom: 13px;
       text-decoration: none;
 
       &:hover {
-        color: #fff
+        color: #fff;
       }
     }
   }
@@ -63,12 +61,12 @@
   }
 
   &__item {
-    color: rgba(255, 255, 255, .3);
+    color: rgba(255, 255, 255, 0.3);
     margin-right: 15px;
     text-decoration: none;
 
     &:hover {
-      color: rgba(255, 255, 255, .8);
+      color: rgba(255, 255, 255, 0.8);
     }
   }
 }
@@ -77,24 +75,20 @@
   padding: 15px;
 
   &__channel {
-    color: rgba(255, 255, 255, .4);
+    color: rgba(255, 255, 255, 0.4);
     font-style: italic;
   }
 
-  &__embed{
+  &__embed {
     border: 0;
     margin-bottom: 5px;
   }
 
   &__item {
     background: color.scale(Color.$background, $lightness: 3%);
-    border: 1px solid  color.scale(Color.$background, $lightness: 7%);
+    border: 1px solid color.scale(Color.$background, $lightness: 7%);
     border-radius: 3px;
     margin-bottom: 15px;
     padding: 10px;
-  }
-
-  &__name {
-    font-weight: 700;
   }
 }

@@ -125,10 +125,6 @@ albumsListView albums listName =
 
 view : Model -> ( String, List (Html Msg) )
 view ({ artist, followed } as model) =
-    let
-        _ =
-            Debug.log "artist" followed
-    in
     ( Maybe.withDefault "Artists" (Maybe.map .name artist)
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]

@@ -6,12 +6,12 @@
   display: flex;
   flex-basis: 280px;
   flex-direction: column;
+  background-color: Color.$backgroundDarker;
 
   &__item {
     display: flex;
     flex: 1;
     flex-direction: column;
-    font-weight: 700;
   }
 
   &__collections {
@@ -31,6 +31,5 @@
     font-style: italic;
     padding: 8px 15px 5px;
     text-transform: uppercase;
-    background-image: linear-gradient(to bottom, #00000021, transparent);
   }
 }

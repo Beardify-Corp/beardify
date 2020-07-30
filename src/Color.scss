@@ -1,8 +1,9 @@
 @use "sass:color";
 
-$background: #11151b;
-$primary: #00bbc5;
-$border: #000000;
+$background: #16242c;
+$backgroundDarker: adjust-hue(darken($background, 1), -2);
+$primary: #97c892;
+$border: darken($background, 5);
 $font: rgba(255, 255, 255, 0.7);
 
 $danger: #b22f2f;
