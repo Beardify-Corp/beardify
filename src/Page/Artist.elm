@@ -62,6 +62,7 @@ putFollowArtist session id =
         , tracker = Nothing
         }
 
+
 deleteFollowArtist : Session -> String -> Cmd Msg
 deleteFollowArtist session id =
     Http.request
@@ -161,34 +162,54 @@ albumsListView albums listName =
 view : Model -> ( String, List (Html Msg) )
 view ({ artist, followed } as model) =
     let
-        getArtistId =
-            Maybe.map .id artist
-
-        getArtistIdString =
-            case getArtistId of
-                Just a ->
-                    Artist.idToString a
+        artistId =
+            case Maybe.map .id artist of
+                Just id ->
+                    Artist.idToString id
 
                 Nothing ->
                     ""
+
+        artistName =
+            Maybe.withDefault "Artists" (Maybe.map .name artist)
     in
-    ( Maybe.withDefault "Artists" (Maybe.map .name artist)
+    ( artistName
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
-                        [ h1 [ class "Artist__name Heading first" ] [ Maybe.map .name model.artist |> Maybe.withDefault "" |> text ]
+                        [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
                         , if followed /= [ True ] then
-                            button [ onClick <| Follow getArtistIdString, class "Button big" ] [ text "Follow" ]
+                            button [ onClick <| Follow artistId, class "Button big" ] [ text "Follow" ]
 
                           else
-                            button [ onClick <| UnFollow getArtistIdString, class "Button big primary" ] [ text "Followed" ]
+                            button [ onClick <| UnFollow artistId, class "Button big primary" ] [ text "Followed" ]
                         ]
                     , div [ class "Artist__links External" ]
-                        [ a [ class "External__item", href "#" ] [ i [ class "External__icon icon-wikipedia" ] [], text "Wikipedia" ]
-                        , a [ class "External__item", href "#" ] [ i [ class "External__icon icon-sputnik" ] [], text "Sputnik" ]
-                        , a [ class "External__item", href "#" ] [ i [ class "External__icon icon-discogs" ] [], text "Discogs" ]
-                        , a [ class "External__item", href "#" ] [ i [ class "External__icon icon-magnifying-glass" ] [], text "Google" ]
+                        [ a
+                            [ class "External__item"
+                            , target "_blank"
+                            , href <| "https://fr.wikipedia.org/wiki/" ++ artistName
+                            ]
+                            [ i [ class "External__icon icon-wikipedia" ] [], text "Wikipedia" ]
+                        , a
+                            [ class "External__item"
+                            , target "_blank"
+                            , href <| "https://www.sputnikmusic.com/search_results.php?genreid=0&search_in=Bands&search_text=" ++ artistName ++ "&amp;x=0&amp;y=0"
+                            ]
+                            [ i [ class "External__icon icon-sputnik" ] [], text "Sputnik" ]
+                        , a
+                            [ class "External__item"
+                            , target "_blank"
+                            , href <| "https://www.discogs.com/fr/search/?q=" ++ artistName ++ "&amp;strict=true"
+                            ]
+                            [ i [ class "External__icon icon-discogs" ] [], text "Discogs" ]
+                        , a
+                            [ class "External__item"
+                            , target "_blank"
+                            , href <| "https://www.google.com/search?q=" ++ artistName
+                            ]
+                            [ i [ class "External__icon icon-magnifying-glass" ] [], text "Google" ]
                         ]
                     , div [ class "Artist__top" ]
                         [ topTrackViews model.tracks
@@ -206,37 +227,14 @@ view ({ artist, followed } as model) =
             , div [ class "Artist__videos HelperScrollArea" ]
                 [ div [ class "Video HelperScrollArea__target" ]
                     [ h2 [ class "Heading second" ] [ text "Last videos" ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
+
+                    -- , div [ class "Video__item" ]
+                    --     [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
+                    --     , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
+                    --     , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
+                    --     ]
                     ]
                 ]
             ]
       ]
     )
-
-
-
--- <iframe class="PageArtistVideo__video" allowfullscreen="" frameborder="0" width="250" height="140" src="https://www.youtube.com/embed/MreXYqelGPM"></iframe>
