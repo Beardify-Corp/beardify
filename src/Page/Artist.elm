@@ -9,9 +9,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
-import Request.Album
 import Request.Api as Api
 import Request.Artist
+import Request.Player
 import Route
 import Task
 
@@ -30,7 +30,7 @@ type Msg
     | Follow String
     | UnFollow String
     | ResultFollow (Result Http.Error ())
-    | PlayAlbum String
+    | Play String
     | Played (Result ( Session, Http.Error ) ())
 
 
@@ -97,8 +97,8 @@ update session msg model =
                 Err _ ->
                     ( model, session, Cmd.none )
 
-        PlayAlbum albumUri ->
-            ( model, session, Task.attempt Played (Request.Album.play session albumUri) )
+        Play uri ->
+            ( model, session, Task.attempt Played (Request.Player.playThis session uri) )
 
         Played (Ok _) ->
             ( model, session, Cmd.none )
@@ -124,7 +124,7 @@ relatedArtistsView artists =
         |> List.take 4
 
 
-topTrackViews : List Track -> List (Html msg)
+topTrackViews : List Track -> List (Html Msg)
 topTrackViews tracks =
     let
         trackView track =
@@ -153,7 +153,7 @@ albumsListView albums listName =
             div [ class "Album" ]
                 [ div [ class "Album__link" ]
                     [ a [ href "#" ] [ img [ class "Album__cover", src cover.url ] [] ]
-                    , button [ onClick <| PlayAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
+                    , button [ onClick <| Play album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
                     , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
                     ]
                 , div [ class "Album__name" ] [ text album.name ]
