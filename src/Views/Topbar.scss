@@ -1,8 +1,9 @@
 @use "../Color";
+@use "sass:color";
 
 .Topbar {
   align-items: center;
-  background-color: darken(Color.$background, 2);
+  background-color: color.scale(Color.$background, $lightness: -20%);
   border-bottom: 1px solid Color.$border;
   display: grid;
   gap: 40px;

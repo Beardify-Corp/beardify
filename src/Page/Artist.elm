@@ -9,8 +9,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
+import Request.Album
 import Request.Api as Api
-import Request.Artist as Request
+import Request.Artist
 import Route
 import Task
 
@@ -29,6 +30,8 @@ type Msg
     | Follow String
     | UnFollow String
     | ResultFollow (Result Http.Error ())
+    | PlayAlbum String
+    | Played (Result ( Session, Http.Error ) ())
 
 
 init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -41,11 +44,11 @@ init id session =
       }
     , session
     , Task.map5 (Model << Just)
-        (Request.get session id)
-        (Request.getAlbums session id)
-        (Request.getTopTrack session id)
-        (Request.getRelatedArtists session id)
-        (Request.getFollowedArtist session id)
+        (Request.Artist.get session id)
+        (Request.Artist.getAlbums session id)
+        (Request.Artist.getTopTrack session id)
+        (Request.Artist.getRelatedArtists session id)
+        (Request.Artist.getFollowedArtist session id)
         |> Task.attempt Fetched
     )
 
@@ -66,11 +69,11 @@ followCmd session method id =
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
-        Follow id ->
-            ( model, session, followCmd session "PUT" id )
+        Follow artistId ->
+            ( model, session, followCmd session "PUT" artistId )
 
-        UnFollow id ->
-            ( model, session, followCmd session "DELETE" id )
+        UnFollow artistId ->
+            ( model, session, followCmd session "DELETE" artistId )
 
         Fetched (Ok newModel) ->
             ( newModel, session, Cmd.none )
@@ -93,6 +96,15 @@ update session msg model =
 
                 Err _ ->
                     ( model, session, Cmd.none )
+
+        PlayAlbum albumUri ->
+            ( model, session, Task.attempt Played (Request.Album.play session albumUri) )
+
+        Played (Ok _) ->
+            ( model, session, Cmd.none )
+
+        Played (Err ( newSession, _ )) ->
+            ( model, newSession, Cmd.none )
 
 
 relatedArtistsView : List Artist -> List (Html msg)
@@ -130,7 +142,7 @@ topTrackViews tracks =
         |> List.take 5
 
 
-albumsListView : List AlbumSimplified -> String -> Html msg
+albumsListView : List AlbumSimplified -> String -> Html Msg
 albumsListView albums listName =
     let
         viewAlbum album =
@@ -139,9 +151,9 @@ albumsListView albums listName =
                     Image.filterByWidth 600 album.images
             in
             div [ class "Album" ]
-                [ a [ class "Album__link", href "#" ]
-                    [ img [ class "Album__cover", src cover.url ] []
-                    , button [ class "Album__play" ] [ i [ class "icon-play" ] [] ]
+                [ div [ class "Album__link" ]
+                    [ a [ href "#" ] [ img [ class "Album__cover", src cover.url ] [] ]
+                    , button [ onClick <| PlayAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
                     , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
                     ]
                 , div [ class "Album__name" ] [ text album.name ]
