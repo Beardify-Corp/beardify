@@ -28,7 +28,7 @@ type Msg
     = Fetched (Result ( Session, Http.Error ) Model)
     | Follow String
     | UnFollow String
-    | Uploaded (Result Http.Error ())
+    | ResultFollow (Result Http.Error ())
 
 
 init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -50,27 +50,14 @@ init id session =
     )
 
 
-putFollowArtist : Session -> String -> Cmd Msg
-putFollowArtist session id =
+followCmd : Session -> String -> String -> Cmd Msg
+followCmd session method id =
     Http.request
-        { method = "PUT"
+        { method = method
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "me/following?type=artist&ids=" ++ id
         , body = Http.emptyBody
-        , expect = Http.expectWhatever Uploaded
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
-
-deleteFollowArtist : Session -> String -> Cmd Msg
-deleteFollowArtist session id =
-    Http.request
-        { method = "DELETE"
-        , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "me/following?type=artist&ids=" ++ id
-        , body = Http.emptyBody
-        , expect = Http.expectWhatever Uploaded
+        , expect = Http.expectWhatever ResultFollow
         , timeout = Nothing
         , tracker = Nothing
         }
@@ -80,10 +67,10 @@ update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
         Follow id ->
-            ( { model | followed = [ True ] }, session, Cmd.batch [ putFollowArtist session id ] )
+            ( model, session, followCmd session "PUT" id )
 
         UnFollow id ->
-            ( { model | followed = [ False ] }, session, Cmd.batch [ deleteFollowArtist session id ] )
+            ( model, session, followCmd session "DELETE" id )
 
         Fetched (Ok newModel) ->
             ( newModel, session, Cmd.none )
@@ -91,8 +78,21 @@ update session msg model =
         Fetched (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
-        Uploaded _ ->
-            ( model, session, Cmd.none )
+        ResultFollow result ->
+            let
+                revertedFollowedStatus =
+                    if model.followed == [ True ] then
+                        [ False ]
+
+                    else
+                        [ True ]
+            in
+            case result of
+                Ok _ ->
+                    ( { model | followed = revertedFollowedStatus }, session, Cmd.none )
+
+                Err _ ->
+                    ( model, session, Cmd.none )
 
 
 relatedArtistsView : List Artist -> List (Html msg)
