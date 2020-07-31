@@ -1,10 +1,9 @@
 module Request.Artist exposing
     ( get
     , getAlbums
+    , getFollowedArtist
     , getRelatedArtists
     , getTopTrack
-    , getFollowedArtist
-    -- , putFollowArtist
     )
 
 import Data.Album as Album exposing (AlbumSimplified)
@@ -91,4 +90,3 @@ getFollowedArtist session id =
         , timeout = Nothing
         }
         |> Api.mapError session
-

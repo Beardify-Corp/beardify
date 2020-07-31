@@ -4,8 +4,8 @@ module Data.Artist exposing
     , Id
     , decode
     , decodeSimplified
-    , isFollowing
     , idToString
+    , isFollowing
     , parseId
     )
 
@@ -27,6 +27,7 @@ type alias ArtistSimplified =
     { id : Id
     , name : String
     }
+
 
 type alias IsFollowing =
     List Bool
@@ -62,12 +63,11 @@ idToString : Id -> String
 idToString (Id id) =
     id
 
+
 isFollowing : Decoder IsFollowing
 isFollowing =
     Decode.list Decode.bool
 
--- Decode.map IsFollowing
---     (Decode.array [] Decode.bool)
 
 parseId : Parser (Id -> a) a
 parseId =
