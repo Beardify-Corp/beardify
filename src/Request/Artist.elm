@@ -1,7 +1,7 @@
 module Request.Artist exposing
     ( get
-    , getAlbums
     , getFollowedArtist
+    , getItems
     , getRelatedArtists
     , getTopTrack
     )
@@ -48,8 +48,8 @@ getTopTrack session id =
         |> Api.mapError session
 
 
-getAlbums : Session -> Artist.Id -> Task ( Session, Http.Error ) (List AlbumSimplified)
-getAlbums session id =
+getItems : String -> Session -> Artist.Id -> Task ( Session, Http.Error ) (List AlbumSimplified)
+getItems group session id =
     let
         country =
             Maybe.map (.country >> User.countryToString) session.user
@@ -58,7 +58,7 @@ getAlbums session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/albums" ++ "?country=" ++ country
+        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/albums" ++ "?country=" ++ country ++ "&limit=50&include_groups=" ++ group
         , body = Http.emptyBody
         , resolver = Decode.at [ "items" ] (Decode.list Album.decodeSimplified) |> Api.jsonResolver
         , timeout = Nothing

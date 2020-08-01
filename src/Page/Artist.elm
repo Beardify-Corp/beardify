@@ -17,11 +17,13 @@ import Request.Artist
 import Request.Player
 import Route
 import Task
+import Task.Extra as TE
 
 
 type alias Model =
     { artist : Maybe Artist
     , albums : List AlbumSimplified
+    , singles : List AlbumSimplified
     , tracks : List Track
     , relatedArtists : List Artist
     , followed : List Bool
@@ -42,14 +44,16 @@ init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { artist = Nothing
       , albums = []
+      , singles = []
       , tracks = []
       , relatedArtists = []
       , followed = []
       }
     , session
-    , Task.map5 (Model << Just)
+    , TE.map6 (Model << Just)
         (Request.Artist.get session id)
-        (Request.Artist.getAlbums session id)
+        (Request.Artist.getItems "album" session id)
+        (Request.Artist.getItems "single" session id)
         (Request.Artist.getTopTrack session id)
         (Request.Artist.getRelatedArtists session id)
         (Request.Artist.getFollowedArtist session id)
@@ -254,8 +258,9 @@ view context ({ artist, followed } as model) =
                             |> div [ class "ArtistSimilar" ]
                         ]
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
-                    , albumsListView context (List.filter (\a -> a.type_ == Album.Compilation) model.albums) "EPs"
-                    , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.albums) "Singles"
+
+                    -- , albumsListView context (List.filter (\a -> a.type_ == Album.Compilation) model.albums) "EPs"
+                    , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"
                     ]
                 ]
             , div [ class "Artist__videos HelperScrollArea" ]
