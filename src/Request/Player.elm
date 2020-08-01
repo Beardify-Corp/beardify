@@ -4,6 +4,7 @@ module Request.Player exposing
     , pause
     , play
     , playThis
+    , playTracks
     , prev
     , seek
     )
@@ -78,6 +79,24 @@ playThis session uri =
             Http.jsonBody
                 (Encode.object
                     [ ( "context_uri", Encode.string uri )
+                    ]
+                )
+        , resolver = Api.valueResolver ()
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+playTracks : Session -> List String -> Task ( Session, Http.Error ) ()
+playTracks session uris =
+    Http.task
+        { method = "PUT"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "me/player/play"
+        , body =
+            Http.jsonBody
+                (Encode.object
+                    [ ( "uris", Encode.list Encode.string uris )
                     ]
                 )
         , resolver = Api.valueResolver ()

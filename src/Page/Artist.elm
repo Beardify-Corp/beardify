@@ -8,7 +8,9 @@ import Data.Track as Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Extra as HE
 import Http
+import List.Extra as LE
 import Request.Api as Api
 import Request.Artist
 import Request.Player
@@ -30,7 +32,8 @@ type Msg
     | Follow String
     | UnFollow String
     | ResultFollow (Result Http.Error ())
-    | Play String
+    | PlayAlbum String
+    | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
 
 
@@ -97,8 +100,11 @@ update session msg model =
                 Err _ ->
                     ( model, session, Cmd.none )
 
-        Play uri ->
+        PlayAlbum uri ->
             ( model, session, Task.attempt Played (Request.Player.playThis session uri) )
+
+        PlayTracks uris ->
+            ( model, session, Task.attempt Played (Request.Player.playTracks session uris) )
 
         Played (Ok _) ->
             ( model, session, Cmd.none )
@@ -127,12 +133,17 @@ relatedArtistsView artists =
 topTrackViews : List Track -> List (Html Msg)
 topTrackViews tracks =
     let
+        listTracksUri trackUri =
+            tracks
+                |> LE.dropWhile (\track -> track.uri /= trackUri)
+                |> List.map .uri
+
         trackView track =
             let
                 cover =
                     Image.filterByWidth 64 track.album.images
             in
-            div [ class "Track Flex centeredVertical" ]
+            div [ class "Track Flex centeredVertical", onClick <| PlayTracks (listTracksUri track.uri) ]
                 [ img [ class "Track__cover", src cover.url ] []
                 , div [ class "Track__name Flex__full" ] [ text track.name ]
                 , div [ class "Track__duration" ] [ text <| Track.durationFormat track.duration ]
@@ -152,23 +163,21 @@ albumsListView albums listName =
             in
             div [ class "Album" ]
                 [ div [ class "Album__link" ]
-                    [ a [ href "#" ] [ img [ class "Album__cover", src cover.url ] [] ]
-                    , button [ onClick <| Play album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
+                    [ a [ href "#" ] [ img [ attribute "loading" "lazy", class "Album__cover", src cover.url ] [] ]
+                    , button [ onClick <| PlayAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
                     , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
                     ]
                 , div [ class "Album__name" ] [ text album.name ]
                 , div [ class "Album__release" ] [ text album.releaseDate ]
                 ]
     in
-    if List.length albums > 0 then
-        div []
+    HE.viewIf (List.length albums > 0)
+        (div []
             [ h2 [ class "Heading second" ] [ text listName ]
             , List.map viewAlbum albums
                 |> div [ class "Artist__releaseList AlbumList" ]
             ]
-
-    else
-        text ""
+        )
 
 
 view : Model -> ( String, List (Html Msg) )
