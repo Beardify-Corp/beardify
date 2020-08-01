@@ -19,7 +19,7 @@ parser =
     oneOf
         [ Parser.map Home top
         , Parser.map Login (s "login")
-        , Parser.map Artist (s "artists" </> Artist.parseId)
+        , Parser.map Artist (s "artist" </> Artist.parseId)
         ]
 
 
@@ -45,7 +45,7 @@ toString route =
         pieces =
             case route of
                 Artist id ->
-                    [ "artists", Artist.idToString id ]
+                    [ "artist", Artist.idToString id ]
 
                 Home ->
                     []

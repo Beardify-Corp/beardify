@@ -2,7 +2,7 @@
 @use "sass:color";
 
 .Sidebar {
-  background-color: color.scale(Color.$background, $lightness: -10%);
+  background-color: Color.$backgroundDark;
   border-right: 1px solid Color.$border;
   display: flex;
   flex-basis: 280px;

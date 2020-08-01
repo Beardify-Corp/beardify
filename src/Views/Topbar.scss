@@ -3,7 +3,7 @@
 
 .Topbar {
   align-items: center;
-  background-color: color.scale(Color.$background, $lightness: -20%);
+  background-color: Color.$backgroundDarker;
   border-bottom: 1px solid Color.$border;
   display: grid;
   gap: 40px;
