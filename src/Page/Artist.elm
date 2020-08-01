@@ -3,6 +3,7 @@ module Page.Artist exposing (Model, Msg(..), init, update, view)
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (Artist)
 import Data.Image as Image
+import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
 import Html exposing (..)
@@ -101,9 +102,17 @@ update session msg model =
                     ( model, session, Cmd.none )
 
         PlayAlbum uri ->
+            let
+                _ =
+                    Debug.log "album.uri" uri
+            in
             ( model, session, Task.attempt Played (Request.Player.playThis session uri) )
 
         PlayTracks uris ->
+            let
+                _ =
+                    Debug.log "track.uri" uris
+            in
             ( model, session, Task.attempt Played (Request.Player.playTracks session uris) )
 
         Played (Ok _) ->
@@ -153,15 +162,19 @@ topTrackViews tracks =
         |> List.take 5
 
 
-albumsListView : List AlbumSimplified -> String -> Html Msg
-albumsListView albums listName =
+albumsListView : PlayerContext -> List AlbumSimplified -> String -> Html Msg
+albumsListView context albums listName =
     let
         viewAlbum album =
             let
                 cover =
                     Image.filterByWidth 600 album.images
+
+                isCurrentlyPlaying =
+                    album.uri == Player.getCurrentUri context
             in
-            div [ class "Album" ]
+            div
+                [ class "Album" ]
                 [ div [ class "Album__link" ]
                     [ a [ href "#" ] [ img [ attribute "loading" "lazy", class "Album__cover", src cover.url ] [] ]
                     , button [ onClick <| PlayAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
@@ -169,6 +182,7 @@ albumsListView albums listName =
                     ]
                 , div [ class "Album__name" ] [ text album.name ]
                 , div [ class "Album__release" ] [ text album.releaseDate ]
+                , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
                 ]
     in
     HE.viewIf (List.length albums > 0)
@@ -180,8 +194,8 @@ albumsListView albums listName =
         )
 
 
-view : Model -> ( String, List (Html Msg) )
-view ({ artist, followed } as model) =
+view : PlayerContext -> Model -> ( String, List (Html Msg) )
+view context ({ artist, followed } as model) =
     let
         artistId =
             case Maybe.map .id artist of
@@ -240,9 +254,9 @@ view ({ artist, followed } as model) =
                             |> (::) (h2 [ class "Heading second" ] [ text "Similar artists" ])
                             |> div [ class "ArtistSimilar" ]
                         ]
-                    , albumsListView (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
-                    , albumsListView (List.filter (\a -> a.type_ == Album.Compilation) model.albums) "EPs"
-                    , albumsListView (List.filter (\a -> a.type_ == Album.Single) model.albums) "Singles"
+                    , albumsListView context (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
+                    , albumsListView context (List.filter (\a -> a.type_ == Album.Compilation) model.albums) "EPs"
+                    , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.albums) "Singles"
                     ]
                 ]
             , div [ class "Artist__videos HelperScrollArea" ]

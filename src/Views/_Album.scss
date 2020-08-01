@@ -1,7 +1,29 @@
 @use "../Color";
 @use "sass:color";
 
+@keyframes bounce {
+  0% {
+    transform: scale(.8);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
 .Album {
+  position: relative;
+
+  &__playing {
+    animation: bounce .5s cubic-bezier(1, 0, 1, 0) 0s infinite alternate;
+    color: white;
+    font-size: 2.2rem;
+    left: 15px;
+    position: absolute;
+    text-shadow: 0 0 20px black;
+    top: 10px;
+    z-index: 9;
+  }
+
   &List {
     display: grid;
     gap: 30px;

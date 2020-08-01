@@ -413,7 +413,7 @@ view { page, session, player, devices } =
     in
     case page of
         ArtistPage artistModel ->
-            Artist.view artistModel
+            Artist.view player artistModel
                 |> mapMsg ArtistMsg
                 |> frame
 
