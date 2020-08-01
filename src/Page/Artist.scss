@@ -6,8 +6,37 @@
     padding: 20px 30px;
   }
 
+  &Cover {
+    height: 400px;
+    left: 0;
+    mix-blend-mode: luminosity;
+    opacity: .2;
+    overflow: hidden;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    &__img {
+      top: 50%;
+      transform: translateY(-15%);
+      width: 100%;
+    }
+
+    &::after {
+      background-image: linear-gradient(to top, Color.$background, transparent);
+      bottom: 0;
+      content: "";
+      left: 0;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
+
   &__links {
     margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
   }
 
   &__top {
@@ -15,6 +44,8 @@
     gap: 30px;
     grid-template-columns: 2fr 1fr;
     margin-bottom: 30px;
+    position: relative;
+    z-index: 1;
   }
 
   &__releaseList {
@@ -23,6 +54,8 @@
 
   &__name {
     margin: 0;
+    position: relative;
+    z-index: 1;
   }
 
   &__videos {

@@ -208,6 +208,12 @@ view context ({ artist, followed } as model) =
                 Nothing ->
                     ""
 
+        artistCover =
+            Maybe.withDefault [] (Maybe.map .images artist)
+                |> List.take 1
+                |> List.map (\e -> e.url)
+                |> String.concat
+
         artistName =
             Maybe.withDefault "Artists" (Maybe.map .name artist)
     in
@@ -217,6 +223,7 @@ view context ({ artist, followed } as model) =
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
+                        , div [ class "ArtistCover" ] [ img [ class "ArtistCover__img", src artistCover ] [] ]
                         , if followed /= [ True ] then
                             button [ onClick <| Follow artistId, class "Button big" ] [ text "Follow" ]
 
@@ -258,8 +265,6 @@ view context ({ artist, followed } as model) =
                             |> div [ class "ArtistSimilar" ]
                         ]
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
-
-                    -- , albumsListView context (List.filter (\a -> a.type_ == Album.Compilation) model.albums) "EPs"
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"
                     ]
                 ]
