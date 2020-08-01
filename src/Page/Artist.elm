@@ -102,17 +102,9 @@ update session msg model =
                     ( model, session, Cmd.none )
 
         PlayAlbum uri ->
-            let
-                _ =
-                    Debug.log "album.uri" uri
-            in
             ( model, session, Task.attempt Played (Request.Player.playThis session uri) )
 
         PlayTracks uris ->
-            let
-                _ =
-                    Debug.log "track.uri" uris
-            in
             ( model, session, Task.attempt Played (Request.Player.playTracks session uris) )
 
         Played (Ok _) ->
@@ -139,20 +131,27 @@ relatedArtistsView artists =
         |> List.take 4
 
 
-topTrackViews : List Track -> List (Html Msg)
-topTrackViews tracks =
+topTrackViews : PlayerContext -> List Track -> List (Html Msg)
+topTrackViews context tracks =
     let
         listTracksUri trackUri =
             tracks
                 |> LE.dropWhile (\track -> track.uri /= trackUri)
                 |> List.map .uri
 
+        isTrackPlaying =
+            Player.getCurrentTrackUri context
+
         trackView track =
             let
                 cover =
                     Image.filterByWidth 64 track.album.images
             in
-            div [ class "Track Flex centeredVertical", onClick <| PlayTracks (listTracksUri track.uri) ]
+            div
+                [ class "Track Flex centeredVertical"
+                , classList [ ( "active", isTrackPlaying == track.uri ) ]
+                , onClick <| PlayTracks (listTracksUri track.uri)
+                ]
                 [ img [ class "Track__cover", src cover.url ] []
                 , div [ class "Track__name Flex__full" ] [ text track.name ]
                 , div [ class "Track__duration" ] [ text <| Track.durationFormat track.duration ]
@@ -171,7 +170,7 @@ albumsListView context albums listName =
                     Image.filterByWidth 600 album.images
 
                 isCurrentlyPlaying =
-                    album.uri == Player.getCurrentUri context
+                    album.uri == Player.getCurrentAlbumUri context
             in
             div
                 [ class "Album" ]
@@ -247,7 +246,7 @@ view context ({ artist, followed } as model) =
                             [ i [ class "External__icon icon-magnifying-glass" ] [], text "Google" ]
                         ]
                     , div [ class "Artist__top" ]
-                        [ topTrackViews model.tracks
+                        [ topTrackViews context model.tracks
                             |> (::) (h2 [ class "Heading second" ] [ text "Top tracks" ])
                             |> div []
                         , relatedArtistsView model.relatedArtists

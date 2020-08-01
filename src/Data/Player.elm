@@ -5,7 +5,8 @@ module Data.Player exposing
     , decode
     , defaultPlayerContext
     , defaultTick
-    , getCurrentUri
+    , getCurrentAlbumUri
+    , getCurrentTrackUri
     )
 
 import Data.Device as Device exposing (Device)
@@ -84,16 +85,35 @@ decodeContext =
         (Decode.field "type" Decode.string)
 
 
-getCurrentUri : PlayerContext -> String
-getCurrentUri context =
-    case Maybe.map .context context.player of
-        Just id ->
-            case id of
-                Just a ->
-                    a.uri
 
-                Nothing ->
-                    ""
+-- getCurrentUri : PlayerContext -> String
+-- getCurrentUri context =
+--     case Maybe.map .context context.player of
+--         Just id ->
+--             case id of
+--                 Just a ->
+--                     a.uri
+--                 Nothing ->
+--                     ""
+--         Nothing ->
+--             ""
+
+
+getCurrentAlbumUri : PlayerContext -> String
+getCurrentAlbumUri context =
+    case Maybe.map .track context.player of
+        Just track ->
+            track.album.uri
+
+        Nothing ->
+            ""
+
+
+getCurrentTrackUri : PlayerContext -> String
+getCurrentTrackUri context =
+    case Maybe.map .track context.player of
+        Just track ->
+            track.uri
 
         Nothing ->
             ""
