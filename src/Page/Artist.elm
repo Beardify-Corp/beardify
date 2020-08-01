@@ -223,7 +223,7 @@ view context ({ artist, followed } as model) =
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
-                        , div [ class "ArtistCover" ] [ img [ class "ArtistCover__img", src artistCover ] [] ]
+                        , HE.viewIf (artistCover /= "") (div [ class "ArtistCover" ] [ img [ class "ArtistCover__img", src artistCover ] [] ])
                         , if followed /= [ True ] then
                             button [ onClick <| Follow artistId, class "Button big" ] [ text "Follow" ]
 

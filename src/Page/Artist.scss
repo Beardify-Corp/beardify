@@ -1,35 +1,40 @@
 @use "../Color";
 @use "sass:color";
 
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: .2;
+  }
+}
+
 .Artist {
   &__body {
     padding: 20px 30px;
   }
 
   &Cover {
-    height: 400px;
+    animation: fadeIn 1s ease 0s forwards;
+    background-image: linear-gradient(to top, transparent, color.adjust(Color.$primary, $hue: 7));
     left: 0;
-    mix-blend-mode: luminosity;
-    opacity: .2;
     overflow: hidden;
     position: absolute;
     right: 0;
     top: 0;
 
     &__img {
+      // animation: fadeIn 2s ease 0s 1 forward both;
+      filter: blur(10px);
+      height: 100%;
+      -webkit-mask-image: linear-gradient(to top, transparent 0%, black 100%);
+      mask-image: linear-gradient(to top, transparent 0%, black 100%);
+      mix-blend-mode: color-burn;
+      mix-blend-mode: hard-light;
       top: 50%;
       transform: translateY(-15%);
       width: 100%;
-    }
-
-    &::after {
-      background-image: linear-gradient(to top, Color.$background, transparent);
-      bottom: 0;
-      content: "";
-      left: 0;
-      position: absolute;
-      right: 0;
-      top: 0;
     }
   }
 
