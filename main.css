@@ -493,6 +493,36 @@ template {
   color: #1ed760;
 }
 
+@keyframes fadeIn {
+  0% {
+    filter: blur(15px);
+    opacity: 0;
+  }
+  100% {
+    filter: blur(0px);
+    opacity: 0.2;
+  }
+}
+.Cover {
+  animation: fadeIn 1s ease 0s forwards;
+  background-image: linear-gradient(to top, transparent, #1a8bb2);
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.Cover__img {
+  height: 100%;
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, black 100%);
+  mask-image: linear-gradient(to top, transparent 0%, black 100%);
+  mix-blend-mode: color-burn;
+  mix-blend-mode: hard-light;
+  top: 50%;
+  transform: translateY(-15%);
+  width: 100%;
+}
+
 .Device {
   align-items: center;
   display: grid;
@@ -628,7 +658,7 @@ template {
 }
 .Heading.second {
   color: #1a9db2;
-  font-size: 1rem;
+  font-size: 1.2rem;
   margin-bottom: 15px;
 }
 
@@ -1141,30 +1171,6 @@ template {
 .Artist__body {
   padding: 20px 30px;
 }
-.ArtistCover {
-  height: 400px;
-  left: 0;
-  mix-blend-mode: luminosity;
-  opacity: 0.2;
-  overflow: hidden;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
-.ArtistCover__img {
-  top: 50%;
-  transform: translateY(-15%);
-  width: 100%;
-}
-.ArtistCover::after {
-  background-image: linear-gradient(to top, #152229, transparent);
-  bottom: 0;
-  content: "";
-  left: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
-}
 .Artist__links {
   margin-bottom: 30px;
   position: relative;
@@ -1173,7 +1179,7 @@ template {
 .Artist__top {
   display: grid;
   gap: 30px;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 1fr 1fr;
   margin-bottom: 30px;
   position: relative;
   z-index: 1;
@@ -1190,6 +1196,10 @@ template {
   border-left: 1px solid #0c1418;
   width: 300px;
 }
+.ArtistSimilar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
 .ArtistSimilar__avatar {
   border-radius: 30px;
   height: 30px;
@@ -1200,7 +1210,7 @@ template {
   align-items: center;
   color: rgba(255, 255, 255, 0.8);
   display: flex;
-  margin-bottom: 13px;
+  margin-bottom: 10px;
   text-decoration: none;
 }
 .ArtistSimilar__item:hover {
