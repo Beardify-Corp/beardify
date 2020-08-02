@@ -6,6 +6,7 @@ import Data.Image as Image
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
+import Data.Youtube as Youtube
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -27,6 +28,8 @@ type alias Model =
     , tracks : List Track
     , relatedArtists : List Artist
     , followed : List Bool
+
+    -- , videos : List Youtube.Video
     }
 
 
@@ -48,6 +51,8 @@ init id session =
       , tracks = []
       , relatedArtists = []
       , followed = []
+
+      --   , videos = []
       }
     , session
     , TE.map6 (Model << Just)
@@ -57,6 +62,7 @@ init id session =
         (Request.Artist.getTopTrack session id)
         (Request.Artist.getRelatedArtists session id)
         (Request.Artist.getFollowedArtist session id)
+        -- (Request.Artist.getVideos session "id")
         |> Task.attempt Fetched
     )
 

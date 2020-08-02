@@ -5,6 +5,7 @@ module Request.Artist exposing
     , getItems
     , getRelatedArtists
     , getTopTrack
+    , getVideos
     )
 
 import Data.Album as Album exposing (AlbumSimplified)
@@ -12,6 +13,7 @@ import Data.Artist as Artist exposing (Artist)
 import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
 import Data.User as User
+import Data.Youtube as Youtube
 import Http
 import Json.Decode as Decode
 import Request.Api as Api
@@ -104,3 +106,23 @@ follow session method id msg =
         , timeout = Nothing
         , tracker = Nothing
         }
+
+
+getVideos : Session -> String -> Task ( Session, Http.Error ) (List Youtube.Video)
+getVideos session query =
+    Http.task
+        { method = "GET"
+        , headers = [ Api.authHeader session ]
+        , url = "https://www.googleapis.com/youtube/v3/search?part=snippet&eventType=completed&q=azdazd&key=AIzaSyCaIDkQCdyo9oF9dZqC0vci30rlzdVInFs"
+        , body = Http.emptyBody
+        , resolver = Youtube.decodeYoutube |> Api.jsonResolver
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+
+-- q=AJIMAL&type=video&maxResults=4&part=snippet&key=AIzaSyDjlO4Gb0jCsxrot8KcNslXNSN_cIN5yqs
+--   'https://www.googleapis.com/youtube/v3/search?part=snippet&eventType=completed&q=azdazd&key=AIzaSyBupy7Lc86eLHpnYun6uoEDW_73mI6bG34' \
+-- AIzaSyBupy7Lc86eLHpnYun6uoEDW_73mI6bG34
+-- Http.get ("https://www.googleapis.com/youtube/v3/search?q=" ++ query ++ "&type=video&maxResults=4&part=snippet&key=AIzaSyDjlO4Gb0jCsxrot8KcNslXNSN_cIN5yqs") decodeYoutube
