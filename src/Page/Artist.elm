@@ -28,8 +28,6 @@ type alias Model =
     , tracks : List Track
     , relatedArtists : List Artist
     , followed : List Bool
-
-    -- , videos : List Youtube.Video
     }
 
 
@@ -51,8 +49,6 @@ init id session =
       , tracks = []
       , relatedArtists = []
       , followed = []
-
-      --   , videos = []
       }
     , session
     , TE.map6 (Model << Just)
@@ -62,7 +58,6 @@ init id session =
         (Request.Artist.getTopTrack session id)
         (Request.Artist.getRelatedArtists session id)
         (Request.Artist.getFollowedArtist session id)
-        -- (Request.Artist.getVideos session "id")
         |> Task.attempt Fetched
     )
 
