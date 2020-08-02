@@ -115,8 +115,8 @@ follow session method id msg =
 -- getVideos session query =
 --     Http.task
 --         { method = "GET"
---         , headers = [ Http.header "Authorization" "Bearer 7Rw_tQQhald0C9D9ezseMni8" ]
---         , url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=surfing&key=AIzaSyCaIDkQCdyo9oF9dZqC0vci30rlzdVInFs"
+--         , headers = [ Http.header "Authorization" "Bearer " ]
+--         , url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=surfing&key="
 --         , body = Http.emptyBody
 --         , resolver = Youtube.decodeYoutube |> Api.jsonResolver
 --         , timeout = Nothing
