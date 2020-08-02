@@ -12,7 +12,6 @@ import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
 import List.Extra as LE
-import Request.Api as Api
 import Request.Artist
 import Request.Player
 import Route
@@ -62,27 +61,14 @@ init id session =
     )
 
 
-followCmd : Session -> String -> String -> Cmd Msg
-followCmd session method id =
-    Http.request
-        { method = method
-        , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "me/following?type=artist&ids=" ++ id
-        , body = Http.emptyBody
-        , expect = Http.expectWhatever ResultFollow
-        , timeout = Nothing
-        , tracker = Nothing
-        }
-
-
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
         Follow artistId ->
-            ( model, session, followCmd session "PUT" artistId )
+            ( model, session, Request.Artist.follow session "PUT" artistId ResultFollow )
 
         UnFollow artistId ->
-            ( model, session, followCmd session "DELETE" artistId )
+            ( model, session, Request.Artist.follow session "DELETE" artistId ResultFollow )
 
         Fetched (Ok newModel) ->
             ( newModel, session, Cmd.none )
@@ -92,6 +78,7 @@ update session msg model =
 
         ResultFollow result ->
             let
+                revertedFollowedStatus : List Bool
                 revertedFollowedStatus =
                     if model.followed == [ True ] then
                         [ False ]

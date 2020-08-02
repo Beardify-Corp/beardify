@@ -1,5 +1,6 @@
 module Request.Artist exposing
-    ( get
+    ( follow
+    , get
     , getFollowedArtist
     , getItems
     , getRelatedArtists
@@ -90,3 +91,16 @@ getFollowedArtist session id =
         , timeout = Nothing
         }
         |> Api.mapError session
+
+
+follow : Session -> String -> String -> (Result Http.Error () -> msg) -> Cmd msg
+follow session method id msg =
+    Http.request
+        { method = method
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "me/following?type=artist&ids=" ++ id
+        , body = Http.emptyBody
+        , expect = Http.expectWhatever msg
+        , timeout = Nothing
+        , tracker = Nothing
+        }
