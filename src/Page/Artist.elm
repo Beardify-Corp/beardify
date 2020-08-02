@@ -175,6 +175,13 @@ albumsListView context albums listName =
                 isCurrentlyPlaying : Bool
                 isCurrentlyPlaying =
                     album.uri == Player.getCurrentAlbumUri context
+
+                releaseFormat : String -> String
+                releaseFormat date =
+                    date
+                        |> String.split "-"
+                        |> List.take 1
+                        |> String.concat
             in
             div
                 [ class "Album" ]
@@ -184,7 +191,7 @@ albumsListView context albums listName =
                     , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
                     ]
                 , div [ class "Album__name" ] [ text album.name ]
-                , div [ class "Album__release" ] [ text album.releaseDate ]
+                , div [ class "Album__release" ] [ text <| releaseFormat album.releaseDate ]
                 , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
                 ]
     in
