@@ -18,6 +18,7 @@ import Request.Player
 import Route
 import Task
 import Task.Extra as TE
+import Views.Cover as Cover
 
 
 type alias Model =
@@ -121,8 +122,10 @@ update session msg model =
 relatedArtistsView : List Artist -> List (Html msg)
 relatedArtistsView artists =
     let
+        relatedArtistView : Artist -> Html msg
         relatedArtistView artist =
             let
+                cover : Image.Image
                 cover =
                     Image.filterByWidth 160 artist.images
             in
@@ -138,16 +141,20 @@ relatedArtistsView artists =
 topTrackViews : PlayerContext -> List Track -> List (Html Msg)
 topTrackViews context tracks =
     let
+        listTracksUri : String -> List String
         listTracksUri trackUri =
             tracks
                 |> LE.dropWhile (\track -> track.uri /= trackUri)
                 |> List.map .uri
 
+        isTrackPlaying : String
         isTrackPlaying =
             Player.getCurrentTrackUri context
 
+        trackView : Track -> Html Msg
         trackView track =
             let
+                cover : Image.Image
                 cover =
                     Image.filterByWidth 64 track.album.images
             in
@@ -168,11 +175,14 @@ topTrackViews context tracks =
 albumsListView : PlayerContext -> List AlbumSimplified -> String -> Html Msg
 albumsListView context albums listName =
     let
+        viewAlbum : AlbumSimplified -> Html Msg
         viewAlbum album =
             let
+                cover : Image.Image
                 cover =
                     Image.filterByWidth 600 album.images
 
+                isCurrentlyPlaying : Bool
                 isCurrentlyPlaying =
                     album.uri == Player.getCurrentAlbumUri context
             in
@@ -200,6 +210,7 @@ albumsListView context albums listName =
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view context ({ artist, followed } as model) =
     let
+        artistId : String
         artistId =
             case Maybe.map .id artist of
                 Just id ->
@@ -208,14 +219,25 @@ view context ({ artist, followed } as model) =
                 Nothing ->
                     ""
 
+        artistCover : String
         artistCover =
             Maybe.withDefault [] (Maybe.map .images artist)
                 |> List.take 1
                 |> List.map (\e -> e.url)
                 |> String.concat
 
+        artistName : String
         artistName =
             Maybe.withDefault "Artists" (Maybe.map .name artist)
+
+        externalLink : String -> String -> String -> Html msg
+        externalLink url label iconLabel =
+            a
+                [ class "External__item"
+                , target "_blank"
+                , href <| url
+                ]
+                [ i [ classList [ ( "External__icon", True ), ( iconLabel, True ) ] ] [], text label ]
     in
     ( artistName
     , [ div [ class "Flex fullHeight" ]
@@ -223,7 +245,7 @@ view context ({ artist, followed } as model) =
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
-                        , HE.viewIf (artistCover /= "") (div [ class "ArtistCover" ] [ img [ class "ArtistCover__img", src artistCover ] [] ])
+                        , Cover.view artistCover
                         , if followed /= [ True ] then
                             button [ onClick <| Follow artistId, class "Button big" ] [ text "Follow" ]
 
@@ -231,30 +253,10 @@ view context ({ artist, followed } as model) =
                             button [ onClick <| UnFollow artistId, class "Button big primary" ] [ text "Followed" ]
                         ]
                     , div [ class "Artist__links External" ]
-                        [ a
-                            [ class "External__item"
-                            , target "_blank"
-                            , href <| "https://fr.wikipedia.org/wiki/" ++ artistName
-                            ]
-                            [ i [ class "External__icon icon-wikipedia" ] [], text "Wikipedia" ]
-                        , a
-                            [ class "External__item"
-                            , target "_blank"
-                            , href <| "https://www.sputnikmusic.com/search_results.php?genreid=0&search_in=Bands&search_text=" ++ artistName ++ "&amp;x=0&amp;y=0"
-                            ]
-                            [ i [ class "External__icon icon-sputnik" ] [], text "Sputnik" ]
-                        , a
-                            [ class "External__item"
-                            , target "_blank"
-                            , href <| "https://www.discogs.com/fr/search/?q=" ++ artistName ++ "&amp;strict=true"
-                            ]
-                            [ i [ class "External__icon icon-discogs" ] [], text "Discogs" ]
-                        , a
-                            [ class "External__item"
-                            , target "_blank"
-                            , href <| "https://www.google.com/search?q=" ++ artistName
-                            ]
-                            [ i [ class "External__icon icon-magnifying-glass" ] [], text "Google" ]
+                        [ externalLink ("https://fr.wikipedia.org/wiki/" ++ artistName) "Wikipedia" "icon-wikipedia"
+                        , externalLink ("https://www.sputnikmusic.com/search_results.php?genreid=0&search_in=Bands&search_text=" ++ artistName ++ "&amp;x=0&amp;y=0") "Sputnik" "icon-sputnik"
+                        , externalLink ("https://www.discogs.com/fr/search/?q=" ++ artistName ++ "&amp;strict=true") "Discogs" "icon-discogs"
+                        , externalLink ("https://www.google.com/search?q=" ++ artistName) "Google" "icon-magnifying-glass"
                         ]
                     , div [ class "Artist__top" ]
                         [ topTrackViews context model.tracks

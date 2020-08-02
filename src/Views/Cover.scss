@@ -1,0 +1,33 @@
+@use "../Color";
+@use "sass:color";
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: .2;
+  }
+}
+
+.Cover {
+  animation: fadeIn 1s ease 0s forwards;
+  background-image: linear-gradient(to top, transparent, color.adjust(Color.$primary, $hue: 7));
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+  top: 0;
+
+  &__img {
+    filter: blur(10px);
+    height: 100%;
+    -webkit-mask-image: linear-gradient(to top, transparent 0%, black 100%);
+    mask-image: linear-gradient(to top, transparent 0%, black 100%);
+    mix-blend-mode: color-burn;
+    mix-blend-mode: hard-light;
+    top: 50%;
+    transform: translateY(-15%);
+    width: 100%;
+  }
+}
