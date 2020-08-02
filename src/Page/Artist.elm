@@ -106,7 +106,7 @@ update session msg model =
             ( model, newSession, Cmd.none )
 
 
-relatedArtistsView : List Artist -> List (Html msg)
+relatedArtistsView : List Artist -> Html msg
 relatedArtistsView artists =
     let
         relatedArtistView : Artist -> Html msg
@@ -122,7 +122,8 @@ relatedArtistsView artists =
                 ]
     in
     List.map relatedArtistView artists
-        |> List.take 4
+        |> List.take 8
+        |> div [ class "ArtistSimilar" ]
 
 
 topTrackViews : PlayerContext -> List Track -> List (Html Msg)
@@ -249,9 +250,10 @@ view context ({ artist, followed } as model) =
                         [ topTrackViews context model.tracks
                             |> (::) (h2 [ class "Heading second" ] [ text "Top tracks" ])
                             |> div []
-                        , relatedArtistsView model.relatedArtists
-                            |> (::) (h2 [ class "Heading second" ] [ text "Similar artists" ])
-                            |> div [ class "ArtistSimilar" ]
+                        , div []
+                            [ h2 [ class "Heading second" ] [ text "Related artists" ]
+                            , relatedArtistsView model.relatedArtists
+                            ]
                         ]
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"

@@ -3,9 +3,11 @@
 
 @keyframes fadeIn {
   0% {
+    filter: blur(15px);
     opacity: 0;
   }
   100% {
+    filter: blur(0px);
     opacity: .2;
   }
 }
@@ -20,7 +22,6 @@
   top: 0;
 
   &__img {
-    filter: blur(10px);
     height: 100%;
     -webkit-mask-image: linear-gradient(to top, transparent 0%, black 100%);
     mask-image: linear-gradient(to top, transparent 0%, black 100%);

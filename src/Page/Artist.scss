@@ -15,7 +15,7 @@
   &__top {
     display: grid;
     gap: 30px;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 1fr;
     margin-bottom: 30px;
     position: relative;
     z-index: 1;
@@ -37,6 +37,9 @@
   }
 
   &Similar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
     &__avatar {
       $size: 30px;
       border-radius: $size;
@@ -49,7 +52,7 @@
       align-items: center;
       color: rgba(255, 255, 255, .8);
       display: flex;
-      margin-bottom: 13px;
+      margin-bottom: 10px;
       text-decoration: none;
 
       &:hover {
