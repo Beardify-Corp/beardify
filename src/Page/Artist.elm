@@ -1,12 +1,13 @@
 module Page.Artist exposing (Model, Msg(..), init, update, view)
 
+-- import Data.Youtube as Youtube
+
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (Artist)
 import Data.Image as Image
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
-import Data.Youtube as Youtube
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
