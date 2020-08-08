@@ -3,6 +3,8 @@ module Request.Player exposing
     , next
     , pause
     , play
+    , playThis
+    , playTracks
     , prev
     , seek
     )
@@ -10,6 +12,7 @@ module Request.Player exposing
 import Data.Player as Player exposing (Player)
 import Data.Session exposing (Session)
 import Http
+import Json.Encode as Encode
 import Request.Api as Api
 import Task exposing (Task)
 
@@ -60,6 +63,42 @@ play session =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "me/player/play"
         , body = Http.emptyBody
+        , resolver = Api.valueResolver ()
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+playThis : Session -> String -> Task ( Session, Http.Error ) ()
+playThis session uri =
+    Http.task
+        { method = "PUT"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "me/player/play"
+        , body =
+            Http.jsonBody
+                (Encode.object
+                    [ ( "context_uri", Encode.string uri )
+                    ]
+                )
+        , resolver = Api.valueResolver ()
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+playTracks : Session -> List String -> Task ( Session, Http.Error ) ()
+playTracks session uris =
+    Http.task
+        { method = "PUT"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "me/player/play"
+        , body =
+            Http.jsonBody
+                (Encode.object
+                    [ ( "uris", Encode.list Encode.string uris )
+                    ]
+                )
         , resolver = Api.valueResolver ()
         , timeout = Nothing
         }

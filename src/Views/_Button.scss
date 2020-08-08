@@ -42,6 +42,7 @@
 
   &.primary {
     background: Color.$primary;
+    color: Color.$background;
 
     &:hover {
       background-color: color.scale(Color.$primary, $lightness: 10%);

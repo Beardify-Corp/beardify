@@ -12,15 +12,15 @@ import Http
 import Page.Artist as Artist
 import Page.Home as Home
 import Page.Login as Login
+import Page.Page as Page
 import Ports
 import Request.User as RequestUser
 import Route exposing (Route)
 import Task
 import Time exposing (Posix)
 import Url exposing (Url)
-import Views.Device as Device
-import Views.Page as Page
-import Views.Player as Player
+import Views.Player.Device as Device
+import Views.Player.Player as Player
 
 
 type alias Flags =
@@ -172,6 +172,7 @@ init flags url navKey =
 
                     else
                         let
+                            newSession : Session
                             newSession =
                                 Session.updateAuth (Just auth) session
                         in
@@ -206,6 +207,7 @@ update msg ({ page, session } as model) =
                 ( newModel, newSession, newCmd ) =
                     subUpdate session subMsg subModel
 
+                storeCmd : Cmd msg
                 storeCmd =
                     if session.store /= newSession.store then
                         newSession.store |> Session.serializeStore |> Ports.saveStore
@@ -413,7 +415,7 @@ view { page, session, player, devices } =
     in
     case page of
         ArtistPage artistModel ->
-            Artist.view artistModel
+            Artist.view player artistModel
                 |> mapMsg ArtistMsg
                 |> frame
 

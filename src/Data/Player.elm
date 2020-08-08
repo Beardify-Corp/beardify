@@ -1,9 +1,12 @@
 module Data.Player exposing
-    ( Player
+    ( Context
+    , Player
     , PlayerContext
     , decode
     , defaultPlayerContext
     , defaultTick
+    , getCurrentAlbumUri
+    , getCurrentTrackUri
     )
 
 import Data.Device as Device exposing (Device)
@@ -72,11 +75,45 @@ decode =
 decodeContext : Decoder Context
 decodeContext =
     Decode.map4 Context
-        (Decode.field "href" Decode.string)
         (Decode.field "uri" Decode.string)
+        (Decode.field "href" Decode.string)
         (Decode.field "external_urls"
             (Decode.map ExternalUrl
                 (Decode.field "spotify" Decode.string)
             )
         )
         (Decode.field "type" Decode.string)
+
+
+
+-- getCurrentUri : PlayerContext -> String
+-- getCurrentUri context =
+--     case Maybe.map .context context.player of
+--         Just id ->
+--             case id of
+--                 Just a ->
+--                     a.uri
+--                 Nothing ->
+--                     ""
+--         Nothing ->
+--             ""
+
+
+getCurrentAlbumUri : PlayerContext -> String
+getCurrentAlbumUri context =
+    case Maybe.map .track context.player of
+        Just track ->
+            track.album.uri
+
+        Nothing ->
+            ""
+
+
+getCurrentTrackUri : PlayerContext -> String
+getCurrentTrackUri context =
+    case Maybe.map .track context.player of
+        Just track ->
+            track.uri
+
+        Nothing ->
+            ""

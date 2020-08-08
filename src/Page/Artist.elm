@@ -1,44 +1,65 @@
 module Page.Artist exposing (Model, Msg(..), init, update, view)
 
+-- import Data.Youtube as Youtube
+
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (Artist)
 import Data.Image as Image
+import Data.Player exposing (..)
 import Data.Session exposing (Session)
-import Data.Track as Track exposing (Track)
+import Data.Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Html.Extra as HE
 import Http
-import Request.Artist as Request
+import Request.Artist
+import Request.Player
 import Route
 import Task
+import Task.Extra as TE
+import Views.Album
+import Views.Cover as Cover
+import Views.Track
 
 
 type alias Model =
     { artist : Maybe Artist
     , albums : List AlbumSimplified
+    , singles : List AlbumSimplified
     , tracks : List Track
     , relatedArtists : List Artist
+    , followed : List Bool
     }
 
 
 type Msg
     = Fetched (Result ( Session, Http.Error ) Model)
-    | Follow
+    | Follow String
+    | UnFollow String
+    | ResultFollow (Result Http.Error ())
+    | PlayAlbum String
+    | PlayTracks (List String)
+    | Played (Result ( Session, Http.Error ) ())
 
 
 init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { artist = Nothing
       , albums = []
+      , singles = []
       , tracks = []
       , relatedArtists = []
+      , followed = []
       }
     , session
-    , Task.map4 (Model << Just)
-        (Request.get session id)
-        (Request.getAlbums session id)
-        (Request.getTopTrack session id)
-        (Request.getRelatedArtists session id)
+    , TE.map6 (Model << Just)
+        (Request.Artist.get session id)
+        (Request.Artist.getItems "album" session id)
+        (Request.Artist.getItems "single" session id)
+        (Request.Artist.getTopTrack session id)
+        (Request.Artist.getRelatedArtists session id)
+        (Request.Artist.getFollowedArtist session id)
         |> Task.attempt Fetched
     )
 
@@ -46,8 +67,11 @@ init id session =
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
-        Follow ->
-            ( model, session, Cmd.none )
+        Follow artistId ->
+            ( model, session, Request.Artist.follow session "PUT" artistId ResultFollow )
+
+        UnFollow artistId ->
+            ( model, session, Request.Artist.follow session "DELETE" artistId ResultFollow )
 
         Fetched (Ok newModel) ->
             ( newModel, session, Cmd.none )
@@ -55,12 +79,43 @@ update session msg model =
         Fetched (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
+        ResultFollow result ->
+            let
+                revertedFollowedStatus : List Bool
+                revertedFollowedStatus =
+                    if model.followed == [ True ] then
+                        [ False ]
 
-relatedArtistsView : List Artist -> List (Html msg)
+                    else
+                        [ True ]
+            in
+            case result of
+                Ok _ ->
+                    ( { model | followed = revertedFollowedStatus }, session, Cmd.none )
+
+                Err _ ->
+                    ( model, session, Cmd.none )
+
+        PlayAlbum uri ->
+            ( model, session, Task.attempt Played (Request.Player.playThis session uri) )
+
+        PlayTracks uris ->
+            ( model, session, Task.attempt Played (Request.Player.playTracks session uris) )
+
+        Played (Ok _) ->
+            ( model, session, Cmd.none )
+
+        Played (Err ( newSession, _ )) ->
+            ( model, newSession, Cmd.none )
+
+
+relatedArtistsView : List Artist -> Html msg
 relatedArtistsView artists =
     let
+        relatedArtistView : Artist -> Html msg
         relatedArtistView artist =
             let
+                cover : Image.Image
                 cover =
                     Image.filterByWidth 160 artist.images
             in
@@ -69,120 +124,122 @@ relatedArtistsView artists =
                 , span [ class "ArtistSimilar__name" ] [ text artist.name ]
                 ]
     in
-    List.map relatedArtistView artists
-        |> List.take 4
+    div []
+        [ h2 [ class "Heading second" ] [ text "Related artists" ]
+        , artists
+            |> List.map relatedArtistView
+            |> List.take 8
+            |> div [ class "ArtistSimilar" ]
+        ]
 
 
-topTrackViews : List Track -> List (Html msg)
-topTrackViews tracks =
+topTrackViews : PlayerContext -> List Track -> Html Msg
+topTrackViews context tracks =
+    div []
+        [ h2 [ class "Heading second" ] [ text "Top tracks" ]
+        , tracks
+            |> List.map (Views.Track.view { playTracks = PlayTracks } context tracks)
+            |> List.take 5
+            |> div []
+        ]
+
+
+albumsListView : PlayerContext -> List AlbumSimplified -> String -> Html Msg
+albumsListView context albums listName =
     let
-        trackView track =
-            let
-                cover =
-                    Image.filterByWidth 64 track.album.images
-            in
-            div [ class "Track Flex centeredVertical" ]
-                [ img [ class "Track__cover", src cover.url ] []
-                , div [ class "Track__name Flex__full" ] [ text track.name ]
-                , div [ class "Track__duration" ] [ text <| Track.durationFormat track.duration ]
+        hasAlbums : Bool
+        hasAlbums =
+            List.length albums > 0
+
+        albumList : Html Msg
+        albumList =
+            div []
+                [ h2 [ class "Heading second" ] [ text listName ]
+                , List.map (Views.Album.view { playAlbum = PlayAlbum } context) albums
+                    |> div [ class "Artist__releaseList AlbumList" ]
                 ]
     in
-    List.map trackView tracks
-        |> List.take 5
+    HE.viewIf hasAlbums albumList
 
 
-albumsListView : List AlbumSimplified -> String -> Html msg
-albumsListView albums listName =
+externalLink : String -> String -> String -> Html msg
+externalLink url label iconLabel =
+    a
+        [ class "External__item"
+        , target "_blank"
+        , href <| url
+        ]
+        [ i [ classList [ ( "External__icon", True ), ( iconLabel, True ) ] ] [], text label ]
+
+
+view : PlayerContext -> Model -> ( String, List (Html Msg) )
+view context ({ artist, followed } as model) =
     let
-        viewAlbum album =
-            let
-                cover =
-                    Image.filterByWidth 600 album.images
-            in
-            div [ class "Album" ]
-                [ a [ class "Album__link", href "#" ]
-                    [ img [ class "Album__cover", src cover.url ] []
-                    , button [ class "Album__play" ] [ i [ class "icon-play" ] [] ]
-                    , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
-                    ]
-                , div [ class "Album__name" ] [ text album.name ]
-                , div [ class "Album__release" ] [ text album.releaseDate ]
-                ]
-    in
-    if List.length albums > 0 then
-        div []
-            [ h2 [ class "Heading second" ] [ text listName ]
-            , List.map viewAlbum albums
-                |> div [ class "Artist__releaseList AlbumList" ]
+        artistId : String
+        artistId =
+            case Maybe.map .id artist of
+                Just id ->
+                    Artist.idToString id
+
+                Nothing ->
+                    ""
+
+        artistCover : String
+        artistCover =
+            Maybe.withDefault [] (Maybe.map .images artist)
+                |> List.take 1
+                |> List.map (\e -> e.url)
+                |> String.concat
+
+        artistName : String
+        artistName =
+            Maybe.withDefault "Artists" (Maybe.map .name artist)
+
+        followedBtn : List Bool -> Html Msg
+        followedBtn followedStatus =
+            if followedStatus /= [ True ] then
+                button [ onClick <| Follow artistId, class "Button big" ] [ text "Follow" ]
+
+            else
+                button [ onClick <| UnFollow artistId, class "Button big primary" ] [ text "Followed" ]
+
+        externalLinkList : List (Html msg)
+        externalLinkList =
+            [ externalLink ("https://fr.wikipedia.org/wiki/" ++ artistName) "Wikipedia" "icon-wikipedia"
+            , externalLink ("https://www.sputnikmusic.com/search_results.php?genreid=0&search_in=Bands&search_text=" ++ artistName ++ "&amp;x=0&amp;y=0") "Sputnik" "icon-sputnik"
+            , externalLink ("https://www.discogs.com/fr/search/?q=" ++ artistName ++ "&amp;strict=true") "Discogs" "icon-discogs"
+            , externalLink ("https://www.google.com/search?q=" ++ artistName) "Google" "icon-magnifying-glass"
             ]
-
-    else
-        text ""
-
-
-view : Model -> ( String, List (Html Msg) )
-view ({ artist } as model) =
-    ( Maybe.withDefault "Artists" (Maybe.map .name artist)
+    in
+    ( artistName
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
-                        [ h1 [ class "Artist__name Heading first" ] [ Maybe.map .name model.artist |> Maybe.withDefault "" |> text ]
-                        , button [ class "Button big" ] [ text "Follow" ]
+                        [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
+                        , Cover.view artistCover
+                        , followedBtn followed
                         ]
-                    , div [ class "Artist__links External" ]
-                        [ a [ class "External__item", href "#" ] [ i [ class "External__icon icon-wikipedia" ] [], text "Wikipedia" ]
-                        , a [ class "External__item", href "#" ] [ i [ class "External__icon icon-sputnik" ] [], text "Sputnik" ]
-                        , a [ class "External__item", href "#" ] [ i [ class "External__icon icon-discogs" ] [], text "Discogs" ]
-                        , a [ class "External__item", href "#" ] [ i [ class "External__icon icon-magnifying-glass" ] [], text "Google" ]
-                        ]
+                    , externalLinkList |> div [ class "Artist__links External" ]
                     , div [ class "Artist__top" ]
-                        [ topTrackViews model.tracks
-                            |> (::) (h2 [ class "Heading second" ] [ text "Top tracks" ])
-                            |> div []
+                        [ topTrackViews context model.tracks
                         , relatedArtistsView model.relatedArtists
-                            |> (::) (h2 [ class "Heading second" ] [ text "Similar artists" ])
-                            |> div [ class "ArtistSimilar" ]
                         ]
-                    , albumsListView (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
-                    , albumsListView (List.filter (\a -> a.type_ == Album.Compilation) model.albums) "EPs"
-                    , albumsListView (List.filter (\a -> a.type_ == Album.Single) model.albums) "Singles"
+                    , albumsListView context (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
+                    , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"
                     ]
                 ]
             , div [ class "Artist__videos HelperScrollArea" ]
                 [ div [ class "Video HelperScrollArea__target" ]
                     [ h2 [ class "Heading second" ] [ text "Last videos" ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
-                    , div [ class "Video__item" ]
-                        [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                        , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                        , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                        ]
+
+                    -- , div [ class "Video__item" ]
+                    --     [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
+                    --     , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
+                    --     , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
+                    --     ]
                     ]
                 ]
             ]
       ]
     )
-
-
-
--- <iframe class="PageArtistVideo__video" allowfullscreen="" frameborder="0" width="250" height="140" src="https://www.youtube.com/embed/MreXYqelGPM"></iframe>

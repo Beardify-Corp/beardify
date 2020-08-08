@@ -7,7 +7,8 @@
 @use "Views/Album";
 @use "Views/ArtistLink";
 @use "Views/Button";
-@use "Views/Device";
+@use "Views/Cover";
+@use "Views/Player/Device";
 @use "Views/Flex";
 @use "Views/Heading";
 @use "Views/Helper";
@@ -15,13 +16,13 @@
 @use "Views/List";
 @use "Views/Modal";
 @use "Views/Notif";
-@use "Views/Page";
-@use "Views/Player";
-@use "Views/Search";
+@use "Page/Page";
+@use "Views/Player/Player";
+@use "Views/Topbar/Search";
 @use "Views/Sidebar";
-@use "Views/Topbar";
+@use "Views/Topbar/Topbar";
 @use "Views/Track";
-@use "Views/User";
+@use "Views/Topbar/User";
 
 // Pages
 @use "Page/Login";
@@ -48,8 +49,8 @@ strong {
 *::before,
 *::after {
   box-sizing: border-box;
-  -ms-overflow-style:-ms-autohiding-scrollbar;
-  scrollbar-color: color.scale(Color.$background, $lightness: 7%) rgba(0, 0, 0, 0);
+  -ms-overflow-style: -ms-autohiding-scrollbar;
+  scrollbar-color: color.scale(Color.$backgroundDarker, $lightness: -35%) rgba(0, 0, 0, 0);
   scrollbar-width: thin;
 }
 
@@ -63,7 +64,7 @@ strong {
 
 ::-webkit-scrollbar-thumb {
   background-clip: content-box;
-  background-color: color.scale(Color.$background, $lightness: 7%);
+  background-color: color.scale(Color.$background, $lightness: -35%);
   border: 5px solid transparent;
   border-radius: 20px;
 }
@@ -78,6 +79,7 @@ i {
 
 html {
   background: Color.$background;
+  font-size: .9em;
   overflow: hidden;
 }
 

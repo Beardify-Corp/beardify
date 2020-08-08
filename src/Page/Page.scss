@@ -9,7 +9,7 @@
   &__bottom {
     align-content: center;
     align-items: center;
-    background: color.adjust(Color.$background, $lightness: 2%);
+    background: Color.$backgroundLight;
     border-top: 1px solid Color.$border;
     display: flex;
     flex-basis: 80px;

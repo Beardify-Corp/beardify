@@ -1,11 +1,11 @@
 @use "sass:color";
-@use "../Color";
+@use "../../Color";
 
 .Search {
   position: relative;
 
   &__input {
-    background: color.scale(Color.$background, $lightness: 1%);
+    background: Color.$backgroundDark;
     border: 1px solid Color.$border;
     border-radius: 50px;
     color: #fff;
@@ -79,7 +79,7 @@
         &:hover {
           background: rgba(#000, .2);
           color: #fff;
-          transform: scale(1.02)
+          transform: scale(1.02);
         }
       }
     }

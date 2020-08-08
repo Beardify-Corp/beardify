@@ -1,4 +1,4 @@
-module Views.Device exposing (Msg(..), init, update, view)
+module Views.Player.Device exposing (Msg(..), init, update, view)
 
 import Data.Device as Device exposing (Device)
 import Data.Session exposing (Session)

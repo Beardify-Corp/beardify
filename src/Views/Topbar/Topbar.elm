@@ -1,11 +1,12 @@
-module Views.Topbar exposing (view)
+module Views.Topbar.Topbar exposing (view)
 
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Extra as HE
 import Route
-import Views.Search as Search exposing (..)
-import Views.User as User exposing (..)
+import Views.Topbar.Search as Search exposing (..)
+import Views.Topbar.User as User exposing (..)
 
 
 view : Session -> Html msg
@@ -17,10 +18,5 @@ view session =
             , button [ class "Button nude disabled" ] [ i [ class "icon-next TopbarNavigation__icon " ] [] ]
             ]
         , Search.view
-        , case session.user of
-            Just user ->
-                User.view user
-
-            Nothing ->
-                text ""
+        , HE.viewMaybe User.view session.user
         ]

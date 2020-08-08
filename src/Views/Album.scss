@@ -1,6 +1,29 @@
 @use "../Color";
+@use "sass:color";
+
+@keyframes bounce {
+  0% {
+    transform: scale(.8);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
 
 .Album {
+  position: relative;
+
+  &__playing {
+    animation: bounce .5s cubic-bezier(1, 0, 1, 0) 0s infinite alternate;
+    color: white;
+    font-size: 2.2rem;
+    left: 15px;
+    position: absolute;
+    text-shadow: 0 0 20px black;
+    top: 10px;
+    z-index: 9;
+  }
+
   &List {
     display: grid;
     gap: 30px;
@@ -21,11 +44,11 @@
 
   &__add {
     background: transparent;
-    border:0;
+    border: 0;
     color: #fff;
     cursor: pointer;
     font-size: 1.2rem;
-    padding:0;
+    padding: 0;
     position: absolute;
     right: 15px;
     top: 15px;
@@ -41,6 +64,7 @@
     font-size: 2rem;
     height: $size;
     left: 50%;
+    opacity: .7;
     outline: 0;
     padding-top: 10px;
     position: absolute;
@@ -50,7 +74,11 @@
     width: $size;
 
     &:hover {
-      transform: translate(-50%, -50%) scale(1.5);
+      opacity: 1;
+    }
+
+    &:active {
+      background-color: Color.$primary;
     }
   }
 
@@ -68,13 +96,13 @@
       }
 
       .Album__add {
-        transform:  scale(1);
+        transform: scale(1);
       }
     }
   }
 
   &__release {
-    font-size:.9rem;
+    font-size: .9rem;
     font-style: italic;
     opacity: .4;
   }

@@ -1,4 +1,4 @@
-module Views.Search exposing (view)
+module Views.Topbar.Search exposing (view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)

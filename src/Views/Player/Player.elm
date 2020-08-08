@@ -1,4 +1,4 @@
-module Views.Player exposing
+module Views.Player.Player exposing
     ( Msg(..)
     , init
     , subscriptions

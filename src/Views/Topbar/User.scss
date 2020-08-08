@@ -1,4 +1,4 @@
-@use "../Color";
+@use "../../Color";
 @use "sass:color";
 
 .User {
@@ -75,6 +75,5 @@
         }
       }
     }
-
   }
 }

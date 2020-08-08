@@ -2,6 +2,7 @@
 @use "sass:color";
 
 .Sidebar {
+  background-color: Color.$backgroundDark;
   border-right: 1px solid Color.$border;
   display: flex;
   flex-basis: 280px;
@@ -11,7 +12,6 @@
     display: flex;
     flex: 1;
     flex-direction: column;
-    font-weight: 700;
   }
 
   &__collections {
@@ -24,12 +24,11 @@
   }
 
   &__title {
-    background: color.adjust(Color.$background, $lightness: 2%);
-    border-bottom: 1px solid Color.$border;
-    color: color.adjust(Color.$background, $lightness: 40%);
+    color: rgba(white, .2);
     font-size: .85rem;
+    font-style: italic;
     letter-spacing: .3px;
-    margin:0;
+    margin: 0;
     padding: 8px 15px 5px;
     text-transform: uppercase;
   }

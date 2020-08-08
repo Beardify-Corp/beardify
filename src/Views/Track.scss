@@ -1,8 +1,14 @@
+@use "../Color";
+@use "sass:color";
 
 .Track {
   border-radius: 3px;
   cursor: pointer;
   padding: 5px 0;
+
+  &.active {
+    color: Color.$primary;
+  }
 
   &__cover {
     border-radius: 3px;
@@ -14,11 +20,7 @@
     opacity: .4;
   }
 
-  &__name {
-    font-weight: 700;
-  }
-
   &:hover {
-    color : #fff
+    color: #fff;
   }
 }

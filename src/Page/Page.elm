@@ -1,4 +1,4 @@
-module Views.Page exposing (Config, frame)
+module Page.Page exposing (Config, frame)
 
 -- import Views.Modal as Modal
 
@@ -8,11 +8,11 @@ import Data.Player exposing (PlayerContext)
 import Data.Session exposing (Notif, Session)
 import Html exposing (..)
 import Html.Attributes exposing (class)
-import Views.Device as Device
 import Views.Notif as Notif
-import Views.Player as Player
+import Views.Player.Device as Device
+import Views.Player.Player as Player
 import Views.Sidebar as Sidebar
-import Views.Topbar as Topbar
+import Views.Topbar.Topbar as Topbar
 
 
 type alias Config msg =

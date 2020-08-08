@@ -66,7 +66,7 @@ typeToString type_ =
             "album"
 
         AppearsOn ->
-            "appears on"
+            "appears_on"
 
         Compilation ->
             "compilation"
