@@ -12,15 +12,15 @@ import Http
 import Page.Artist as Artist
 import Page.Home as Home
 import Page.Login as Login
+import Page.Page as Page
 import Ports
 import Request.User as RequestUser
 import Route exposing (Route)
 import Task
 import Time exposing (Posix)
 import Url exposing (Url)
-import Views.Device as Device
-import Views.Page as Page
-import Views.Player as Player
+import Views.Player.Device as Device
+import Views.Player.Player as Player
 
 
 type alias Flags =
@@ -86,7 +86,6 @@ initComponent ( model, msgCmd ) =
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     let
-        -- toPage : (a -> Page) -> (Session -> ( a, Session, b )) -> (a -> Cmd b) -> ( Model, Cmd Msg )
         toPage page subInit subMsg =
             let
                 ( subModel, newSession, subCmds ) =

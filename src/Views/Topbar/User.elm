@@ -1,4 +1,4 @@
-module Views.User exposing (view)
+module Views.Topbar.User exposing (view)
 
 import Data.Image as Image
 import Data.User exposing (User)
