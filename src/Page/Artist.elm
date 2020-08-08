@@ -5,15 +5,14 @@ module Page.Artist exposing (Model, Msg(..), init, update, view)
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (Artist)
 import Data.Image as Image
-import Data.Player as Player exposing (..)
+import Data.Player exposing (..)
 import Data.Session exposing (Session)
-import Data.Track as Track exposing (Track)
+import Data.Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
-import List.Extra as LE
 import Request.Artist
 import Request.Player
 import Route
@@ -21,6 +20,7 @@ import Task
 import Task.Extra as TE
 import Views.Album
 import Views.Cover as Cover
+import Views.Track
 
 
 type alias Model =
@@ -124,54 +124,42 @@ relatedArtistsView artists =
                 , span [ class "ArtistSimilar__name" ] [ text artist.name ]
                 ]
     in
-    List.map relatedArtistView artists
-        |> List.take 8
-        |> div [ class "ArtistSimilar" ]
+    div []
+        [ h2 [ class "Heading second" ] [ text "Related artists" ]
+        , artists
+            |> List.map relatedArtistView
+            |> List.take 8
+            |> div [ class "ArtistSimilar" ]
+        ]
 
 
-topTrackViews : PlayerContext -> List Track -> List (Html Msg)
+topTrackViews : PlayerContext -> List Track -> Html Msg
 topTrackViews context tracks =
-    let
-        listTracksUri : String -> List String
-        listTracksUri trackUri =
-            tracks
-                |> LE.dropWhile (\track -> track.uri /= trackUri)
-                |> List.map .uri
-
-        isTrackPlaying : String
-        isTrackPlaying =
-            Player.getCurrentTrackUri context
-
-        trackView : Track -> Html Msg
-        trackView track =
-            let
-                cover : Image.Image
-                cover =
-                    Image.filterByWidth 64 track.album.images
-            in
-            div
-                [ class "Track Flex centeredVertical"
-                , classList [ ( "active", isTrackPlaying == track.uri ) ]
-                , onClick <| PlayTracks (listTracksUri track.uri)
-                ]
-                [ img [ class "Track__cover", src cover.url ] []
-                , div [ class "Track__name Flex__full" ] [ text track.name ]
-                , div [ class "Track__duration" ] [ text <| Track.durationFormat track.duration ]
-                ]
-    in
-    List.map trackView tracks
-        |> List.take 5
+    div []
+        [ h2 [ class "Heading second" ] [ text "Top tracks" ]
+        , tracks
+            |> List.map (Views.Track.view { playTracks = PlayTracks } context tracks)
+            |> List.take 5
+            |> div []
+        ]
 
 
 albumsListView : PlayerContext -> List AlbumSimplified -> String -> Html Msg
 albumsListView context albums listName =
-    HE.viewIf (List.length albums > 0)
-        (div []
-            [ h2 [ class "Heading second" ] [ text listName ]
-            , List.map (Views.Album.view { playAlbum = PlayAlbum } context) albums
-                |> div [ class "Artist__releaseList AlbumList" ]
-            ]
-        )
+    let
+        hasAlbums : Bool
+        hasAlbums =
+            List.length albums > 0
+
+        albumList : Html Msg
+        albumList =
+            div []
+                [ h2 [ class "Heading second" ] [ text listName ]
+                , List.map (Views.Album.view { playAlbum = PlayAlbum } context) albums
+                    |> div [ class "Artist__releaseList AlbumList" ]
+                ]
+    in
+    HE.viewIf hasAlbums albumList
 
 
 externalLink : String -> String -> String -> Html msg
@@ -235,12 +223,7 @@ view context ({ artist, followed } as model) =
                     , externalLinkList |> div [ class "Artist__links External" ]
                     , div [ class "Artist__top" ]
                         [ topTrackViews context model.tracks
-                            |> (::) (h2 [ class "Heading second" ] [ text "Top tracks" ])
-                            |> div []
-                        , div []
-                            [ h2 [ class "Heading second" ] [ text "Related artists" ]
-                            , relatedArtistsView model.relatedArtists
-                            ]
+                        , relatedArtistsView model.relatedArtists
                         ]
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"
