@@ -22,11 +22,13 @@ type alias Config msg =
     , deviceMsg : Device.Msg -> msg
     , player : PlayerContext
     , devices : List Device
+    , sidebar : Sidebar.Model
+    , sidebarMsg : Sidebar.Msg -> msg
     }
 
 
 frame : Config msg -> ( String, List (Html msg) ) -> Document msg
-frame { session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
+frame { sidebar, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
     { title = title ++ " | Beardify "
     , body =
         [ Notif.component
@@ -40,7 +42,8 @@ frame { session, clearNotification, playerMsg, deviceMsg, player, devices } ( ti
                 main_ [ class "App" ]
                     [ Topbar.view session
                     , div [ class "App__body" ]
-                        [ Sidebar.view
+                        [ Sidebar.view sidebar
+                            |> Html.map sidebarMsg
                         , div [ class "Content" ]
                             [ div [ class "Page HelperScrollArea" ] content
                             , div [ class "Content__bottom" ]

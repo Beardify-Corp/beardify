@@ -21,6 +21,7 @@ import Time exposing (Posix)
 import Url exposing (Url)
 import Views.Player.Device as Device
 import Views.Player.Player as Player
+import Views.Sidebar as Sidebar
 
 
 type alias Flags =
@@ -45,6 +46,7 @@ type alias Model =
     , session : Session
     , player : PlayerContext
     , devices : List Device
+    , sidebar : Sidebar.Model
     }
 
 
@@ -54,6 +56,7 @@ type Msg
     | DeviceMsg Device.Msg
     | HomeMsg Home.Msg
     | LoginMsg Login.Msg
+    | SidebarMsg Sidebar.Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
@@ -70,15 +73,20 @@ initComponent ( model, msgCmd ) =
 
         ( deviceModel, deviceCmd ) =
             Device.init model.session
+
+        ( sidebarModel, sidebarCmd ) =
+            Sidebar.init
     in
     ( { model
         | player = playerModel
         , devices = deviceModel
+        , sidebar = sidebarModel
       }
     , Cmd.batch
         [ msgCmd
         , Cmd.map PlayerMsg playerCmd
         , Cmd.map DeviceMsg deviceCmd
+        , Cmd.map SidebarMsg sidebarCmd
         ]
     )
 
@@ -151,6 +159,7 @@ init flags url navKey =
             , session = session
             , devices = []
             , player = PlayerData.defaultPlayerContext
+            , sidebar = Sidebar.defaultModel
             }
     in
     case ( url.fragment, url.query ) of
@@ -341,6 +350,7 @@ update msg ({ page, session } as model) =
                         , devices = []
                         , player = PlayerData.defaultPlayerContext
                         , session = Session.updateUser user model.session
+                        , sidebar = Sidebar.defaultModel
                         }
                         |> initComponent
 
@@ -398,7 +408,7 @@ subscriptions model =
 
 
 view : Model -> Document Msg
-view { page, session, player, devices } =
+view { sidebar, page, session, player, devices } =
     let
         frame =
             Page.frame
@@ -408,6 +418,8 @@ view { page, session, player, devices } =
                 , deviceMsg = DeviceMsg
                 , player = player
                 , devices = devices
+                , sidebar = sidebar
+                , sidebarMsg = SidebarMsg
                 }
 
         mapMsg msg ( title, content ) =

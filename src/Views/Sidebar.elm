@@ -1,14 +1,43 @@
-module Views.Sidebar exposing (view)
+module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
+import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
 
-view : Html msg
-view =
+type alias Model =
+    { test : String
+    }
+
+
+type Msg
+    = NoOp
+
+
+defaultModel : Model
+defaultModel =
+    { test = ""
+    }
+
+
+update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
+update session msg model =
+    case msg of
+        NoOp ->
+            ( model, session, Cmd.none )
+
+
+init : ( Model, Cmd Msg )
+init =
+    ( defaultModel, Cmd.none )
+
+
+view : Model -> Html Msg
+view model =
     div [ class "Sidebar" ]
         [ div [ class "Sidebar__item" ]
             [ h2 [ class "Sidebar__title Heading" ] [ text "Collections" ]
+            , div [] [ text <| Debug.toString model.test ]
             , div [ class "Sidebar__collections HelperScrollArea" ]
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     [ li [ class "List__item" ]
