@@ -19,6 +19,7 @@ import Request.Player
 import Route
 import Task
 import Task.Extra as TE
+import Views.Album
 import Views.Cover as Cover
 
 
@@ -164,44 +165,23 @@ topTrackViews context tracks =
 
 albumsListView : PlayerContext -> List AlbumSimplified -> String -> Html Msg
 albumsListView context albums listName =
-    let
-        viewAlbum : AlbumSimplified -> Html Msg
-        viewAlbum album =
-            let
-                cover : Image.Image
-                cover =
-                    Image.filterByWidth 600 album.images
-
-                isCurrentlyPlaying : Bool
-                isCurrentlyPlaying =
-                    album.uri == Player.getCurrentAlbumUri context
-
-                releaseFormat : String -> String
-                releaseFormat date =
-                    date
-                        |> String.split "-"
-                        |> List.take 1
-                        |> String.concat
-            in
-            div
-                [ class "Album" ]
-                [ div [ class "Album__link" ]
-                    [ a [ href "#" ] [ img [ attribute "loading" "lazy", class "Album__cover", src cover.url ] [] ]
-                    , button [ onClick <| PlayAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
-                    , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
-                    ]
-                , div [ class "Album__name" ] [ text album.name ]
-                , div [ class "Album__release" ] [ text <| releaseFormat album.releaseDate ]
-                , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
-                ]
-    in
     HE.viewIf (List.length albums > 0)
         (div []
             [ h2 [ class "Heading second" ] [ text listName ]
-            , List.map viewAlbum albums
+            , List.map (Views.Album.view { playAlbum = PlayAlbum } context) albums
                 |> div [ class "Artist__releaseList AlbumList" ]
             ]
         )
+
+
+externalLink : String -> String -> String -> Html msg
+externalLink url label iconLabel =
+    a
+        [ class "External__item"
+        , target "_blank"
+        , href <| url
+        ]
+        [ i [ classList [ ( "External__icon", True ), ( iconLabel, True ) ] ] [], text label ]
 
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
@@ -227,14 +207,21 @@ view context ({ artist, followed } as model) =
         artistName =
             Maybe.withDefault "Artists" (Maybe.map .name artist)
 
-        externalLink : String -> String -> String -> Html msg
-        externalLink url label iconLabel =
-            a
-                [ class "External__item"
-                , target "_blank"
-                , href <| url
-                ]
-                [ i [ classList [ ( "External__icon", True ), ( iconLabel, True ) ] ] [], text label ]
+        followedBtn : List Bool -> Html Msg
+        followedBtn followedStatus =
+            if followedStatus /= [ True ] then
+                button [ onClick <| Follow artistId, class "Button big" ] [ text "Follow" ]
+
+            else
+                button [ onClick <| UnFollow artistId, class "Button big primary" ] [ text "Followed" ]
+
+        externalLinkList : List (Html msg)
+        externalLinkList =
+            [ externalLink ("https://fr.wikipedia.org/wiki/" ++ artistName) "Wikipedia" "icon-wikipedia"
+            , externalLink ("https://www.sputnikmusic.com/search_results.php?genreid=0&search_in=Bands&search_text=" ++ artistName ++ "&amp;x=0&amp;y=0") "Sputnik" "icon-sputnik"
+            , externalLink ("https://www.discogs.com/fr/search/?q=" ++ artistName ++ "&amp;strict=true") "Discogs" "icon-discogs"
+            , externalLink ("https://www.google.com/search?q=" ++ artistName) "Google" "icon-magnifying-glass"
+            ]
     in
     ( artistName
     , [ div [ class "Flex fullHeight" ]
@@ -243,18 +230,9 @@ view context ({ artist, followed } as model) =
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
                         , Cover.view artistCover
-                        , if followed /= [ True ] then
-                            button [ onClick <| Follow artistId, class "Button big" ] [ text "Follow" ]
-
-                          else
-                            button [ onClick <| UnFollow artistId, class "Button big primary" ] [ text "Followed" ]
+                        , followedBtn followed
                         ]
-                    , div [ class "Artist__links External" ]
-                        [ externalLink ("https://fr.wikipedia.org/wiki/" ++ artistName) "Wikipedia" "icon-wikipedia"
-                        , externalLink ("https://www.sputnikmusic.com/search_results.php?genreid=0&search_in=Bands&search_text=" ++ artistName ++ "&amp;x=0&amp;y=0") "Sputnik" "icon-sputnik"
-                        , externalLink ("https://www.discogs.com/fr/search/?q=" ++ artistName ++ "&amp;strict=true") "Discogs" "icon-discogs"
-                        , externalLink ("https://www.google.com/search?q=" ++ artistName) "Google" "icon-magnifying-glass"
-                        ]
+                    , externalLinkList |> div [ class "Artist__links External" ]
                     , div [ class "Artist__top" ]
                         [ topTrackViews context model.tracks
                             |> (::) (h2 [ class "Heading second" ] [ text "Top tracks" ])

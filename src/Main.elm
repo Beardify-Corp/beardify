@@ -86,6 +86,7 @@ initComponent ( model, msgCmd ) =
 setRoute : Maybe Route -> Model -> ( Model, Cmd Msg )
 setRoute maybeRoute model =
     let
+        -- toPage : (a -> Page) -> (Session -> ( a, Session, b )) -> (a -> Cmd b) -> ( Model, Cmd Msg )
         toPage page subInit subMsg =
             let
                 ( subModel, newSession, subCmds ) =
@@ -172,6 +173,7 @@ init flags url navKey =
 
                     else
                         let
+                            newSession : Session
                             newSession =
                                 Session.updateAuth (Just auth) session
                         in
@@ -206,6 +208,7 @@ update msg ({ page, session } as model) =
                 ( newModel, newSession, newCmd ) =
                     subUpdate session subMsg subModel
 
+                storeCmd : Cmd msg
                 storeCmd =
                     if session.store /= newSession.store then
                         newSession.store |> Session.serializeStore |> Ports.saveStore
