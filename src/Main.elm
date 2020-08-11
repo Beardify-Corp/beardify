@@ -10,9 +10,11 @@ import Data.User exposing (User)
 import Html exposing (..)
 import Http
 import Page.Artist as Artist
+import Page.Collection as Collection
 import Page.Home as Home
 import Page.Login as Login
 import Page.Page as Page
+import Page.Playlist as Playlist
 import Ports
 import Request.User as RequestUser
 import Route exposing (Route)
@@ -21,6 +23,7 @@ import Time exposing (Posix)
 import Url exposing (Url)
 import Views.Player.Device as Device
 import Views.Player.Player as Player
+import Views.Sidebar as Sidebar
 
 
 type alias Flags =
@@ -34,6 +37,8 @@ type alias Flags =
 
 type Page
     = ArtistPage Artist.Model
+    | PlaylistPage Playlist.Model
+    | CollectionPage Collection.Model
     | Blank
     | HomePage Home.Model
     | LoginPage Login.Model
@@ -45,15 +50,19 @@ type alias Model =
     , session : Session
     , player : PlayerContext
     , devices : List Device
+    , sidebar : Sidebar.Model
     }
 
 
 type Msg
     = ArtistMsg Artist.Msg
+    | PlaylistMsg Playlist.Msg
+    | CollectionMsg Collection.Msg
     | ClearNotification Notif
     | DeviceMsg Device.Msg
     | HomeMsg Home.Msg
     | LoginMsg Login.Msg
+    | SidebarMsg Sidebar.Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
@@ -70,15 +79,20 @@ initComponent ( model, msgCmd ) =
 
         ( deviceModel, deviceCmd ) =
             Device.init model.session
+
+        ( sidebarModel, sidebarCmd ) =
+            Sidebar.init model.session
     in
     ( { model
         | player = playerModel
         , devices = deviceModel
+        , sidebar = sidebarModel
       }
     , Cmd.batch
         [ msgCmd
         , Cmd.map PlayerMsg playerCmd
         , Cmd.map DeviceMsg deviceCmd
+        , Cmd.map SidebarMsg sidebarCmd
         ]
     )
 
@@ -120,6 +134,12 @@ setRoute maybeRoute model =
         ( True, Just (Route.Artist id) ) ->
             toPage ArtistPage (Artist.init id) ArtistMsg
 
+        ( True, Just (Route.Playlist id) ) ->
+            toPage PlaylistPage (Playlist.init id) PlaylistMsg
+
+        ( True, Just (Route.Collection id) ) ->
+            toPage CollectionPage (Collection.init id) CollectionMsg
+
         ( True, Just Route.Login ) ->
             toPage LoginPage Login.init LoginMsg
 
@@ -151,6 +171,7 @@ init flags url navKey =
             , session = session
             , devices = []
             , player = PlayerData.defaultPlayerContext
+            , sidebar = Sidebar.defaultModel
             }
     in
     case ( url.fragment, url.query ) of
@@ -232,6 +253,12 @@ update msg ({ page, session } as model) =
     case ( msg, page ) of
         ( ArtistMsg artistMsg, ArtistPage artistModel ) ->
             toPage ArtistPage ArtistMsg Artist.update artistMsg artistModel
+
+        ( PlaylistMsg playlistMsg, PlaylistPage playlistModel ) ->
+            toPage PlaylistPage PlaylistMsg Playlist.update playlistMsg playlistModel
+
+        ( CollectionMsg collectionMsg, CollectionPage collectionModel ) ->
+            toPage CollectionPage CollectionMsg Collection.update collectionMsg collectionModel
 
         ( ClearNotification notif, _ ) ->
             ( { model | session = session |> Session.closeNotification notif }
@@ -317,6 +344,18 @@ update msg ({ page, session } as model) =
                 ]
             )
 
+        ( SidebarMsg sidebarMsg, _ ) ->
+            let
+                ( sidebarModel, newSession, sidebarCmd ) =
+                    Sidebar.update session sidebarMsg model.sidebar
+            in
+            ( { model
+                | session = newSession
+                , sidebar = sidebarModel
+              }
+            , Cmd.batch [ Cmd.map SidebarMsg sidebarCmd ]
+            )
+
         ( StoreChanged json, _ ) ->
             ( { model | session = { session | store = Session.deserializeStore json } }
             , Cmd.none
@@ -341,6 +380,7 @@ update msg ({ page, session } as model) =
                         , devices = []
                         , player = PlayerData.defaultPlayerContext
                         , session = Session.updateUser user model.session
+                        , sidebar = Sidebar.defaultModel
                         }
                         |> initComponent
 
@@ -382,6 +422,12 @@ subscriptions model =
             ArtistPage _ ->
                 Sub.none
 
+            PlaylistPage _ ->
+                Sub.none
+
+            CollectionPage _ ->
+                Sub.none
+
             HomePage homeModel ->
                 Home.subscriptions homeModel
                     |> Sub.map HomeMsg
@@ -398,7 +444,7 @@ subscriptions model =
 
 
 view : Model -> Document Msg
-view { page, session, player, devices } =
+view { sidebar, page, session, player, devices } =
     let
         frame =
             Page.frame
@@ -408,6 +454,8 @@ view { page, session, player, devices } =
                 , deviceMsg = DeviceMsg
                 , player = player
                 , devices = devices
+                , sidebar = sidebar
+                , sidebarMsg = SidebarMsg
                 }
 
         mapMsg msg ( title, content ) =
@@ -417,6 +465,16 @@ view { page, session, player, devices } =
         ArtistPage artistModel ->
             Artist.view player artistModel
                 |> mapMsg ArtistMsg
+                |> frame
+
+        PlaylistPage playlistModel ->
+            Playlist.view player playlistModel
+                |> mapMsg PlaylistMsg
+                |> frame
+
+        CollectionPage collectionModel ->
+            Collection.view player collectionModel
+                |> mapMsg CollectionMsg
                 |> frame
 
         HomePage homeModel ->

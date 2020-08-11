@@ -2,6 +2,7 @@ module Route exposing (Route(..), fromUrl, href, pushUrl)
 
 import Browser.Navigation as Nav
 import Data.Artist as Artist
+import Data.Playlist as Playlist
 import Html exposing (Attribute)
 import Html.Attributes as Attr
 import Url exposing (Url)
@@ -11,6 +12,8 @@ import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, top)
 type Route
     = Home
     | Artist Artist.Id
+    | Playlist Playlist.Id
+    | Collection Playlist.Id
     | Login
 
 
@@ -20,6 +23,8 @@ parser =
         [ Parser.map Home top
         , Parser.map Login (s "login")
         , Parser.map Artist (s "artist" </> Artist.parseId)
+        , Parser.map Playlist (s "playlist" </> Playlist.parseId)
+        , Parser.map Collection (s "collection" </> Playlist.parseId)
         ]
 
 
@@ -46,6 +51,12 @@ toString route =
             case route of
                 Artist id ->
                     [ "artist", Artist.idToString id ]
+
+                Playlist id ->
+                    [ "playlist", Playlist.idToString id ]
+
+                Collection id ->
+                    [ "collection", Playlist.idToString id ]
 
                 Home ->
                     []
