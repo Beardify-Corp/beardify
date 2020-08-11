@@ -36,7 +36,7 @@ update session msg model =
 
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
-view context model =
+view _ model =
     ( "artistName"
     , [ div [] [ text model.test ] ]
     )
