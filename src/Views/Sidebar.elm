@@ -6,6 +6,7 @@ import Debug
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
+import Json.Decode exposing (nullable)
 import Request.Sidebar
 import Task
 
@@ -21,7 +22,13 @@ type Msg
 
 defaultModel : Model
 defaultModel =
-    { playlists = { items = [], next = "" }
+    { playlists =
+        { items = []
+        , next = ""
+        , total = 0
+        , offset = 0
+        , limit = 0
+        }
     }
 
 
@@ -29,30 +36,32 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     ( defaultModel
     , Task.map Model
-        (Request.Sidebar.get session)
+        (Request.Sidebar.get session 0)
         |> Task.attempt Fetched
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg model =
-    let
-        _ =
-            Debug.log "tarace" "tarace"
-    in
+update session msg ({ playlists } as model) =
     case msg of
         Fetched (Ok newModel) ->
-            let
-                _ =
-                    Debug.log "newModel" newModel
-            in
-            ( newModel, session, Cmd.none )
+            if newModel.playlists.total > newModel.playlists.offset then
+                ( { playlists =
+                        { playlists
+                            | items = List.append playlists.items newModel.playlists.items
+                            , offset = newModel.playlists.offset
+                        }
+                  }
+                , session
+                , Task.map Model
+                    (Request.Sidebar.get session (newModel.playlists.offset + 50))
+                    |> Task.attempt Fetched
+                )
+
+            else
+                ( model, session, Cmd.none )
 
         Fetched (Err ( newSession, _ )) ->
-            let
-                _ =
-                    Debug.log "newSession" newSession
-            in
             ( model, newSession, Cmd.none )
 
 
@@ -61,7 +70,7 @@ view { playlists } =
     div [ class "Sidebar" ]
         [ div [ class "Sidebar__item" ]
             [ h2 [ class "Sidebar__title Heading" ] [ text "Collections" ]
-            , div [] [ text <| Debug.toString playlists ]
+            , div [] [ text <| Debug.toString (List.length playlists.items) ]
             , div [ class "Sidebar__collections HelperScrollArea" ]
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     [ li [ class "List__item" ]

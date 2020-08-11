@@ -104,13 +104,19 @@ decodePlaylistPaging =
 type alias PlaylistList =
     { items : List Playlist
     , next : String
+    , total : Int
+    , offset : Int
+    , limit : Int
     }
 
 
 decodePlaylistList : Decode.Decoder PlaylistList
 decodePlaylistList =
-    Decode.map2 PlaylistList
+    Decode.map5 PlaylistList
         (Decode.at [ "items" ] (Decode.list decodePlaylist))
         (Decode.field "next"
             (Decode.oneOf [ string, null "" ])
         )
+        (Decode.field "total" Decode.int)
+        (Decode.field "offset" Decode.int)
+        (Decode.field "limit" Decode.int)
