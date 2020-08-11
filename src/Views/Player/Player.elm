@@ -17,6 +17,7 @@ import Html.Events exposing (..)
 import Http
 import Request.Player as Request
 import Route
+import String.Extra as SE
 import Task
 import Time exposing (Posix)
 
@@ -188,7 +189,7 @@ view { player } =
                     [ img [ class "PlayerCurrent__cover", src cover.url ] []
                     , div [ class "PlayerCurrent__control" ]
                         [ div []
-                            ([ span [ class "PlayerCurrent__song" ] [ text track.name ]
+                            ([ span [ class "PlayerCurrent__song" ] [ text <| SE.ellipsis 40 track.name ]
                              , span [] [ text " - " ]
                              ]
                                 ++ artistsView track.artists
