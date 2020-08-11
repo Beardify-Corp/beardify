@@ -73,8 +73,9 @@ playlistItem playlistList playlistType =
     let
         playlistItemView : Playlist -> Html msg
         playlistItemView item =
-            li [ class "List__item" ] [ i [ class "List__icon icon-collection" ] [], text item.name ]
+            li [ class "List__item" ] [ i [ class "List__icon icon-collection" ] [], text <| String.replace "#Collection " "" item.name ]
 
+        isACollection : Bool
         isACollection =
             playlistType == Collection
     in
@@ -89,16 +90,15 @@ playlistItem playlistList playlistType =
             ]
         , div [ class "Sidebar__collections HelperScrollArea" ]
             [ ul [ class "HelperScrollArea__target List unstyled" ]
-                (playlistList.items
-                    |> List.filter
-                        (\playlist ->
-                            if isACollection then
-                                String.contains "#Collection" playlist.name
+                (if playlistType == Collection then
+                    playlistList.items
+                        |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
+                        |> List.map playlistItemView
 
-                            else
-                                not (String.contains "#Collection" playlist.name)
-                        )
-                    |> List.map playlistItemView
+                 else
+                    playlistList.items
+                        |> List.filter (\playlist -> not (String.startsWith "#Collection" playlist.name))
+                        |> List.map playlistItemView
                 )
             ]
         ]
