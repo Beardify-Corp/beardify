@@ -82,7 +82,7 @@ playlistItem playlistList playlistType =
                             (\item ->
                                 li [ class "List__item" ]
                                     [ i [ class "List__icon icon-collection" ] []
-                                    , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text <| String.replace "#Collection " "" item.name ]
+                                    , a [ class "List__link", Route.href (Route.Collection item.id) ] [ text <| String.replace "#Collection " "" item.name ]
                                     ]
                             )
                     )

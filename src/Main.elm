@@ -10,6 +10,7 @@ import Data.User exposing (User)
 import Html exposing (..)
 import Http
 import Page.Artist as Artist
+import Page.Collection as Collection
 import Page.Home as Home
 import Page.Login as Login
 import Page.Page as Page
@@ -37,6 +38,7 @@ type alias Flags =
 type Page
     = ArtistPage Artist.Model
     | PlaylistPage Playlist.Model
+    | CollectionPage Collection.Model
     | Blank
     | HomePage Home.Model
     | LoginPage Login.Model
@@ -55,6 +57,7 @@ type alias Model =
 type Msg
     = ArtistMsg Artist.Msg
     | PlaylistMsg Playlist.Msg
+    | CollectionMsg Collection.Msg
     | ClearNotification Notif
     | DeviceMsg Device.Msg
     | HomeMsg Home.Msg
@@ -133,6 +136,9 @@ setRoute maybeRoute model =
 
         ( True, Just (Route.Playlist id) ) ->
             toPage PlaylistPage (Playlist.init id) PlaylistMsg
+
+        ( True, Just (Route.Collection id) ) ->
+            toPage CollectionPage (Collection.init id) CollectionMsg
 
         ( True, Just Route.Login ) ->
             toPage LoginPage Login.init LoginMsg
@@ -250,6 +256,9 @@ update msg ({ page, session } as model) =
 
         ( PlaylistMsg playlistMsg, PlaylistPage playlistModel ) ->
             toPage PlaylistPage PlaylistMsg Playlist.update playlistMsg playlistModel
+
+        ( CollectionMsg collectionMsg, CollectionPage collectionModel ) ->
+            toPage CollectionPage CollectionMsg Collection.update collectionMsg collectionModel
 
         ( ClearNotification notif, _ ) ->
             ( { model | session = session |> Session.closeNotification notif }
@@ -416,6 +425,9 @@ subscriptions model =
             PlaylistPage _ ->
                 Sub.none
 
+            CollectionPage _ ->
+                Sub.none
+
             HomePage homeModel ->
                 Home.subscriptions homeModel
                     |> Sub.map HomeMsg
@@ -458,6 +470,11 @@ view { sidebar, page, session, player, devices } =
         PlaylistPage playlistModel ->
             Playlist.view player playlistModel
                 |> mapMsg PlaylistMsg
+                |> frame
+
+        CollectionPage collectionModel ->
+            Collection.view player collectionModel
+                |> mapMsg CollectionMsg
                 |> frame
 
         HomePage homeModel ->

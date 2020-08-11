@@ -13,6 +13,7 @@ type Route
     = Home
     | Artist Artist.Id
     | Playlist Playlist.Id
+    | Collection Playlist.Id
     | Login
 
 
@@ -23,6 +24,7 @@ parser =
         , Parser.map Login (s "login")
         , Parser.map Artist (s "artist" </> Artist.parseId)
         , Parser.map Playlist (s "playlist" </> Playlist.parseId)
+        , Parser.map Collection (s "collection" </> Playlist.parseId)
         ]
 
 
@@ -52,6 +54,9 @@ toString route =
 
                 Playlist id ->
                     [ "playlist", Playlist.idToString id ]
+
+                Collection id ->
+                    [ "collection", Playlist.idToString id ]
 
                 Home ->
                     []
