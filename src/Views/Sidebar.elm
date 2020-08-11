@@ -6,6 +6,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
 import Request.Sidebar
+import Route
 import Task
 
 
@@ -70,38 +71,41 @@ type PlaylistType
 
 playlistItem : PlaylistList -> PlaylistType -> Html msg
 playlistItem playlistList playlistType =
-    let
-        playlistItemView : Playlist -> Html msg
-        playlistItemView item =
-            li [ class "List__item" ] [ i [ class "List__icon icon-collection" ] [], text <| String.replace "#Collection " "" item.name ]
-
-        isACollection : Bool
-        isACollection =
-            playlistType == Collection
-    in
-    div [ class "Sidebar__item" ]
-        [ h2 [ class "Sidebar__title Heading" ]
-            [ text <|
-                if isACollection then
-                    "Collections"
-
-                else
-                    "Playlists"
-            ]
-        , div [ class "Sidebar__collections HelperScrollArea" ]
-            [ ul [ class "HelperScrollArea__target List unstyled" ]
-                (if playlistType == Collection then
-                    playlistList.items
+    if playlistType == Collection then
+        div [ class "Sidebar__item" ]
+            [ h2 [ class "Sidebar__title Heading" ] [ text "Collection" ]
+            , div [ class "Sidebar__collections HelperScrollArea" ]
+                [ ul [ class "HelperScrollArea__target List unstyled" ]
+                    (playlistList.items
                         |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
-                        |> List.map playlistItemView
-
-                 else
-                    playlistList.items
-                        |> List.filter (\playlist -> not (String.startsWith "#Collection" playlist.name))
-                        |> List.map playlistItemView
-                )
+                        |> List.map
+                            (\item ->
+                                li [ class "List__item" ]
+                                    [ i [ class "List__icon icon-collection" ] []
+                                    , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text <| String.replace "#Collection " "" item.name ]
+                                    ]
+                            )
+                    )
+                ]
             ]
-        ]
+
+    else
+        div [ class "Sidebar__item" ]
+            [ h2 [ class "Sidebar__title Heading" ] [ text "Playlists" ]
+            , div [ class "Sidebar__collections HelperScrollArea" ]
+                [ ul [ class "HelperScrollArea__target List unstyled" ]
+                    (playlistList.items
+                        |> List.filter (\playlist -> not (String.startsWith "#Collection" playlist.name))
+                        |> List.map
+                            (\item ->
+                                li [ class "List__item" ]
+                                    [ i [ class "List__icon icon-playlist" ] []
+                                    , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text item.name ]
+                                    ]
+                            )
+                    )
+                ]
+            ]
 
 
 view : Model -> Html Msg
