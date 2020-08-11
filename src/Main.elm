@@ -13,6 +13,7 @@ import Page.Artist as Artist
 import Page.Home as Home
 import Page.Login as Login
 import Page.Page as Page
+import Page.Playlist as Playlist
 import Ports
 import Request.User as RequestUser
 import Route exposing (Route)
@@ -35,6 +36,7 @@ type alias Flags =
 
 type Page
     = ArtistPage Artist.Model
+    | PlaylistPage Playlist.Model
     | Blank
     | HomePage Home.Model
     | LoginPage Login.Model
@@ -52,6 +54,7 @@ type alias Model =
 
 type Msg
     = ArtistMsg Artist.Msg
+    | PlaylistMsg Playlist.Msg
     | ClearNotification Notif
     | DeviceMsg Device.Msg
     | HomeMsg Home.Msg
@@ -127,6 +130,9 @@ setRoute maybeRoute model =
 
         ( True, Just (Route.Artist id) ) ->
             toPage ArtistPage (Artist.init id) ArtistMsg
+
+        ( True, Just (Route.Playlist id) ) ->
+            toPage PlaylistPage (Playlist.init id) PlaylistMsg
 
         ( True, Just Route.Login ) ->
             toPage LoginPage Login.init LoginMsg
@@ -241,6 +247,9 @@ update msg ({ page, session } as model) =
     case ( msg, page ) of
         ( ArtistMsg artistMsg, ArtistPage artistModel ) ->
             toPage ArtistPage ArtistMsg Artist.update artistMsg artistModel
+
+        ( PlaylistMsg playlistMsg, PlaylistPage playlistModel ) ->
+            toPage PlaylistPage PlaylistMsg Playlist.update playlistMsg playlistModel
 
         ( ClearNotification notif, _ ) ->
             ( { model | session = session |> Session.closeNotification notif }
@@ -404,6 +413,9 @@ subscriptions model =
             ArtistPage _ ->
                 Sub.none
 
+            PlaylistPage _ ->
+                Sub.none
+
             HomePage homeModel ->
                 Home.subscriptions homeModel
                     |> Sub.map HomeMsg
@@ -441,6 +453,11 @@ view { sidebar, page, session, player, devices } =
         ArtistPage artistModel ->
             Artist.view player artistModel
                 |> mapMsg ArtistMsg
+                |> frame
+
+        PlaylistPage playlistModel ->
+            Playlist.view player playlistModel
+                |> mapMsg PlaylistMsg
                 |> frame
 
         HomePage homeModel ->
