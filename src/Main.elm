@@ -75,7 +75,7 @@ initComponent ( model, msgCmd ) =
             Device.init model.session
 
         ( sidebarModel, sidebarCmd ) =
-            Sidebar.init
+            Sidebar.init model.session
     in
     ( { model
         | player = playerModel
@@ -324,6 +324,18 @@ update msg ({ page, session } as model) =
                   else
                     Cmd.none
                 ]
+            )
+
+        ( SidebarMsg sidebarMsg, _ ) ->
+            let
+                ( sidebarModel, newSession, sidebarCmd ) =
+                    Sidebar.update session sidebarMsg model.sidebar
+            in
+            ( { model
+                | session = newSession
+                , sidebar = sidebarModel
+              }
+            , Cmd.batch [ Cmd.map SidebarMsg sidebarCmd ]
             )
 
         ( StoreChanged json, _ ) ->

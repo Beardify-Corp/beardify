@@ -1,43 +1,67 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
+import Data.Playlist exposing (Playlist, PlaylistList)
 import Data.Session exposing (Session)
+import Debug
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Http
+import Request.Sidebar
+import Task
 
 
 type alias Model =
-    { test : String
+    { playlists : PlaylistList
     }
 
 
 type Msg
-    = NoOp
+    = Fetched (Result ( Session, Http.Error ) Model)
 
 
 defaultModel : Model
 defaultModel =
-    { test = ""
+    { playlists = { items = [], next = "" }
     }
+
+
+init : Session -> ( Model, Cmd Msg )
+init session =
+    ( defaultModel
+    , Task.map Model
+        (Request.Sidebar.get session)
+        |> Task.attempt Fetched
+    )
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
+    let
+        _ =
+            Debug.log "tarace" "tarace"
+    in
     case msg of
-        NoOp ->
-            ( model, session, Cmd.none )
+        Fetched (Ok newModel) ->
+            let
+                _ =
+                    Debug.log "newModel" newModel
+            in
+            ( newModel, session, Cmd.none )
 
-
-init : ( Model, Cmd Msg )
-init =
-    ( defaultModel, Cmd.none )
+        Fetched (Err ( newSession, _ )) ->
+            let
+                _ =
+                    Debug.log "newSession" newSession
+            in
+            ( model, newSession, Cmd.none )
 
 
 view : Model -> Html Msg
-view model =
+view { playlists } =
     div [ class "Sidebar" ]
         [ div [ class "Sidebar__item" ]
             [ h2 [ class "Sidebar__title Heading" ] [ text "Collections" ]
-            , div [] [ text <| Debug.toString model.test ]
+            , div [] [ text <| Debug.toString playlists ]
             , div [ class "Sidebar__collections HelperScrollArea" ]
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     [ li [ class "List__item" ]
