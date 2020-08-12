@@ -2,6 +2,7 @@ module Data.Playlist exposing
     ( Id
     , Playlist
     , PlaylistList
+    , PlaylistOwner
     , decodePlaylist
     , decodePlaylistList
     , idToString

@@ -1,4 +1,4 @@
-module Data.Track exposing (PlaylistTrackObject, Track, TrackList, decodePlaylistTrackObject, decodeTrack, decodeTrackList, durationFormat)
+module Data.Track exposing (PlaylistTrackObject, Track, TrackItem, TrackList, decodePlaylistTrackObject, decodeTrack, decodeTrackList, durationFormat)
 
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (ArtistSimplified)
@@ -75,24 +75,6 @@ decodeTrack =
         |> JDP.required "uri" Decode.string
 
 
-
--- type alias PlaylistTrackObject =
---     { track : Track
---     }
--- decodePlaylistTrackObject : Decode.Decoder PlaylistTrackObject
--- decodePlaylistTrackObject =
---     Decode.map PlaylistTrackObject
---         (Decode.at [ "track" ] decodeTrack)
--- type alias TrackList =
---     { items : List PlaylistTrackObject
---     , limit : Int
---     , next : String
---     , offset : Int
---     , total : Int
---     }
---
-
-
 type alias TrackList =
     { tracks : PlaylistTrackObject
     }
@@ -125,12 +107,26 @@ decodePlaylistTrackObject =
         (Decode.field "total" Decode.int)
 
 
+type alias TrackOwner =
+    { id : String }
+
+
+decodeTrackOwner : Decode.Decoder TrackOwner
+decodeTrackOwner =
+    Decode.map TrackOwner
+        (Decode.field "id" Decode.string)
+
+
 type alias TrackItem =
-    { track : Track
+    { addedAt : String
+    , addedBy : TrackOwner
+    , track : Track
     }
 
 
 decodeTrackItem : Decode.Decoder TrackItem
 decodeTrackItem =
-    Decode.map TrackItem
+    Decode.map3 TrackItem
+        (Decode.field "added_at" Decode.string)
+        (Decode.at [ "added_by" ] decodeTrackOwner)
         (Decode.at [ "track" ] decodeTrack)
