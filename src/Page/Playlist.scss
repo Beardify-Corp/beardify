@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "../Color";
+
 .Playlist {
   &Head {
     display: flex;
@@ -15,16 +18,33 @@
   }
 
   &Tracks {
+    align-items: center;
     display: grid;
     grid-template-columns: 1.5fr 1fr .6fr auto auto;
 
+    &__icon {
+      font-size: .8rem;
+      margin-right: 5px;
+      position: relative;
+      top: 1px;
+
+      &--primary {
+        color: Color.$primary;
+      }
+
+      &--secondary {
+        color: Color.$secondary;
+      }
+    }
+
     &__item {
-      padding: 3px 10px;
+      padding: 5px 10px;
     }
 
     &__name {
       color: white;
       font-weight: bold;
+      margin-bottom: 2px;
     }
   }
 }

@@ -1,5 +1,6 @@
 module Page.Playlist exposing (Model, Msg(..), init, update, view)
 
+import Data.Album
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
@@ -103,6 +104,18 @@ view context { playlist, trackList } =
         tracks : List Data.Track.TrackItem
         tracks =
             trackList.tracks.items
+
+        setIcon : Data.Album.Type -> Html msg
+        setIcon albumType =
+            case albumType of
+                Data.Album.Album ->
+                    i [ class "PlaylistTracks__icon PlaylistTracks__icon--primary icon-discogs" ] []
+
+                Data.Album.Single ->
+                    i [ class "PlaylistTracks__icon PlaylistTracks__icon--secondary icon-pizza" ] []
+
+                _ ->
+                    i [ class "PlaylistTracks__icon icon-discogs" ] []
     in
     ( playlistName
     , [ div [ class "Flex fullHeight" ]
@@ -128,7 +141,7 @@ view context { playlist, trackList } =
                                     div [ class "PlaylistTracks" ]
                                         [ div [ class "PlaylistTracks__item" ]
                                             [ div [ class "PlaylistTracks__name" ] [ text e.track.name ]
-                                            , div [] [ text e.track.album.name ]
+                                            , div [] [ setIcon e.track.album.type_, text e.track.album.name ]
                                             ]
                                         , div [ class "PlaylistTracks__item" ] (Views.Artist.view e.track.artists)
                                         , div [ class "PlaylistTracks__item" ] [ text <| e.addedBy.id ]
