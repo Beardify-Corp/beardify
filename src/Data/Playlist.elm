@@ -9,6 +9,7 @@ module Data.Playlist exposing
     )
 
 import Data.Image exposing (Image, decode)
+import Data.Track
 import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
 import Url.Parser as Parser exposing (Parser)
 
@@ -90,18 +91,20 @@ type alias Playlist =
     , uri : String
     , owner : PlaylistOwner
     , description : String
+    , tracks : Data.Track.TrackList
     }
 
 
 decodePlaylist : Decode.Decoder Playlist
 decodePlaylist =
-    Decode.map6 Playlist
+    Decode.map7 Playlist
         (Decode.field "id" decodeId)
         (Decode.at [ "images" ] (Decode.list Data.Image.decode))
         (Decode.field "name" Decode.string)
         (Decode.field "uri" Decode.string)
         (Decode.at [ "owner" ] decodePlaylistOwner)
         (Decode.field "description" Decode.string)
+        (Decode.at [ "tracks" ] Data.Track.decodeTrackList)
 
 
 

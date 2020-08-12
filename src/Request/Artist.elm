@@ -47,7 +47,7 @@ getTopTrack session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/top-tracks?country=" ++ country
         , body = Http.emptyBody
-        , resolver = Decode.at [ "tracks" ] (Decode.list Track.decode) |> Api.jsonResolver
+        , resolver = Decode.at [ "tracks" ] (Decode.list Track.decodeTrack) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session

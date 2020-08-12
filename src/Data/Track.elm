@@ -1,10 +1,15 @@
-module Data.Track exposing (Track, decode, durationFormat)
+module Data.Track exposing (Track, TrackList, decodeTrack, decodeTrackList, durationFormat)
 
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (ArtistSimplified)
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline as JDP
 import Time
+
+
+decodeId : Decoder Id
+decodeId =
+    Decode.map Id Decode.string
 
 
 type Id
@@ -56,8 +61,8 @@ durationFormat duration =
     hour ++ minute ++ second
 
 
-decode : Decoder Track
-decode =
+decodeTrack : Decoder Track
+decodeTrack =
     Decode.succeed Track
         |> JDP.required "album" Album.decodeSimplified
         |> JDP.required "artists" (Decode.list Artist.decodeSimplified)
@@ -74,6 +79,33 @@ decode =
         |> JDP.required "is_local" Decode.bool
 
 
-decodeId : Decoder Id
-decodeId =
-    Decode.map Id Decode.string
+type alias PlaylistTrackObject =
+    { track : Track
+    }
+
+
+decodePlaylistTrackObject : Decode.Decoder PlaylistTrackObject
+decodePlaylistTrackObject =
+    Decode.map PlaylistTrackObject
+        (Decode.at [ "track" ] decodeTrack)
+
+
+type alias TrackList =
+    { items : List PlaylistTrackObject
+    , limit : Int
+    , next : String
+    , offset : Int
+    , total : Int
+    }
+
+
+decodeTrackList : Decode.Decoder TrackList
+decodeTrackList =
+    Decode.map5 TrackList
+        (Decode.at [ "items" ] (Decode.list decodePlaylistTrackObject))
+        (Decode.field "limit" Decode.int)
+        (Decode.field "next"
+            (Decode.oneOf [ string, null "" ])
+        )
+        (Decode.field "offset" Decode.int)
+        (Decode.field "total" Decode.int)

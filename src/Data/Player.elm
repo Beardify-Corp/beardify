@@ -66,7 +66,7 @@ decode =
         |> JDP.optional "context" (Decode.map Just decodeContext) Nothing
         |> JDP.required "shuffle_state" Decode.bool
         |> JDP.required "timestamp" Decode.int
-        |> JDP.required "item" Track.decode
+        |> JDP.required "item" Track.decodeTrack
         |> JDP.required "progress_ms" Decode.int
         |> JDP.required "is_playing" Decode.bool
         |> JDP.required "currently_playing_type" Decode.string
