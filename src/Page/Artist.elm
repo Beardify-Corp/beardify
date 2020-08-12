@@ -193,7 +193,7 @@ view context ({ artist, followed } as model) =
 
         artistName : String
         artistName =
-            Maybe.withDefault "Artists" (Maybe.map .name artist)
+            Maybe.withDefault "" (Maybe.map .name artist)
 
         followedBtn : List Bool -> Html Msg
         followedBtn followedStatus =

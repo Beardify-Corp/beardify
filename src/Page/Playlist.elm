@@ -1,11 +1,8 @@
 module Page.Playlist exposing (Model, Msg(..), init, update, view)
 
--- import Data.Youtube as Youtube
-
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
-import Data.Track
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -16,8 +13,6 @@ import Task
 
 type alias Model =
     { playlist : Maybe Data.Playlist.Playlist
-
-    -- , trackList : Data.Track.TrackList
     }
 
 
@@ -28,19 +23,10 @@ type Msg
 init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
-
-      --   , trackList =
-      --         { items = []
-      --         , limit = 0
-      --         , next = ""
-      --         , offset = 0
-      --         , total = 0
-      --         }
       }
     , session
     , Task.map (Model << Just)
         (Request.Playlist.get session id)
-        -- (Request.Playlist.getTracks session id)
         |> Task.attempt Fetched
     )
 
@@ -56,7 +42,21 @@ update session msg model =
 
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
-view _ model =
-    ( "artistName"
-    , [ div [] [ text <| Debug.toString model ] ]
+view _ { playlist } =
+    let
+        playlistName : String
+        playlistName =
+            Maybe.withDefault "" (Maybe.map .name playlist)
+    in
+    ( playlistName
+    , [ div [ class "Flex fullHeight" ]
+            [ div [ class "Flex__full HelperScrollArea" ]
+                [ div [ class "Artist__body HelperScrollArea__target" ]
+                    [ div [ class "Flex spaceBetween centeredVertical" ]
+                        [ h1 [ class "Artist__name Heading first" ] [ text playlistName ]
+                        ]
+                    ]
+                ]
+            ]
+      ]
     )
