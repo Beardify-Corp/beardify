@@ -216,7 +216,7 @@ view context ({ artist, followed } as model) =
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
-                        , Cover.view artistCover
+                        , Cover.view artistCover Cover.Normal
                         , followedBtn followed
                         ]
                     , externalLinkList |> div [ class "Artist__links External" ]

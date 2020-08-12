@@ -8,40 +8,40 @@ toFrenchMonth : Month -> String
 toFrenchMonth month =
     case month of
         Jan ->
-            "Jan"
+            "01"
 
         Feb ->
-            "Fev"
+            "02"
 
         Mar ->
-            "Mar"
+            "03"
 
         Apr ->
-            "Apr"
+            "04"
 
         May ->
-            "Mai"
+            "05"
 
         Jun ->
-            "Jun"
+            "06"
 
         Jul ->
-            "Jul"
+            "07"
 
         Aug ->
-            "Aug"
+            "08"
 
         Sep ->
-            "Sep"
+            "09"
 
         Oct ->
-            "Oct"
+            "10"
 
         Nov ->
-            "Nov"
+            "11"
 
         Dec ->
-            "Dec"
+            "12"
 
 
 convertDate : String -> String
@@ -55,4 +55,4 @@ convertDate isoDate =
                 Err _ ->
                     Time.millisToPosix 0
     in
-    String.fromInt (Time.toDay Time.utc convertDateToPosix) ++ "-" ++ toFrenchMonth (Time.toMonth Time.utc convertDateToPosix) ++ "-" ++ String.fromInt (Time.toYear Time.utc convertDateToPosix)
+    String.fromInt (Time.toDay Time.utc convertDateToPosix) ++ "/" ++ toFrenchMonth (Time.toMonth Time.utc convertDateToPosix) ++ "/" ++ String.fromInt (Time.toYear Time.utc convertDateToPosix)

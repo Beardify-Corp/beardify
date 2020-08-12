@@ -120,8 +120,8 @@ view context { playlist, trackList } =
     ( playlistName
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
-                [ div [ class "Artist__body HelperScrollArea__target" ]
-                    [ div [ class "Flex spaceBetween centeredVertical" ]
+                [ div [ class "Playlist__body HelperScrollArea__target" ]
+                    [ div [ class "Playlist__content Flex spaceBetween centeredVertical" ]
                         [ div [ class "PlaylistHead InFront" ]
                             [ HE.viewIf (artistCover /= "") (img [ class "PlaylistHead__cover", src artistCover, width 100, height 100 ] [])
                             , div []
@@ -132,9 +132,9 @@ view context { playlist, trackList } =
                                 , div [] [ text playlistDescription ]
                                 ]
                             ]
-                        , Cover.view artistCover
+                        , Cover.view artistCover Cover.Light
                         ]
-                    , div [ class "InFront" ]
+                    , div [ class "Playlist__content InFront" ]
                         (tracks
                             |> List.map
                                 (\e ->
