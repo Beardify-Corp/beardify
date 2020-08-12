@@ -89,17 +89,19 @@ type alias Playlist =
     , name : String
     , uri : String
     , owner : PlaylistOwner
+    , description : String
     }
 
 
 decodePlaylist : Decode.Decoder Playlist
 decodePlaylist =
-    Decode.map5 Playlist
+    Decode.map6 Playlist
         (Decode.field "id" decodeId)
         (Decode.at [ "images" ] (Decode.list Data.Image.decode))
         (Decode.field "name" Decode.string)
         (Decode.field "uri" Decode.string)
         (Decode.at [ "owner" ] decodePlaylistOwner)
+        (Decode.field "description" Decode.string)
 
 
 
