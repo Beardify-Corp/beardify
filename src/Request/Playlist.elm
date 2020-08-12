@@ -16,7 +16,7 @@ get session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "playlists/" ++ Data.Playlist.idToString id
+        , url = Api.url ++ "playlists/" ++ Data.Playlist.idToString id ++ "?fields=description,uri,id,images,name,uri,owner"
         , body = Http.emptyBody
         , resolver = Data.Playlist.decodePlaylist |> Api.jsonResolver
         , timeout = Nothing

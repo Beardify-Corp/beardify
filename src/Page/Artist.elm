@@ -137,8 +137,7 @@ topTrackViews : PlayerContext -> List Track -> Html Msg
 topTrackViews context tracks =
     div []
         [ h2 [ class "Heading second" ] [ text "Top tracks" ]
-        , tracks
-            |> List.map (Views.Track.view { playTracks = PlayTracks } context tracks)
+        , Views.Track.view { playTracks = PlayTracks } context tracks
             |> List.take 5
             |> div []
         ]

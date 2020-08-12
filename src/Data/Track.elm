@@ -1,4 +1,4 @@
-module Data.Track exposing (Track, TrackList, decodeTrack, decodeTrackList, durationFormat)
+module Data.Track exposing (PlaylistTrackObject, Track, TrackList, decodePlaylistTrackObject, decodeTrack, decodeTrackList, durationFormat)
 
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (ArtistSimplified)
@@ -26,10 +26,8 @@ type alias Track =
     , id : Id
     , name : String
     , popularity : Int
-    , previewUrl : Maybe String
     , trackNumber : Int
     , uri : String
-    , isLocal : Bool
     }
 
 
@@ -73,25 +71,41 @@ decodeTrack =
         |> JDP.required "id" decodeId
         |> JDP.required "name" Decode.string
         |> JDP.required "popularity" Decode.int
-        |> JDP.optional "preview_url" (Decode.map Just Decode.string) Nothing
         |> JDP.required "track_number" Decode.int
         |> JDP.required "uri" Decode.string
-        |> JDP.required "is_local" Decode.bool
 
 
-type alias PlaylistTrackObject =
-    { track : Track
-    }
 
-
-decodePlaylistTrackObject : Decode.Decoder PlaylistTrackObject
-decodePlaylistTrackObject =
-    Decode.map PlaylistTrackObject
-        (Decode.at [ "track" ] decodeTrack)
+-- type alias PlaylistTrackObject =
+--     { track : Track
+--     }
+-- decodePlaylistTrackObject : Decode.Decoder PlaylistTrackObject
+-- decodePlaylistTrackObject =
+--     Decode.map PlaylistTrackObject
+--         (Decode.at [ "track" ] decodeTrack)
+-- type alias TrackList =
+--     { items : List PlaylistTrackObject
+--     , limit : Int
+--     , next : String
+--     , offset : Int
+--     , total : Int
+--     }
+--
 
 
 type alias TrackList =
-    { items : List PlaylistTrackObject
+    { tracks : PlaylistTrackObject
+    }
+
+
+decodeTrackList : Decode.Decoder TrackList
+decodeTrackList =
+    Decode.map TrackList
+        (Decode.at [ "tracks" ] decodePlaylistTrackObject)
+
+
+type alias PlaylistTrackObject =
+    { items : List TrackItem
     , limit : Int
     , next : String
     , offset : Int
@@ -99,13 +113,24 @@ type alias TrackList =
     }
 
 
-decodeTrackList : Decode.Decoder TrackList
-decodeTrackList =
-    Decode.map5 TrackList
-        (Decode.at [ "items" ] (Decode.list decodePlaylistTrackObject))
+decodePlaylistTrackObject : Decode.Decoder PlaylistTrackObject
+decodePlaylistTrackObject =
+    Decode.map5 PlaylistTrackObject
+        (Decode.at [ "items" ] (Decode.list decodeTrackItem))
         (Decode.field "limit" Decode.int)
         (Decode.field "next"
             (Decode.oneOf [ string, null "" ])
         )
         (Decode.field "offset" Decode.int)
         (Decode.field "total" Decode.int)
+
+
+type alias TrackItem =
+    { track : Track
+    }
+
+
+decodeTrackItem : Decode.Decoder TrackItem
+decodeTrackItem =
+    Decode.map TrackItem
+        (Decode.at [ "track" ] decodeTrack)
