@@ -3,40 +3,48 @@ module Page.Playlist exposing (Model, Msg(..), init, update, view)
 -- import Data.Youtube as Youtube
 
 import Data.Player exposing (..)
-import Data.Playlist as Playlist exposing (..)
+import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Http
+import Request.Playlist
+import Task
 
 
 type alias Model =
-    { test : String
+    { playlist : Maybe Data.Playlist.Playlist
     }
 
 
 type Msg
-    = NoOp
+    = Fetched (Result ( Session, Http.Error ) Model)
 
 
-init : Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
-    ( { test = Playlist.idToString id
+    ( { playlist = Nothing
       }
     , session
-    , Cmd.none
+    , Task.map (Model << Just)
+        (Request.Playlist.get session id)
+        |> Task.attempt Fetched
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
-        NoOp ->
-            ( model, session, Cmd.none )
+        Fetched (Ok newModel) ->
+            ( newModel, session, Cmd.none )
+
+        Fetched (Err ( newSession, _ )) ->
+            ( model, newSession, Cmd.none )
 
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view _ model =
     ( "artistName"
-    , [ div [] [ text model.test ] ]
+    , [ div [] [ text <| Debug.toString model ] ]
     )
