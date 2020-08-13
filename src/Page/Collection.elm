@@ -154,7 +154,7 @@ view context { playlist, trackList } =
                             (tracks
                                 |> List.map
                                     (\a ->
-                                        Views.Album.view { playAlbum = PlayAlbum } context a.track.album
+                                        Views.Album.view { playAlbum = PlayAlbum } context True a.track.album
                                     )
                             )
                         ]
