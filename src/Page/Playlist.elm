@@ -5,6 +5,7 @@ import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
 import Data.Track exposing (TrackList)
+import Debug
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -21,12 +22,12 @@ import Views.Cover as Cover
 
 type alias Model =
     { playlist : Maybe Data.Playlist.Playlist
-    , trackList : Data.Track.TrackList
+    , trackList : Data.Track.PlaylistTrackObject
     }
 
 
 type Msg
-    = AddTracklist (Result ( Session, Http.Error ) Data.Track.TrackList)
+    = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
     | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
@@ -36,20 +37,15 @@ init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
       , trackList =
-            { tracks =
-                { items = []
-                , limit = 0
-                , next = ""
-                , offset = 0
-                , total = 0
-                }
+            { items = []
+            , limit = 0
+            , next = ""
+            , offset = 0
+            , total = 0
             }
       }
     , session
-    , Cmd.batch
-        [ Task.attempt InitPlaylistInfos (Request.Playlist.get session id)
-        , Task.attempt AddTracklist (Request.Playlist.getTracks session id 100)
-        ]
+    , Task.attempt InitPlaylistInfos (Request.Playlist.get session id)
     )
 
 
@@ -57,44 +53,34 @@ update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg ({ trackList } as model) =
     case msg of
         InitPlaylistInfos (Ok playlistInfo) ->
-            ( { model | playlist = Just playlistInfo }, session, Cmd.none )
+            ( { model | playlist = Just playlistInfo }
+            , session
+            , Task.attempt AddTracklist (Request.Playlist.getTracks session playlistInfo.id 0)
+            )
 
         InitPlaylistInfos (Err _) ->
             ( model, session, Cmd.none )
 
         AddTracklist (Ok newModel) ->
-            if newModel.tracks.total > trackList.tracks.offset then
+            if newModel.total > newModel.offset then
                 let
-                    trackModel =
-                        trackList.tracks
+                    moreTracks =
+                        case model.playlist of
+                            Just a ->
+                                Task.attempt AddTracklist (Request.Playlist.getTracks session a.id (newModel.offset + 100))
 
-                    currentOffset =
-                        trackList.tracks.offset
-
-                    _ =
-                        Debug.log "trackList.tracks.total" newModel.tracks.total
-
-                    _ =
-                        Debug.log "trackList.tracks.offset" trackList.tracks.offset
+                            Nothing ->
+                                Cmd.none
                 in
                 ( { model
                     | trackList =
                         { trackList
-                            | tracks =
-                                { trackModel
-                                    | items = trackList.tracks.items ++ newModel.tracks.items
-                                    , offset = currentOffset + 100
-                                }
+                            | items = trackList.items ++ newModel.items
+                            , offset = trackList.offset + newModel.offset
                         }
                   }
                 , session
-                , case model.playlist of
-                    Just a ->
-                        -- Cmd.none
-                        Task.attempt AddTracklist (Request.Playlist.getTracks session a.id currentOffset)
-
-                    Nothing ->
-                        Cmd.none
+                , moreTracks
                 )
 
             else
@@ -143,7 +129,7 @@ view context { playlist, trackList } =
 
         tracks : List Data.Track.TrackItem
         tracks =
-            trackList.tracks.items
+            trackList.items
 
         setIcon : Data.Album.Type -> Html msg
         setIcon albumType =
@@ -174,7 +160,6 @@ view context { playlist, trackList } =
                             ]
                         , Cover.view artistCover Cover.Light
                         ]
-                    , div [] [ text <| Debug.toString trackList.tracks.offset ]
                     , div [ class "Playlist__content InFront" ]
                         (tracks
                             |> List.map
