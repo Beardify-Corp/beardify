@@ -38,6 +38,10 @@
       background-color: rgba(black, .2);
     }
 
+    &.active {
+      background-color: rgba(Color.$primary, .2);
+    }
+
     &__icon {
       font-size: .8rem;
       margin-right: 5px;

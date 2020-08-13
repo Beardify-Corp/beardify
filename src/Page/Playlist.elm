@@ -1,17 +1,17 @@
 module Page.Playlist exposing (Model, Msg(..), init, update, view)
 
 import Data.Album
-import Data.Player exposing (..)
+import Data.Player as Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
-import Data.Track exposing (TrackList)
-import Debug
+import Data.Track
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
+import List.Extra as LE
 import Request.Player
 import Request.Playlist
 import String
@@ -131,6 +131,15 @@ view context { playlist, trackList } =
         tracks =
             trackList.items
 
+        isTrackPlaying : String
+        isTrackPlaying =
+            Player.getCurrentTrackUri context
+
+        listTracksUri : String -> List String
+        listTracksUri trackUri =
+            List.map (\e -> e.track.uri) trackList.items
+                |> LE.dropWhile (\t -> t /= trackUri)
+
         setIcon : Data.Album.Type -> Html msg
         setIcon albumType =
             case albumType of
@@ -142,6 +151,25 @@ view context { playlist, trackList } =
 
                 _ ->
                     i [ class "PlaylistTracks__icon icon-discogs" ] []
+
+        trackView : Data.Track.TrackItem -> Html Msg
+        trackView trackItem =
+            div [ class "Playlist__content InFront" ]
+                [ div
+                    [ onClick <| PlayTracks (listTracksUri trackItem.track.uri)
+                    , class "PlaylistTracks"
+                    , classList [ ( "active", isTrackPlaying == trackItem.track.uri ) ]
+                    ]
+                    [ div [ class "PlaylistTracks__item" ]
+                        [ div [ class "PlaylistTracks__name" ] [ text trackItem.track.name ]
+                        , div [] [ setIcon trackItem.track.album.type_, text trackItem.track.album.name ]
+                        ]
+                    , div [ class "PlaylistTracks__item" ] (Views.Artist.view trackItem.track.artists)
+                    , div [ class "PlaylistTracks__item" ] [ text <| trackItem.addedBy.id ]
+                    , div [ class "PlaylistTracks__item" ] [ text <| Helper.convertDate trackItem.addedAt ]
+                    , div [ class "PlaylistTracks__item" ] [ text <| Data.Track.durationFormat trackItem.track.duration ]
+                    ]
+                ]
     in
     ( playlistName
     , [ div [ class "Flex fullHeight" ]
@@ -161,21 +189,7 @@ view context { playlist, trackList } =
                         , Cover.view artistCover Cover.Light
                         ]
                     , div [ class "Playlist__content InFront" ]
-                        (tracks
-                            |> List.map
-                                (\e ->
-                                    div [ class "PlaylistTracks" ]
-                                        [ div [ class "PlaylistTracks__item" ]
-                                            [ div [ class "PlaylistTracks__name" ] [ text e.track.name ]
-                                            , div [] [ setIcon e.track.album.type_, text e.track.album.name ]
-                                            ]
-                                        , div [ class "PlaylistTracks__item" ] (Views.Artist.view e.track.artists)
-                                        , div [ class "PlaylistTracks__item" ] [ text <| e.addedBy.id ]
-                                        , div [ class "PlaylistTracks__item" ] [ text <| Helper.convertDate e.addedAt ]
-                                        , div [ class "PlaylistTracks__item" ] [ text <| Data.Track.durationFormat e.track.duration ]
-                                        ]
-                                )
-                        )
+                        (tracks |> List.map trackView)
                     ]
                 ]
             ]
