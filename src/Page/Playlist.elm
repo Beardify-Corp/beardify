@@ -21,12 +21,12 @@ import Views.Cover as Cover
 
 type alias Model =
     { playlist : Maybe Data.Playlist.Playlist
-    , trackList : Data.Track.PlaylistTrackObject
+    , trackList : Data.Track.TrackList
     }
 
 
 type Msg
-    = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
+    = AddTracklist (Result ( Session, Http.Error ) Data.Track.TrackList)
     | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
@@ -36,17 +36,19 @@ init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
       , trackList =
-            { items = []
-            , limit = 0
-            , next = ""
-            , offset = 0
-            , total = 0
+            { tracks =
+                { items = []
+                , limit = 0
+                , next = ""
+                , offset = 0
+                , total = 0
+                }
             }
       }
     , session
     , Cmd.batch
         [ Task.attempt InitPlaylistInfos (Request.Playlist.get session id)
-        , Task.attempt AddTracklist (Request.Playlist.getTracks session id 0)
+        , Task.attempt AddTracklist (Request.Playlist.getTracks session id 100)
         ]
     )
 
@@ -61,22 +63,39 @@ update session msg ({ trackList } as model) =
             ( model, session, Cmd.none )
 
         AddTracklist (Ok newModel) ->
-            if newModel.total > trackList.offset then
-                case model.playlist of
-                    Just a ->
-                        ( { model
-                            | trackList =
-                                { trackList
-                                    | items = List.append trackList.items newModel.items
-                                    , offset = newModel.offset
+            if newModel.tracks.total > trackList.tracks.offset then
+                let
+                    trackModel =
+                        trackList.tracks
+
+                    currentOffset =
+                        trackList.tracks.offset
+
+                    _ =
+                        Debug.log "trackList.tracks.total" newModel.tracks.total
+
+                    _ =
+                        Debug.log "trackList.tracks.offset" trackList.tracks.offset
+                in
+                ( { model
+                    | trackList =
+                        { trackList
+                            | tracks =
+                                { trackModel
+                                    | items = trackList.tracks.items ++ newModel.tracks.items
+                                    , offset = currentOffset + 100
                                 }
-                          }
-                        , session
-                        , Task.attempt AddTracklist (Request.Playlist.getTracks session a.id (newModel.offset + 100))
-                        )
+                        }
+                  }
+                , session
+                , case model.playlist of
+                    Just a ->
+                        -- Cmd.none
+                        Task.attempt AddTracklist (Request.Playlist.getTracks session a.id currentOffset)
 
                     Nothing ->
-                        ( model, session, Cmd.none )
+                        Cmd.none
+                )
 
             else
                 ( model, session, Cmd.none )
@@ -124,7 +143,7 @@ view context { playlist, trackList } =
 
         tracks : List Data.Track.TrackItem
         tracks =
-            trackList.items
+            trackList.tracks.items
 
         setIcon : Data.Album.Type -> Html msg
         setIcon albumType =
@@ -155,6 +174,7 @@ view context { playlist, trackList } =
                             ]
                         , Cover.view artistCover Cover.Light
                         ]
+                    , div [] [ text <| Debug.toString trackList.tracks.offset ]
                     , div [ class "Playlist__content InFront" ]
                         (tracks
                             |> List.map

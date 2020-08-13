@@ -24,14 +24,14 @@ get session id =
         |> Api.mapError session
 
 
-getTracks : Session -> Data.Playlist.Id -> Int -> Task ( Session, Http.Error ) Data.Track.PlaylistTrackObject
+getTracks : Session -> Data.Playlist.Id -> Int -> Task ( Session, Http.Error ) Data.Track.TrackList
 getTracks session id offset =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "playlists/" ++ Data.Playlist.idToString id ++ "/tracks?limit=100&offset=" ++ String.fromInt offset
+        , url = Api.url ++ "playlists/" ++ Data.Playlist.idToString id ++ "?fields=tracks" ++ "&offset=" ++ String.fromInt offset ++ "&limit=100"
         , body = Http.emptyBody
-        , resolver = Data.Track.decodePlaylistTrackObject |> Api.jsonResolver
+        , resolver = Data.Track.decodeTrackList |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
