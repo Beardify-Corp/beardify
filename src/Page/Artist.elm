@@ -154,7 +154,7 @@ albumsListView context albums listName =
         albumList =
             div []
                 [ h2 [ class "Heading second" ] [ text listName ]
-                , List.map (Views.Album.view { playAlbum = PlayAlbum } context) albums
+                , List.map (Views.Album.view { playAlbum = PlayAlbum } context False) albums
                     |> div [ class "Artist__releaseList AlbumList" ]
                 ]
     in

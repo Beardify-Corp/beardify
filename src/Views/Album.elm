@@ -7,6 +7,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
+import Views.Artist
 
 
 type alias Config msg =
@@ -14,8 +15,8 @@ type alias Config msg =
     }
 
 
-view : Config msg -> PlayerContext -> AlbumSimplified -> Html msg
-view config context album =
+view : Config msg -> PlayerContext -> Bool -> AlbumSimplified -> Html msg
+view config context showArtist album =
     let
         cover : Image.Image
         cover =
@@ -39,6 +40,7 @@ view config context album =
             , button [ onClick <| config.playAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
             , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
             ]
+        , HE.viewIf showArtist (div [ class "Album__name" ] [ span [] (Views.Artist.view album.artists) ])
         , div [ class "Album__name" ] [ text album.name ]
         , div [ class "Album__release" ] [ text <| releaseFormat album.releaseDate ]
         , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
