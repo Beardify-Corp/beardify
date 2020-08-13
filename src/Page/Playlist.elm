@@ -4,7 +4,7 @@ import Data.Album
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track exposing (TrackList)
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -21,12 +21,12 @@ import Views.Cover as Cover
 
 type alias Model =
     { playlist : Maybe Data.Playlist.Playlist
-    , trackList : Data.Track.TrackList
+    , trackList : Data.Track.PlaylistTrackObject
     }
 
 
 type Msg
-    = AddTracklist (Result ( Session, Http.Error ) Data.Track.TrackList)
+    = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
     | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
@@ -36,13 +36,11 @@ init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
       , trackList =
-            { tracks =
-                { items = []
-                , limit = 0
-                , next = ""
-                , offset = 0
-                , total = 0
-                }
+            { items = []
+            , limit = 0
+            , next = ""
+            , offset = 0
+            , total = 0
             }
       }
     , session
@@ -54,7 +52,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg ({ trackList, playlist } as model) =
+update session msg ({ trackList } as model) =
     case msg of
         InitPlaylistInfos (Ok playlistInfo) ->
             ( { model | playlist = Just playlistInfo }, session, Cmd.none )
@@ -63,8 +61,30 @@ update session msg ({ trackList, playlist } as model) =
             ( model, session, Cmd.none )
 
         AddTracklist (Ok newModel) ->
-            if newModel.tracks.total > newModel.tracks.offset then
-                ( { model | trackList = newModel }, session, Cmd.none )
+            if newModel.total > trackList.offset then
+                case model.playlist of
+                    Just a ->
+                        let
+                            tracksModel =
+                                trackList
+
+                            _ =
+                                Debug.log "newModel.tracks.offset" newModel.offset
+                        in
+                        ( { model
+                            | trackList =
+                                { trackList
+                                    | items = List.append trackList.items newModel.items
+                                    , offset = newModel.offset
+                                }
+                          }
+                        , session
+                          --   , Task.attempt AddTracklist (Request.Playlist.getTracks session a.id (newModel.tracks.offset + 100))
+                        , Cmd.none
+                        )
+
+                    Nothing ->
+                        ( model, session, Cmd.none )
                 -- case playlist of
                 --     Just a ->
                 --         ( newModel
@@ -123,7 +143,7 @@ view context { playlist, trackList } =
 
         tracks : List Data.Track.TrackItem
         tracks =
-            trackList.tracks.items
+            trackList.items
 
         setIcon : Data.Album.Type -> Html msg
         setIcon albumType =
@@ -154,6 +174,7 @@ view context { playlist, trackList } =
                             ]
                         , Cover.view artistCover Cover.Light
                         ]
+                    , div [] [ text <| Debug.toString trackList.offset ]
                     , div [ class "Playlist__content InFront" ]
                         (tracks
                             |> List.map
