@@ -30,7 +30,6 @@ type alias Model =
 type Msg
     = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
     | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
-    | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
 
@@ -91,9 +90,6 @@ update session msg ({ trackList } as model) =
         AddTracklist (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
-        PlayTracks uris ->
-            ( model, session, Task.attempt Played (Request.Player.playTracks session uris) )
-
         PlayAlbum uri ->
             ( model, session, Task.attempt Played (Request.Player.playThis session uri) )
 
@@ -135,46 +131,6 @@ view context { playlist, trackList } =
         tracks : List Data.Track.TrackItem
         tracks =
             trackList.items
-
-        isTrackPlaying : String
-        isTrackPlaying =
-            Player.getCurrentTrackUri context
-
-        listTracksUri : String -> List String
-        listTracksUri trackUri =
-            List.map (\e -> e.track.uri) trackList.items
-                |> LE.dropWhile (\t -> t /= trackUri)
-
-        setIcon : Data.Album.Type -> Html msg
-        setIcon albumType =
-            case albumType of
-                Data.Album.Album ->
-                    i [ class "PlaylistTracks__icon PlaylistTracks__icon--primary icon-discogs" ] []
-
-                Data.Album.Single ->
-                    i [ class "PlaylistTracks__icon PlaylistTracks__icon--secondary icon-pizza" ] []
-
-                _ ->
-                    i [ class "PlaylistTracks__icon icon-discogs" ] []
-
-        trackView : Data.Track.TrackItem -> Html Msg
-        trackView trackItem =
-            div [ class "Playlist__content InFront" ]
-                [ div
-                    [ onClick <| PlayTracks (listTracksUri trackItem.track.uri)
-                    , class "PlaylistTracks"
-                    , classList [ ( "active", isTrackPlaying == trackItem.track.uri ) ]
-                    ]
-                    [ div [ class "PlaylistTracks__item" ]
-                        [ div [ class "PlaylistTracks__name" ] [ text trackItem.track.name ]
-                        , div [] [ setIcon trackItem.track.album.type_, text trackItem.track.album.name ]
-                        ]
-                    , div [ class "PlaylistTracks__item" ] (Views.Artist.view trackItem.track.artists)
-                    , div [ class "PlaylistTracks__item" ] [ text <| trackItem.addedBy.id ]
-                    , div [ class "PlaylistTracks__item" ] [ text <| Helper.convertDate trackItem.addedAt ]
-                    , div [ class "PlaylistTracks__item" ] [ text <| Data.Track.durationFormat trackItem.track.duration ]
-                    ]
-                ]
     in
     ( playlistName
     , [ div [ class "Flex fullHeight" ]
