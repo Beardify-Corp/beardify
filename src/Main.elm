@@ -9,6 +9,7 @@ import Data.Session as Session exposing (Notif, Session)
 import Data.User exposing (User)
 import Html exposing (..)
 import Http
+import Page.Album as Album
 import Page.Artist as Artist
 import Page.Collection as Collection
 import Page.Home as Home
@@ -37,6 +38,7 @@ type alias Flags =
 
 type Page
     = ArtistPage Artist.Model
+    | AlbumPage Album.Model
     | PlaylistPage Playlist.Model
     | CollectionPage Collection.Model
     | Blank
@@ -56,6 +58,7 @@ type alias Model =
 
 type Msg
     = ArtistMsg Artist.Msg
+    | AlbumMsg Album.Msg
     | PlaylistMsg Playlist.Msg
     | CollectionMsg Collection.Msg
     | ClearNotification Notif
@@ -133,6 +136,9 @@ setRoute maybeRoute model =
 
         ( True, Just (Route.Artist id) ) ->
             toPage ArtistPage (Artist.init id) ArtistMsg
+
+        ( True, Just (Route.Album id) ) ->
+            toPage AlbumPage (Album.init id) AlbumMsg
 
         ( True, Just (Route.Playlist id) ) ->
             toPage PlaylistPage (Playlist.init id) PlaylistMsg
@@ -253,6 +259,9 @@ update msg ({ page, session } as model) =
     case ( msg, page ) of
         ( ArtistMsg artistMsg, ArtistPage artistModel ) ->
             toPage ArtistPage ArtistMsg Artist.update artistMsg artistModel
+
+        ( AlbumMsg albumMsg, AlbumPage albumModel ) ->
+            toPage AlbumPage AlbumMsg Album.update albumMsg albumModel
 
         ( PlaylistMsg playlistMsg, PlaylistPage playlistModel ) ->
             toPage PlaylistPage PlaylistMsg Playlist.update playlistMsg playlistModel
@@ -422,6 +431,9 @@ subscriptions model =
             ArtistPage _ ->
                 Sub.none
 
+            AlbumPage _ ->
+                Sub.none
+
             PlaylistPage _ ->
                 Sub.none
 
@@ -465,6 +477,11 @@ view { sidebar, page, session, player, devices } =
         ArtistPage artistModel ->
             Artist.view player artistModel
                 |> mapMsg ArtistMsg
+                |> frame
+
+        AlbumPage albumModel ->
+            Album.view player albumModel
+                |> mapMsg AlbumMsg
                 |> frame
 
         PlaylistPage playlistModel ->

@@ -1,9 +1,41 @@
-module Data.Album exposing (AlbumSimplified, Type(..), decodeSimplified, typeToString)
+module Data.Album exposing
+    ( AlbumSimplified
+    , Id
+    , Type(..)
+    , decodeSimplified
+    , idToString
+    , parseId
+    , typeToString
+    )
 
 import Data.Artist as Artist exposing (ArtistSimplified)
 import Data.Image as Image exposing (Image)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
+import Url.Parser as Parser exposing (Parser)
+
+
+
+-- ROUTING
+
+
+parseId : Parser (Id -> a) a
+parseId =
+    Parser.map Id Parser.string
+
+
+idToString : Id -> String
+idToString (Id id) =
+    id
+
+
+type Id
+    = Id String
+
+
+decodeId : Decoder Id
+decodeId =
+    Decode.map Id Decode.string
 
 
 type alias AlbumSimplified =
