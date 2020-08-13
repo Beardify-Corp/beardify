@@ -64,13 +64,6 @@ update session msg ({ trackList } as model) =
             if newModel.total > trackList.offset then
                 case model.playlist of
                     Just a ->
-                        let
-                            tracksModel =
-                                trackList
-
-                            _ =
-                                Debug.log "newModel.tracks.offset" newModel.offset
-                        in
                         ( { model
                             | trackList =
                                 { trackList
@@ -79,23 +72,11 @@ update session msg ({ trackList } as model) =
                                 }
                           }
                         , session
-                          --   , Task.attempt AddTracklist (Request.Playlist.getTracks session a.id (newModel.tracks.offset + 100))
-                        , Cmd.none
+                        , Task.attempt AddTracklist (Request.Playlist.getTracks session a.id (newModel.offset + 100))
                         )
 
                     Nothing ->
                         ( model, session, Cmd.none )
-                -- case playlist of
-                --     Just a ->
-                --         ( newModel
-                --         , session
-                --         , Task.map2 (Model << Just)
-                --             (Request.Playlist.get session a.id)
-                --             (Request.Playlist.getTracks session a.id (newModel.trackList.tracks.offset + 100))
-                --             |> Task.attempt Fetched
-                --         )
-                --     Nothing ->
-                --         ( model, session, Cmd.none )
 
             else
                 ( model, session, Cmd.none )
@@ -174,7 +155,6 @@ view context { playlist, trackList } =
                             ]
                         , Cover.view artistCover Cover.Light
                         ]
-                    , div [] [ text <| Debug.toString trackList.offset ]
                     , div [ class "Playlist__content InFront" ]
                         (tracks
                             |> List.map
