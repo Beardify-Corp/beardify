@@ -11,12 +11,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
-import Iso8601
 import Request.Player
 import Request.Playlist
 import String
 import Task
-import Time
 import Views.Artist
 import Views.Cover as Cover
 
@@ -28,7 +26,8 @@ type alias Model =
 
 
 type Msg
-    = Fetched (Result ( Session, Http.Error ) Model)
+    = AddTracklist (Result ( Session, Http.Error ) Data.Track.TrackList)
+    | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
 
@@ -47,20 +46,41 @@ init id session =
             }
       }
     , session
-    , Task.map2 (Model << Just)
-        (Request.Playlist.get session id)
-        (Request.Playlist.getTracks session id)
-        |> Task.attempt Fetched
+    , Cmd.batch
+        [ Task.attempt InitPlaylistInfos (Request.Playlist.get session id)
+        , Task.attempt AddTracklist (Request.Playlist.getTracks session id 0)
+        ]
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg model =
+update session msg ({ trackList, playlist } as model) =
     case msg of
-        Fetched (Ok newModel) ->
-            ( newModel, session, Cmd.none )
+        InitPlaylistInfos (Ok playlistInfo) ->
+            ( { model | playlist = Just playlistInfo }, session, Cmd.none )
 
-        Fetched (Err ( newSession, _ )) ->
+        InitPlaylistInfos (Err _) ->
+            ( model, session, Cmd.none )
+
+        AddTracklist (Ok newModel) ->
+            if newModel.tracks.total > newModel.tracks.offset then
+                ( { model | trackList = newModel }, session, Cmd.none )
+                -- case playlist of
+                --     Just a ->
+                --         ( newModel
+                --         , session
+                --         , Task.map2 (Model << Just)
+                --             (Request.Playlist.get session a.id)
+                --             (Request.Playlist.getTracks session a.id (newModel.trackList.tracks.offset + 100))
+                --             |> Task.attempt Fetched
+                --         )
+                --     Nothing ->
+                --         ( model, session, Cmd.none )
+
+            else
+                ( model, session, Cmd.none )
+
+        AddTracklist (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
         PlayTracks uris ->

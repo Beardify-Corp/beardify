@@ -10,7 +10,6 @@ module Data.Playlist exposing
     )
 
 import Data.Image exposing (Image, decode)
-import Data.Track
 import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
 import Url.Parser as Parser exposing (Parser)
 

@@ -6,7 +6,6 @@ module Views.Player.Player exposing
     , view
     )
 
-import Data.Artist exposing (ArtistSimplified)
 import Data.Image as Image
 import Data.Player as Player exposing (Player, PlayerContext)
 import Data.Session exposing (Session)
@@ -16,7 +15,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Request.Player as Request
-import Route
 import String.Extra as SE
 import Task
 import Time exposing (Posix)
