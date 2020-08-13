@@ -6,7 +6,6 @@ module Views.Player.Player exposing
     , view
     )
 
-import Data.Artist exposing (ArtistSimplified)
 import Data.Image as Image
 import Data.Player as Player exposing (Player, PlayerContext)
 import Data.Session exposing (Session)
@@ -16,9 +15,10 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Request.Player as Request
-import Route
+import String.Extra as SE
 import Task
 import Time exposing (Posix)
+import Views.Artist
 
 
 type Msg
@@ -33,15 +33,6 @@ type Msg
     | Seek String
     | Seeked (Result ( Session, Http.Error ) ())
     | SkipTrack (Result ( Session, Http.Error ) ())
-
-
-artistsView : List ArtistSimplified -> List (Html msg)
-artistsView =
-    let
-        item artist =
-            a [ Route.Artist artist.id |> Route.href, class "Artist__link" ] [ text artist.name ]
-    in
-    List.map item >> List.intersperse (span [] [ text ", " ])
 
 
 init : Session -> ( PlayerContext, Cmd Msg )
@@ -188,10 +179,10 @@ view { player } =
                     [ img [ class "PlayerCurrent__cover", src cover.url ] []
                     , div [ class "PlayerCurrent__control" ]
                         [ div []
-                            ([ span [ class "PlayerCurrent__song" ] [ text track.name ]
+                            ([ span [ class "PlayerCurrent__song" ] [ text <| SE.ellipsis 40 track.name ]
                              , span [] [ text " - " ]
                              ]
-                                ++ artistsView track.artists
+                                ++ Views.Artist.view track.artists
                             )
                         , div [ class "PlayerCurrent__bar" ]
                             [ span [ class "PlayerCurrent__time" ] [ text <| Track.durationFormat player_.progress ]

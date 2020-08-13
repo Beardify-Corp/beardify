@@ -5,6 +5,7 @@ $backgroundLight: color.adjust($background, $lightness: 2%, $hue: 3);
 $backgroundDark: color.adjust($background, $lightness: -1%, $hue: 3);
 $backgroundDarker: color.adjust($background, $lightness: -3%, $hue: 3);
 $primary: #1a9db2;
+$secondary: rgb(255, 166, 0);
 $border: darken($background, 5);
 $font: rgba(255, 255, 255, .7);
 

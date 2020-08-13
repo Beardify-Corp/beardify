@@ -8,7 +8,17 @@
   }
   100% {
     filter: blur(0px);
-    opacity: .2;
+    opacity: .15;
+  }
+}
+@keyframes fadeInLight {
+  0% {
+    filter: blur(15px);
+    opacity: 0;
+  }
+  100% {
+    filter: blur(0px);
+    opacity: .05;
   }
 }
 
@@ -20,6 +30,10 @@
   position: absolute;
   right: 0;
   top: 0;
+
+  &--light {
+    animation: fadeInLight 1s ease 0s forwards;
+  }
 
   &__img {
     height: 100%;

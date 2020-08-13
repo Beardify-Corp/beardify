@@ -1,10 +1,20 @@
-module Views.Cover exposing (view)
+module Views.Cover exposing (Opacity(..), view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Extra as HE
 
 
-view : String -> Html msg
-view imageUrl =
-    HE.viewIf (imageUrl /= "") (div [ class "Cover" ] [ img [ class "Cover__img", src imageUrl ] [] ])
+type Opacity
+    = Normal
+    | Light
+
+
+view : String -> Opacity -> Html msg
+view imageUrl opacity =
+    case opacity of
+        Normal ->
+            HE.viewIf (imageUrl /= "") (div [ class "Cover" ] [ img [ class "Cover__img", src imageUrl ] [] ])
+
+        Light ->
+            HE.viewIf (imageUrl /= "") (div [ class "Cover Cover--light" ] [ img [ class "Cover__img", src imageUrl ] [] ])

@@ -137,8 +137,7 @@ topTrackViews : PlayerContext -> List Track -> Html Msg
 topTrackViews context tracks =
     div []
         [ h2 [ class "Heading second" ] [ text "Top tracks" ]
-        , tracks
-            |> List.map (Views.Track.view { playTracks = PlayTracks } context tracks)
+        , Views.Track.view { playTracks = PlayTracks } context tracks
             |> List.take 5
             |> div []
         ]
@@ -193,7 +192,7 @@ view context ({ artist, followed } as model) =
 
         artistName : String
         artistName =
-            Maybe.withDefault "Artists" (Maybe.map .name artist)
+            Maybe.withDefault "" (Maybe.map .name artist)
 
         followedBtn : List Bool -> Html Msg
         followedBtn followedStatus =
@@ -217,7 +216,7 @@ view context ({ artist, followed } as model) =
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "Flex spaceBetween centeredVertical" ]
                         [ h1 [ class "Artist__name Heading first" ] [ text artistName ]
-                        , Cover.view artistCover
+                        , Cover.view artistCover Cover.Normal
                         , followedBtn followed
                         ]
                     , externalLinkList |> div [ class "Artist__links External" ]

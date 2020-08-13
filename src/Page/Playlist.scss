@@ -1,0 +1,70 @@
+@use "sass:color";
+@use "../Color";
+
+.Playlist {
+  &__body {
+    padding: 20px 30px;
+  }
+
+  &__content {
+    margin: 0 auto;
+    max-width: 1000px;
+  }
+
+  &Head {
+    display: flex;
+    margin-bottom: 40px;
+    padding: 7px;
+
+    &__owner {
+      font-size: 1rem;
+      margin-left: 10px;
+    }
+
+    &__cover {
+      border-radius: 5px;
+      margin-right: 20px;
+    }
+  }
+
+  &Tracks {
+    align-items: center;
+    border-radius: 5px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 2fr 1fr 100px auto auto;
+
+    &:hover {
+      background-color: rgba(black, .2);
+    }
+
+    &.active {
+      background-color: rgba(Color.$primary, .2);
+    }
+
+    &__icon {
+      font-size: .8rem;
+      margin-right: 5px;
+      position: relative;
+      top: 1px;
+
+      &--primary {
+        color: Color.$primary;
+      }
+
+      &--secondary {
+        color: Color.$secondary;
+      }
+    }
+
+    &__item {
+      padding: 5px 10px;
+    }
+
+    &__name {
+      color: white;
+      font-weight: bold;
+      margin-bottom: 2px;
+    }
+  }
+}
