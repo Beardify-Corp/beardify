@@ -1,12 +1,8 @@
 module Request.Album exposing (get)
 
 import Data.Album
-import Data.Artist as Artist exposing (Artist)
 import Data.Session exposing (Session)
-import Data.Track as Track exposing (Track)
-import Data.User as User
 import Http
-import Json.Decode as Decode
 import Request.Api as Api
 import Task exposing (Task)
 

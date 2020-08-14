@@ -20,6 +20,7 @@ import Route
 import Task
 import Task.Extra as TE
 import Views.Album
+import Views.Artist
 import Views.Cover as Cover
 import Views.Track
 
@@ -46,22 +47,14 @@ update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
         InitAlbumInfos (Ok albumInfos) ->
-            let
-                _ =
-                    Debug.log "Ok" "Ok"
-            in
             ( { model | album = Just albumInfos }, session, Cmd.none )
 
-        InitAlbumInfos (Err err) ->
-            let
-                _ =
-                    Debug.log "Err" err
-            in
+        InitAlbumInfos (Err _) ->
             ( model, session, Cmd.none )
 
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
-view context ({ album } as model) =
+view context { album } =
     let
         albumCover : String
         albumCover =
@@ -73,26 +66,30 @@ view context ({ album } as model) =
         albumName : String
         albumName =
             Maybe.withDefault "" (Maybe.map .name album)
+
+        artists : List Artist.ArtistSimplified
+        artists =
+            Maybe.withDefault [] (Maybe.map .artists album)
+
+        albumUri : String
+        albumUri =
+            Maybe.withDefault "" (Maybe.map .uri album)
     in
     ( "artistName"
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]
-                    [ div [ class "Flex spaceBetween centeredVertical" ]
-                        [ h1 [ class "Artist__name Heading first" ] [ text albumName ]
-                        , Cover.view albumCover Cover.Normal
+                    [ div [ class "AlbumPage__head" ]
+                        [ div [ class "Flex spaceBetween centeredVertical" ]
+                            [ h1 [ class "Artist__name Heading first" ] [ text albumName ]
+                            , Cover.view albumCover Cover.Normal
+                            ]
+                        , div [ class "InFront" ] (Views.Artist.view artists)
                         ]
-                    ]
-                ]
-            , div [ class "Artist__videos HelperScrollArea" ]
-                [ div [ class "Video HelperScrollArea__target" ]
-                    [ h2 [ class "Heading second" ] [ text "Last videos" ]
-
-                    -- , div [ class "Video__item" ]
-                    --     [ iframe [ class "Video__embed", src "https://www.youtube.com/embed/MreXYqelGPM", width 230, height 130 ] []
-                    --     , div [ class "Video__name" ] [ text "Pain Of Salvation - Meaningless (official video)" ]
-                    --     , a [ href "#", class "Video__channel Link" ] [ text "painofsalvationVEVO" ]
-                    --     ]
+                    , div [ class "AlbumPage__body InFront" ]
+                        [ div [] [ HE.viewIf (albumCover /= "") (img [ class "AlbumPage__cover", src albumCover, width 300, height 300 ] []) ]
+                        , div [] [ text "right" ]
+                        ]
                     ]
                 ]
             ]
