@@ -428,13 +428,16 @@ template {
 }
 
 .Artist__link {
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.5);
   font-style: italic;
-  margin-right: 5px;
   text-decoration: none;
 }
 .Artist__link:hover {
   color: #1a9db2;
+}
+.Artist__coma {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
 }
 
 .Button {
@@ -1301,6 +1304,14 @@ template {
 }
 .PlaylistTracks:hover {
   background-color: rgba(0, 0, 0, 0.2);
+}
+.PlaylistTracks__album {
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+  text-decoration: none;
+}
+.PlaylistTracks__album:hover {
+  color: #1a9db2;
 }
 .PlaylistTracks.active {
   background-color: rgba(26, 157, 178, 0.2);
