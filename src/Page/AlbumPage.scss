@@ -15,4 +15,34 @@
     border-radius: 5px;
     width: 300px;
   }
+
+  &__tracklist {
+    flex: 1;
+    padding-left: 40px;
+  }
+
+  &Track {
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    padding: 9px 15px;
+
+    &:hover {
+      background-color: rgba(black, .2);
+    }
+
+    &__name {
+      color: white;
+      font-weight: bold;
+    }
+
+    &__left {
+      display: flex;
+    }
+
+    &__number {
+      width: 40px;
+    }
+  }
 }

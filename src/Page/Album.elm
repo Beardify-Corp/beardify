@@ -27,16 +27,25 @@ import Views.Track
 
 type alias Model =
     { album : Maybe Data.Album.Album
+    , trackList : Data.Track.AlbumTrackObject
     }
 
 
 type Msg
     = InitAlbumInfos (Result ( Session, Http.Error ) Data.Album.Album)
+    | AddTracklist (Result ( Session, Http.Error ) Data.Track.AlbumTrackObject)
 
 
 init : Data.Album.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { album = Nothing
+      , trackList =
+            { items = []
+            , limit = 0
+            , next = ""
+            , offset = 0
+            , total = 0
+            }
       }
     , session
     , Task.attempt InitAlbumInfos (Request.Album.get session id)
@@ -44,17 +53,48 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg model =
+update session msg ({ trackList } as model) =
     case msg of
         InitAlbumInfos (Ok albumInfos) ->
-            ( { model | album = Just albumInfos }, session, Cmd.none )
+            ( { model | album = Just albumInfos }
+            , session
+            , Task.attempt AddTracklist (Request.Album.getTracks session albumInfos.id 0)
+            )
 
         InitAlbumInfos (Err _) ->
             ( model, session, Cmd.none )
 
+        AddTracklist (Ok newModel) ->
+            if newModel.total > newModel.offset then
+                let
+                    moreTracks =
+                        case model.album of
+                            Just a ->
+                                Task.attempt AddTracklist (Request.Album.getTracks session a.id (newModel.offset + 100))
+
+                            Nothing ->
+                                Cmd.none
+                in
+                ( { model
+                    | trackList =
+                        { trackList
+                            | items = trackList.items ++ newModel.items
+                            , offset = trackList.offset + newModel.offset
+                        }
+                  }
+                , session
+                , moreTracks
+                )
+
+            else
+                ( model, session, Cmd.none )
+
+        AddTracklist (Err _) ->
+            ( model, session, Cmd.none )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
-view context { album } =
+view context { album, trackList } =
     let
         albumCover : String
         albumCover =
@@ -70,10 +110,6 @@ view context { album } =
         artists : List Artist.ArtistSimplified
         artists =
             Maybe.withDefault [] (Maybe.map .artists album)
-
-        albumUri : String
-        albumUri =
-            Maybe.withDefault "" (Maybe.map .uri album)
     in
     ( "artistName"
     , [ div [ class "Flex fullHeight" ]
@@ -88,7 +124,19 @@ view context { album } =
                         ]
                     , div [ class "AlbumPage__body InFront" ]
                         [ div [] [ HE.viewIf (albumCover /= "") (img [ class "AlbumPage__cover", src albumCover, width 300, height 300 ] []) ]
-                        , div [] [ text "right" ]
+                        , div [ class "AlbumPage__tracklist" ]
+                            (trackList.items
+                                |> List.map
+                                    (\trackItem ->
+                                        div [ class "AlbumPageTrack" ]
+                                            [ div [ class "AlbumPageTrack__left" ]
+                                                [ div [ class "AlbumPageTrack__number" ] [ text <| String.fromInt trackItem.trackNumber ]
+                                                , div [ class "AlbumPageTrack__name" ] [ text trackItem.name ]
+                                                ]
+                                            , div [] [ text <| Data.Track.durationFormat trackItem.duration ]
+                                            ]
+                                    )
+                            )
                         ]
                     ]
                 ]
