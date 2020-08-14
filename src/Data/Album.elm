@@ -41,7 +41,7 @@ decodeId =
 type alias AlbumSimplified =
     { type_ : Type
     , artists : List ArtistSimplified
-    , id : String
+    , id : Id
     , images : List Image
     , name : String
     , releaseDate : String
@@ -84,7 +84,7 @@ decodeSimplified =
     Decode.succeed AlbumSimplified
         |> JDP.required "album_type" decodeType
         |> JDP.required "artists" (Decode.list Artist.decodeSimplified)
-        |> JDP.required "id" Decode.string
+        |> JDP.required "id" decodeId
         |> JDP.requiredAt [ "images" ] (Decode.list Image.decode)
         |> JDP.required "name" Decode.string
         |> JDP.required "release_date" Decode.string

@@ -38,6 +38,16 @@
       background-color: rgba(black, .2);
     }
 
+    &__album {
+      color: rgba(white, .5);
+      font-style: italic;
+      text-decoration: none;
+
+      &:hover {
+        color: Color.$primary;
+      }
+    }
+
     &.active {
       background-color: rgba(Color.$primary, .2);
     }

@@ -14,6 +14,7 @@ import Http
 import List.Extra as LE
 import Request.Player
 import Request.Playlist
+import Route
 import String
 import Task
 import Views.Artist
@@ -162,7 +163,7 @@ view context { playlist, trackList } =
                     ]
                     [ div [ class "PlaylistTracks__item" ]
                         [ div [ class "PlaylistTracks__name" ] [ text trackItem.track.name ]
-                        , div [] [ setIcon trackItem.track.album.type_, text trackItem.track.album.name ]
+                        , a [ class "PlaylistTracks__album", Route.href (Route.Album trackItem.track.album.id) ] [ setIcon trackItem.track.album.type_, text trackItem.track.album.name ]
                         ]
                     , div [ class "PlaylistTracks__item" ] (Views.Artist.view trackItem.track.artists)
                     , div [ class "PlaylistTracks__item" ] [ text <| trackItem.addedBy.id ]

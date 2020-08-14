@@ -6,6 +6,7 @@ module Views.Player.Player exposing
     , view
     )
 
+import Data.Album
 import Data.Image as Image
 import Data.Player as Player exposing (Player, PlayerContext)
 import Data.Session exposing (Session)
@@ -15,6 +16,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import Request.Player as Request
+import Route
 import String.Extra as SE
 import Task
 import Time exposing (Posix)
@@ -176,7 +178,7 @@ view { player } =
                         [ i [ class "icon-to-end" ] [] ]
                     ]
                 , div [ class "PlayerCurrent" ]
-                    [ img [ class "PlayerCurrent__cover", src cover.url ] []
+                    [ a [ Route.href (Route.Album track.album.id) ] [ img [ class "PlayerCurrent__cover", src cover.url ] [] ]
                     , div [ class "PlayerCurrent__control" ]
                         [ div []
                             ([ span [ class "PlayerCurrent__song" ] [ text <| SE.ellipsis 40 track.name ]
