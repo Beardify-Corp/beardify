@@ -1,7 +1,7 @@
-module Helper exposing (convertDate)
+module Helper exposing (convertDate, durationFormatMinutes, releaseDateFormat)
 
 import Iso8601
-import Time exposing (Month(..))
+import Time exposing (Month(..), millisToPosix, toHour, toMinute, utc)
 
 
 toFrenchMonth : Month -> String
@@ -56,3 +56,32 @@ convertDate isoDate =
                     Time.millisToPosix 0
     in
     String.fromInt (Time.toDay Time.utc convertDateToPosix) ++ "/" ++ toFrenchMonth (Time.toMonth Time.utc convertDateToPosix) ++ "/" ++ String.fromInt (Time.toYear Time.utc convertDateToPosix)
+
+
+durationFormatMinutes : Int -> String
+durationFormatMinutes duration =
+    let
+        toTime unit =
+            duration
+                |> millisToPosix
+                |> unit utc
+
+        hour =
+            if toTime toHour > 0 then
+                String.fromInt (toTime toHour) ++ " hr "
+
+            else
+                ""
+
+        minute =
+            String.fromInt (toTime toMinute) ++ " min"
+    in
+    hour ++ minute
+
+
+releaseDateFormat : String -> String
+releaseDateFormat date =
+    date
+        |> String.split "-"
+        |> List.head
+        |> Maybe.withDefault ""

@@ -8,6 +8,7 @@ import Data.Image as Image
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
 import Data.Track exposing (Track)
+import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -123,6 +124,10 @@ view context { album, trackList } =
         albumName =
             Maybe.withDefault "" (Maybe.map .name album)
 
+        albumReleaseDate : String
+        albumReleaseDate =
+            Maybe.withDefault "" (Maybe.map .releaseDate album)
+
         artists : List Artist.ArtistSimplified
         artists =
             Maybe.withDefault [] (Maybe.map .artists album)
@@ -135,8 +140,13 @@ view context { album, trackList } =
         listTracksUri trackUri =
             List.map (\e -> e.uri) trackList.items
                 |> LE.dropWhile (\t -> t /= trackUri)
+
+        trackSumDuration =
+            trackList.items
+                |> List.map (\t -> t.duration)
+                |> List.sum
     in
-    ( "artistName"
+    ( albumName
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]
@@ -148,7 +158,11 @@ view context { album, trackList } =
                         , div [ class "InFront" ] (Views.Artist.view artists)
                         ]
                     , div [ class "AlbumPage__body InFront" ]
-                        [ div [] [ HE.viewIf (albumCover /= "") (img [ class "AlbumPage__cover", src albumCover, width 300, height 300 ] []) ]
+                        [ div []
+                            [ HE.viewIf (albumCover /= "") (img [ class "AlbumPage__cover", src albumCover, width 300, height 300 ] [])
+                            , div [] [ text <| Helper.releaseDateFormat albumReleaseDate ]
+                            , div [] [ text <| Helper.durationFormatMinutes trackSumDuration ]
+                            ]
                         , div [ class "AlbumPage__tracklist" ]
                             (trackList.items
                                 |> List.map
