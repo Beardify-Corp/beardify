@@ -1,3 +1,6 @@
+@use "sass:color";
+@use "../Color";
+
 .AlbumPage {
   &__head {
     margin: 0 auto;
@@ -30,6 +33,10 @@
 
     &:hover {
       background-color: rgba(black, .2);
+    }
+
+    &.active {
+      background-color: rgba(Color.$primary, .2);
     }
 
     &__name {

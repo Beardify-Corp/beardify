@@ -5,7 +5,7 @@ module Page.Album exposing (Model, Msg(..), init, update, view)
 import Data.Album
 import Data.Artist as Artist exposing (Artist)
 import Data.Image as Image
-import Data.Player exposing (..)
+import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
 import Data.Track exposing (Track)
 import Html exposing (..)
@@ -127,6 +127,10 @@ view context { album, trackList } =
         artists =
             Maybe.withDefault [] (Maybe.map .artists album)
 
+        isTrackPlaying : String
+        isTrackPlaying =
+            Player.getCurrentTrackUri context
+
         listTracksUri : String -> List String
         listTracksUri trackUri =
             List.map (\e -> e.uri) trackList.items
@@ -149,7 +153,11 @@ view context { album, trackList } =
                             (trackList.items
                                 |> List.map
                                     (\trackItem ->
-                                        div [ class "AlbumPageTrack", onClick <| PlayTracks (listTracksUri trackItem.uri) ]
+                                        div
+                                            [ class "AlbumPageTrack"
+                                            , onClick <| PlayTracks (listTracksUri trackItem.uri)
+                                            , classList [ ( "active", isTrackPlaying == trackItem.uri ) ]
+                                            ]
                                             [ div [ class "AlbumPageTrack__left" ]
                                                 [ div [ class "AlbumPageTrack__number" ] [ text <| String.fromInt trackItem.trackNumber ]
                                                 , div [ class "AlbumPageTrack__name" ] [ text trackItem.name ]
