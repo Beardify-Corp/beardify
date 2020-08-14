@@ -13,6 +13,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
+import List.Extra as LE
 import Request.Album
 import Request.Artist
 import Request.Player
@@ -34,6 +35,9 @@ type alias Model =
 type Msg
     = InitAlbumInfos (Result ( Session, Http.Error ) Data.Album.Album)
     | AddTracklist (Result ( Session, Http.Error ) Data.Track.AlbumTrackObject)
+    | PlayAlbum String
+    | PlayTracks (List String)
+    | Played (Result ( Session, Http.Error ) ())
 
 
 init : Data.Album.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -92,6 +96,18 @@ update session msg ({ trackList } as model) =
         AddTracklist (Err _) ->
             ( model, session, Cmd.none )
 
+        PlayAlbum uri ->
+            ( model, session, Task.attempt Played (Request.Player.playThis session uri) )
+
+        PlayTracks uris ->
+            ( model, session, Task.attempt Played (Request.Player.playTracks session uris) )
+
+        Played (Ok _) ->
+            ( model, session, Cmd.none )
+
+        Played (Err ( newSession, _ )) ->
+            ( model, newSession, Cmd.none )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view context { album, trackList } =
@@ -110,6 +126,11 @@ view context { album, trackList } =
         artists : List Artist.ArtistSimplified
         artists =
             Maybe.withDefault [] (Maybe.map .artists album)
+
+        listTracksUri : String -> List String
+        listTracksUri trackUri =
+            List.map (\e -> e.uri) trackList.items
+                |> LE.dropWhile (\t -> t /= trackUri)
     in
     ( "artistName"
     , [ div [ class "Flex fullHeight" ]
@@ -128,7 +149,7 @@ view context { album, trackList } =
                             (trackList.items
                                 |> List.map
                                     (\trackItem ->
-                                        div [ class "AlbumPageTrack" ]
+                                        div [ class "AlbumPageTrack", onClick <| PlayTracks (listTracksUri trackItem.uri) ]
                                             [ div [ class "AlbumPageTrack__left" ]
                                                 [ div [ class "AlbumPageTrack__number" ] [ text <| String.fromInt trackItem.trackNumber ]
                                                 , div [ class "AlbumPageTrack__name" ] [ text trackItem.name ]
