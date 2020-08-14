@@ -224,7 +224,7 @@ view context ({ artist, followed } as model) =
                         [ topTrackViews context model.tracks
                         , relatedArtistsView model.relatedArtists
                         ]
-                    , albumsListView context (List.filter (\a -> a.type_ == Album.Album) model.albums) "Albums"
+                    , albumsListView context (List.filter (\a -> a.type_ == Album.AlbumType) model.albums) "Albums"
                     , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"
                     ]
                 ]

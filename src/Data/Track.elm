@@ -1,4 +1,13 @@
-module Data.Track exposing (PlaylistTrackObject, Track, TrackItem, TrackList, decodePlaylistTrackObject, decodeTrack, decodeTrackList, durationFormat)
+module Data.Track exposing
+    ( AlbumTrackObject
+    , PlaylistTrackObject
+    , Track
+    , TrackItem
+    , decodeAlbumTrackObject
+    , decodePlaylistTrackObject
+    , decodeTrack
+    , durationFormat
+    )
 
 import Data.Album as Album exposing (AlbumSimplified)
 import Data.Artist as Artist exposing (ArtistSimplified)
@@ -14,21 +23,6 @@ decodeId =
 
 type Id
     = Id String
-
-
-type alias Track =
-    { album : AlbumSimplified
-    , artists : List ArtistSimplified
-    , discNumber : Int
-    , duration : Int
-    , explicit : Bool
-    , href : String
-    , id : Id
-    , name : String
-    , popularity : Int
-    , trackNumber : Int
-    , uri : String
-    }
 
 
 durationFormat : Int -> String
@@ -59,6 +53,25 @@ durationFormat duration =
     hour ++ minute ++ second
 
 
+
+--  TRACK
+
+
+type alias Track =
+    { album : AlbumSimplified
+    , artists : List ArtistSimplified
+    , discNumber : Int
+    , duration : Int
+    , explicit : Bool
+    , href : String
+    , id : Id
+    , name : String
+    , popularity : Int
+    , trackNumber : Int
+    , uri : String
+    }
+
+
 decodeTrack : Decoder Track
 decodeTrack =
     Decode.succeed Track
@@ -75,15 +88,31 @@ decodeTrack =
         |> JDP.required "uri" Decode.string
 
 
-type alias TrackList =
-    { tracks : PlaylistTrackObject
+type alias TrackSimplified =
+    { artists : List ArtistSimplified
+    , discNumber : Int
+    , duration : Int
+    , explicit : Bool
+    , href : String
+    , id : Id
+    , name : String
+    , trackNumber : Int
+    , uri : String
     }
 
 
-decodeTrackList : Decode.Decoder TrackList
-decodeTrackList =
-    Decode.map TrackList
-        (Decode.at [ "tracks" ] decodePlaylistTrackObject)
+decodeTrackSimplified : Decoder TrackSimplified
+decodeTrackSimplified =
+    Decode.succeed TrackSimplified
+        |> JDP.required "artists" (Decode.list Artist.decodeSimplified)
+        |> JDP.required "disc_number" Decode.int
+        |> JDP.required "duration_ms" Decode.int
+        |> JDP.required "explicit" Decode.bool
+        |> JDP.required "href" Decode.string
+        |> JDP.required "id" decodeId
+        |> JDP.required "name" Decode.string
+        |> JDP.required "track_number" Decode.int
+        |> JDP.required "uri" Decode.string
 
 
 type alias PlaylistTrackObject =
@@ -99,6 +128,27 @@ decodePlaylistTrackObject : Decode.Decoder PlaylistTrackObject
 decodePlaylistTrackObject =
     Decode.map5 PlaylistTrackObject
         (Decode.at [ "items" ] (Decode.list decodeTrackItem))
+        (Decode.field "limit" Decode.int)
+        (Decode.field "next"
+            (Decode.oneOf [ string, null "" ])
+        )
+        (Decode.field "offset" Decode.int)
+        (Decode.field "total" Decode.int)
+
+
+type alias AlbumTrackObject =
+    { items : List TrackSimplified
+    , limit : Int
+    , next : String
+    , offset : Int
+    , total : Int
+    }
+
+
+decodeAlbumTrackObject : Decode.Decoder AlbumTrackObject
+decodeAlbumTrackObject =
+    Decode.map5 AlbumTrackObject
+        (Decode.at [ "items" ] (Decode.list decodeTrackSimplified))
         (Decode.field "limit" Decode.int)
         (Decode.field "next"
             (Decode.oneOf [ string, null "" ])

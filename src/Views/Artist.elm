@@ -13,4 +13,4 @@ view =
         item artist =
             a [ Route.Artist artist.id |> Route.href, class "Artist__link" ] [ text artist.name ]
     in
-    List.map item >> List.intersperse (span [] [ text ", " ])
+    List.map item >> List.intersperse (span [ class "Artist__coma" ] [ text ", " ])

@@ -1,23 +1,19 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
-import Data.Album
-import Data.Player as Player exposing (..)
+import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
 import Data.Track
-import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
-import List.Extra as LE
 import Request.Player
 import Request.Playlist
 import String
 import Task
 import Views.Album
-import Views.Artist
 import Views.Cover as Cover
 
 
