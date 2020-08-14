@@ -144,7 +144,7 @@ view context { playlist, trackList } =
         setIcon : Data.Album.Type -> Html msg
         setIcon albumType =
             case albumType of
-                Data.Album.Album ->
+                Data.Album.AlbumType ->
                     i [ class "PlaylistTracks__icon PlaylistTracks__icon--primary icon-discogs" ] []
 
                 Data.Album.Single ->
