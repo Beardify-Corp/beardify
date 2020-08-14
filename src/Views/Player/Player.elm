@@ -6,7 +6,6 @@ module Views.Player.Player exposing
     , view
     )
 
-import Data.Album
 import Data.Image as Image
 import Data.Player as Player exposing (Player, PlayerContext)
 import Data.Session exposing (Session)

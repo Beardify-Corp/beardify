@@ -1,6 +1,6 @@
 module Views.Album exposing (view)
 
-import Data.Album exposing (AlbumSimplified, Id)
+import Data.Album exposing (AlbumSimplified)
 import Data.Image as Image
 import Data.Player as Player exposing (..)
 import Html exposing (..)

@@ -3,11 +3,10 @@ module Page.Album exposing (Model, Msg(..), init, update, view)
 -- import Data.Youtube as Youtube
 
 import Data.Album
-import Data.Artist as Artist exposing (Artist)
-import Data.Image as Image
+import Data.Artist as Artist
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
-import Data.Track exposing (Track)
+import Data.Track
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -16,15 +15,10 @@ import Html.Extra as HE
 import Http
 import List.Extra as LE
 import Request.Album
-import Request.Artist
 import Request.Player
-import Route
 import Task
-import Task.Extra as TE
-import Views.Album
 import Views.Artist
 import Views.Cover as Cover
-import Views.Track
 
 
 type alias Model =

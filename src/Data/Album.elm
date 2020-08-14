@@ -10,7 +10,7 @@ module Data.Album exposing
     , typeToString
     )
 
-import Data.Artist as Artist exposing (Artist, ArtistSimplified)
+import Data.Artist as Artist exposing (ArtistSimplified)
 import Data.Image as Image exposing (Image)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
