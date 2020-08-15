@@ -33,7 +33,7 @@ view config context trackList =
                 let
                     cover : Image.Image
                     cover =
-                        Image.filterByWidth 64 track.album.images
+                        Image.filterByWidth Image.Small track.album.images
                 in
                 div
                     [ class "Track Flex centeredVertical"

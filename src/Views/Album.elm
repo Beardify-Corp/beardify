@@ -21,7 +21,7 @@ view config context showArtist album =
     let
         cover : Image.Image
         cover =
-            Image.filterByWidth 600 album.images
+            Image.filterByWidth Image.Medium album.images
 
         isCurrentlyPlaying : Bool
         isCurrentlyPlaying =

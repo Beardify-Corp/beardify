@@ -117,7 +117,7 @@ relatedArtistsView artists =
             let
                 cover : Image.Image
                 cover =
-                    Image.filterByWidth 160 artist.images
+                    Image.filterByWidth Image.Medium artist.images
             in
             a [ class "ArtistSimilar__item", Route.href (Route.Artist artist.id) ]
                 [ img [ class "ArtistSimilar__avatar", src cover.url ] []
