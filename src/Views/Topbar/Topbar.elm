@@ -1,4 +1,4 @@
-module Views.Topbar.Topbar exposing (view)
+module Views.Topbar.Topbar exposing (Msg(..), view)
 
 import Data.Session exposing (Session)
 import Html exposing (..)
@@ -9,7 +9,11 @@ import Views.Topbar.Search as Search exposing (..)
 import Views.Topbar.User as User exposing (..)
 
 
-view : Session -> Html msg
+type Msg
+    = NoOp
+
+
+view : Session -> Html Msg
 view session =
     div [ class "Topbar" ]
         [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]

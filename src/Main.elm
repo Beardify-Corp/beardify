@@ -25,6 +25,7 @@ import Url exposing (Url)
 import Views.Player.Device as Device
 import Views.Player.Player as Player
 import Views.Sidebar as Sidebar
+import Views.Topbar.Topbar as Topbar
 
 
 type alias Flags =
@@ -66,6 +67,7 @@ type Msg
     | HomeMsg Home.Msg
     | LoginMsg Login.Msg
     | SidebarMsg Sidebar.Msg
+    | TopbarMsg Topbar.Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
@@ -468,6 +470,7 @@ view { sidebar, page, session, player, devices } =
                 , devices = devices
                 , sidebar = sidebar
                 , sidebarMsg = SidebarMsg
+                , topbarMsg = TopbarMsg
                 }
 
         mapMsg msg ( title, content ) =
