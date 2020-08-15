@@ -26,6 +26,10 @@
     flex: 1;
     padding: 3px;
     text-decoration: none;
+
+    &:hover {
+      color: #fff;
+    }
   }
 
   &__item {

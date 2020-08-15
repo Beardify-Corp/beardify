@@ -1,5 +1,6 @@
 module Views.Topbar.Topbar exposing (Model, Msg(..), defaultModel, init, update, view)
 
+import Browser.Navigation
 import Data.Session as Session exposing (Session, switchTheme)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -29,14 +30,18 @@ init session =
 
 
 type Msg
-    = NoOp
+    = Back
+    | Forward
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update ({ store } as session) msg model =
+update ({ navKey } as session) msg model =
     case msg of
-        NoOp ->
-            ( model, session, Cmd.none )
+        Back ->
+            ( model, session, Browser.Navigation.back navKey 1 )
+
+        Forward ->
+            ( model, session, Browser.Navigation.forward navKey 1 )
 
 
 view : Session -> Html Msg
@@ -44,8 +49,8 @@ view session =
     div [ class "Topbar" ]
         [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]
         , div [ class "TopbarNavigation" ]
-            [ button [ class "Button nude" ] [ i [ class "icon-previous TopbarNavigation__icon " ] [] ]
-            , button [ class "Button nude disabled" ] [ i [ class "icon-next TopbarNavigation__icon " ] [] ]
+            [ button [ onClick Back, class "Button nude" ] [ i [ class "icon-previous TopbarNavigation__icon " ] [] ]
+            , button [ onClick Forward, class "Button nude" ] [ i [ class "icon-next TopbarNavigation__icon " ] [] ]
             ]
         , Search.view
         , HE.viewMaybe User.view session.user

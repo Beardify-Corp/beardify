@@ -71,7 +71,7 @@ strong {
 
 ::-webkit-scrollbar-thumb {
   background-clip: content-box;
-  background-color: color.scale(Color.$background, $lightness: -35%);
+  background-color: color.scale(Color.$primary, $lightness: -50%);
   border: 5px solid transparent;
   border-radius: 20px;
 }

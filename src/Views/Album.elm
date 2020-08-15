@@ -41,8 +41,8 @@ view config context showArtist album =
             , button [ onClick <| config.playAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
             , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
             ]
-        , HE.viewIf showArtist (div [ class "Album__name" ] [ span [] (Views.Artist.view album.artists) ])
         , div [ class "Album__name" ] [ text album.name ]
+        , HE.viewIf showArtist (div [ class "Album__name" ] [ span [] (Views.Artist.view album.artists) ])
         , div [ class "Album__release" ] [ text <| releaseFormat album.releaseDate ]
         , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
         ]
