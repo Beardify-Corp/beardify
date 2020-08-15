@@ -1,16 +1,50 @@
-module Views.Topbar.Topbar exposing (Msg(..), view)
+module Views.Topbar.Topbar exposing (Model, Msg(..), defaultModel, init, update, view)
 
-import Data.Session exposing (Session)
+import Data.Session exposing (Session, switchTheme)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (onClick)
 import Html.Extra as HE
 import Route
 import Views.Topbar.Search as Search exposing (..)
 import Views.Topbar.User as User exposing (..)
 
 
+type alias Model =
+    { test : String
+    }
+
+
+defaultModel : Model
+defaultModel =
+    { test = "coucou"
+    }
+
+
+init : Session -> ( Model, Cmd Msg )
+init session =
+    ( defaultModel
+    , Cmd.none
+    )
+
+
 type Msg
     = NoOp
+    | SwitchTheme
+
+
+update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
+update session msg model =
+    case msg of
+        NoOp ->
+            ( model, session, Cmd.none )
+
+        SwitchTheme ->
+            let
+                _ =
+                    Debug.log "switch" "switch"
+            in
+            ( model, switchTheme session, Cmd.none )
 
 
 view : Session -> Html Msg
@@ -21,6 +55,7 @@ view session =
             [ button [ class "Button nude" ] [ i [ class "icon-previous TopbarNavigation__icon " ] [] ]
             , button [ class "Button nude disabled" ] [ i [ class "icon-next TopbarNavigation__icon " ] [] ]
             ]
+        , button [ onClick SwitchTheme ] [ text "SWITCH" ]
         , Search.view
         , HE.viewMaybe User.view session.user
         ]
