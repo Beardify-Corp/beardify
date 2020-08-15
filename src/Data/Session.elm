@@ -98,12 +98,6 @@ switchTheme ({ store } as session) =
     let
         currentTheme =
             session.store.theme
-
-        _ =
-            Debug.log "session" currentTheme
-
-        _ =
-            Debug.log "session" currentTheme
     in
     { session | store = { store | theme = not currentTheme } }
 

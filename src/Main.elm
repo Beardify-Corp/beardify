@@ -188,9 +188,6 @@ init flags url navKey =
             , sidebar = Sidebar.defaultModel
             , topbar = Topbar.defaultModel
             }
-
-        _ =
-            Debug.log "theme" session
     in
     case ( url.fragment, url.query ) of
         ( Just fragment, Nothing ) ->
