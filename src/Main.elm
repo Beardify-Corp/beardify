@@ -178,6 +178,7 @@ init flags url navKey =
             , notifications = []
             , user = Nothing
             , store = Session.deserializeStore flags.rawStore
+            , currentUrl = Url.toString url
             }
 
         model =
@@ -188,9 +189,6 @@ init flags url navKey =
             , sidebar = Sidebar.defaultModel
             , topbar = Topbar.defaultModel
             }
-
-        _ =
-            Debug.log "session" session.navKey
     in
     case ( url.fragment, url.query ) of
         ( Just fragment, Nothing ) ->
@@ -397,7 +395,7 @@ update msg ({ page, session } as model) =
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl session.navKey (Url.toString url) )
+                    ( { model | session = { session | currentUrl = Url.toString url } }, Nav.pushUrl session.navKey (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )

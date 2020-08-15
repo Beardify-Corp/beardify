@@ -35,6 +35,7 @@ type alias Session =
     , store : Store
     , notifications : List Notif
     , user : Maybe User
+    , currentUrl : String
     }
 
 
