@@ -3,17 +3,17 @@ module Views.Topbar.Search exposing (Model, Msg(..), defaultModel, init, update,
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events exposing (..)
 
 
 type alias Model =
-    { test : String
+    { searchQuery : String
     }
 
 
 defaultModel : Model
 defaultModel =
-    { test = "coucou"
+    { searchQuery = ""
     }
 
 
@@ -26,10 +26,11 @@ init _ =
 
 type Msg
     = NoOp
+    | Query String
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update ({ navKey } as session) msg model =
+update session msg model =
     case msg of
         NoOp ->
             let
@@ -38,11 +39,21 @@ update ({ navKey } as session) msg model =
             in
             ( model, session, Cmd.none )
 
+        Query query ->
+            let
+                _ =
+                    Debug.log "test" model.searchQuery
+            in
+            ( { model | searchQuery = query }
+            , session
+            , Cmd.none
+            )
+
 
 view : Session -> Html Msg
 view session =
     div [ class "Search" ]
-        [ input [ onClick NoOp, class "Search__input", type_ "text", placeholder "Search..." ] []
+        [ input [ onInput Query, class "Search__input", type_ "text", placeholder "Search..." ] []
         , div [ class "SearchResult" ]
             [ div [ class "SearchResult__section" ]
                 [ h3 [ class "SearchResult__title" ] [ text "Artists" ]
