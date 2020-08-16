@@ -1,7 +1,7 @@
 module Views.Topbar.Topbar exposing (Model, Msg(..), defaultModel, init, update, view)
 
 import Browser.Navigation
-import Data.Session as Session exposing (Session, switchTheme)
+import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
@@ -23,7 +23,7 @@ defaultModel =
 
 
 init : Session -> ( Model, Cmd Msg )
-init session =
+init _ =
     ( defaultModel
     , Cmd.none
     )

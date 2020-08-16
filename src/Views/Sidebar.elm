@@ -1,6 +1,5 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
-import Data.Artist
 import Data.Playlist exposing (Playlist, PlaylistList)
 import Data.Session exposing (Session)
 import Html exposing (..)
