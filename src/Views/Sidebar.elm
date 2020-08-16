@@ -1,5 +1,6 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
+import Data.Artist
 import Data.Playlist exposing (Playlist, PlaylistList)
 import Data.Session exposing (Session)
 import Html exposing (..)
@@ -8,6 +9,7 @@ import Http
 import Request.Sidebar
 import Route
 import Task
+import Url exposing (Url)
 
 
 type alias Model =
@@ -69,8 +71,8 @@ type PlaylistType
     | Collection
 
 
-playlistItem : PlaylistList -> PlaylistType -> Html msg
-playlistItem playlistList playlistType =
+playlistItem : Url -> PlaylistList -> PlaylistType -> Html msg
+playlistItem currentUrl playlistList playlistType =
     if playlistType == Collection then
         div [ class "Sidebar__item" ]
             [ h2 [ class "Sidebar__title Heading" ] [ text "Collection" ]
@@ -80,7 +82,10 @@ playlistItem playlistList playlistType =
                         |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
                         |> List.map
                             (\item ->
-                                li [ class "List__item" ]
+                                li
+                                    [ class "List__item"
+                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/collection/" ++ Data.Playlist.idToString item.id ) ]
+                                    ]
                                     [ i [ class "List__icon icon-collection" ] []
                                     , a [ class "List__link", Route.href (Route.Collection item.id) ] [ text <| String.replace "#Collection " "" item.name ]
                                     ]
@@ -98,7 +103,10 @@ playlistItem playlistList playlistType =
                         |> List.filter (\playlist -> not (String.startsWith "#Collection" playlist.name))
                         |> List.map
                             (\item ->
-                                li [ class "List__item" ]
+                                li
+                                    [ class "List__item"
+                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/playlist/" ++ Data.Playlist.idToString item.id ) ]
+                                    ]
                                     [ i [ class "List__icon icon-playlist" ] []
                                     , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text item.name ]
                                     ]
@@ -108,9 +116,9 @@ playlistItem playlistList playlistType =
             ]
 
 
-view : Model -> Html Msg
-view { playlists } =
+view : Model -> Url -> Html Msg
+view { playlists } currentUrl =
     div [ class "Sidebar" ]
-        [ playlistItem playlists Collection
-        , playlistItem playlists List
+        [ playlistItem currentUrl playlists Collection
+        , playlistItem currentUrl playlists List
         ]

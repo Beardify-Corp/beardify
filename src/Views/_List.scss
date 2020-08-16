@@ -45,6 +45,10 @@
 
     &.active {
       color: Color.$primary;
+
+      .List__link {
+        color: Color.$primary;
+      }
     }
   }
 }

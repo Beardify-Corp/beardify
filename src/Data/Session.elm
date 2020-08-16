@@ -24,6 +24,7 @@ import Data.Authorization as Authorization exposing (Authorization)
 import Data.User exposing (User)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
+import Url exposing (Url)
 
 
 type alias Session =
@@ -35,7 +36,7 @@ type alias Session =
     , store : Store
     , notifications : List Notif
     , user : Maybe User
-    , currentUrl : String
+    , currentUrl : Url
     }
 
 

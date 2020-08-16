@@ -44,7 +44,7 @@ frame { topbarMsg, sidebar, sidebarMsg, session, clearNotification, playerMsg, d
                     [ Topbar.view session
                         |> Html.map topbarMsg
                     , div [ class "App__body" ]
-                        [ Sidebar.view sidebar
+                        [ Sidebar.view sidebar session.currentUrl
                             |> Html.map sidebarMsg
                         , div [ class "Content" ]
                             [ div [ class "Page HelperScrollArea" ] content

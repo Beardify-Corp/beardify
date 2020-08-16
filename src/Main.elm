@@ -178,7 +178,7 @@ init flags url navKey =
             , notifications = []
             , user = Nothing
             , store = Session.deserializeStore flags.rawStore
-            , currentUrl = Url.toString url
+            , currentUrl = url
             }
 
         model =
@@ -395,7 +395,7 @@ update msg ({ page, session } as model) =
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( { model | session = { session | currentUrl = Url.toString url } }, Nav.pushUrl session.navKey (Url.toString url) )
+                    ( { model | session = { session | currentUrl = url } }, Nav.pushUrl session.navKey (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
