@@ -8,7 +8,9 @@ import Data.Track
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Html.Extra as HE
 import Http
+import Request.Player
 import Request.Search
 import Route
 import Task
@@ -43,6 +45,9 @@ type Msg
     = NoOp
     | Query String
     | Finded (Result ( Session, Http.Error ) Request.Search.Search)
+    | PlayTrack (List String)
+    | Played (Result ( Session, Http.Error ) ())
+    | Bye
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
@@ -61,7 +66,7 @@ update session msg model =
             ( { model
                 | artists = response.artists.items |> List.take 6
                 , albums = response.albums.items |> List.take 6
-                , tracks = response.tracks.items
+                , tracks = response.tracks.items |> List.take 8
               }
             , session
             , Cmd.none
@@ -70,13 +75,25 @@ update session msg model =
         Finded (Err _) ->
             ( model, session, Cmd.none )
 
+        PlayTrack uris ->
+            ( { model | searchQuery = "" }, session, Task.attempt Played (Request.Player.playTracks session uris) )
+
+        Played (Ok _) ->
+            ( model, session, Cmd.none )
+
+        Played (Err ( newSession, _ )) ->
+            ( model, newSession, Cmd.none )
+
+        Bye ->
+            ( { model | searchQuery = "" }, session, Cmd.none )
+
 
 view : Model -> Session -> Html Msg
 view model session =
     let
         artistView artist =
             li []
-                [ a [ class "SearchResultArtist__item", Route.href (Route.Artist artist.id) ]
+                [ a [ class "SearchResultArtist__item", onClick Bye, Route.href (Route.Artist artist.id) ]
                     [ img
                         [ class "SearchResult__img artist"
                         , src (Image.filterByWidth Image.Small artist.images).url
@@ -88,98 +105,51 @@ view model session =
 
         albumView album =
             li []
-                [ a [ class "SearchResultArtist__item", Route.href (Route.Album album.id) ]
-                    [ img
-                        [ class "SearchResult__img"
-                        , src (Image.filterByWidth Image.Small album.images).url
-                        ]
-                        []
-                    , div []
-                        [ div [ class "SearchResult__label" ] [ text album.name ]
-                        , div [ class "SearchResult__subLabel" ]
-                            [ a [ href "", class "Artist__link" ] (Views.Artist.view album.artists)
+                [ div [ class "SearchResultArtist__item" ]
+                    [ a [ onClick Bye, Route.href (Route.Album album.id) ]
+                        [ img
+                            [ class "SearchResult__img"
+                            , src (Image.filterByWidth Image.Small album.images).url
                             ]
+                            []
+                        ]
+                    , div []
+                        [ a [ onClick Bye, Route.href (Route.Album album.id), class "SearchResult__label" ] [ text album.name ]
+                        , div [ class "SearchResult__subLabel" ] (Views.Artist.view album.artists)
+                        ]
+                    ]
+                ]
+
+        trackView track =
+            li []
+                [ div [ class "SearchResultArtist__item track", href "" ]
+                    [ div [ onClick <| PlayTrack [ track.uri ] ] [ text ">" ]
+                    , div []
+                        [ div [ onClick <| PlayTrack [ track.uri ], class "SearchResult__label" ] [ text track.name ]
+                        , div [ class "SearchResult__subLabel" ] (Views.Artist.view track.artists)
                         ]
                     ]
                 ]
     in
     div [ class "Search" ]
         [ input [ onInput Query, class "Search__input", type_ "text", placeholder "Search..." ] []
-        , div [ class "SearchResult" ]
-            [ div [ class "SearchResult__section" ]
-                [ h3 [ class "SearchResult__title" ] [ text "Artists" ]
-                , ul [ class "SearchResultArtist List unstyled" ]
-                    (model.artists |> List.map artistView)
-                ]
-            , div [ class "SearchResult__section" ]
-                [ h3 [ class "SearchResult__title" ] [ text "Albums" ]
-                , ul [ class "SearchResultArtist List unstyled" ]
-                    (model.albums |> List.map albumView)
-                ]
-            , div [ class "SearchResult__section" ]
-                [ h3 [ class "SearchResult__title" ] [ text "Tracks" ]
-                , ul [ class "SearchResultArtist List unstyled" ]
-                    [ li []
-                        [ a [ class "SearchResultArtist__item track", href "" ]
-                            [ img
-                                [ class "SearchResult__img track"
-                                , src "https://i.scdn.co/image/08de8ef442ead93a54ce23bc3a717edfbb3a6fd8"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "Metallica (1991)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "Metallica" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item track", href "" ]
-                            [ img
-                                [ class "SearchResult__img track"
-                                , src "https://i.scdn.co/image/4841b1ab42b7c3e0272c3b7df570bc96857e93e4"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "Metal Galaxy (2019)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "BABYMETAL" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item track", href "" ]
-                            [ img
-                                [ class "SearchResult__img track"
-                                , src "https://i.scdn.co/image/c1e6f8f6c02db088661f585c3cb67cddfb511c88"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "Master Of Puppets (Remastered) (1986)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "Metallica" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item track", href "" ]
-                            [ img
-                                [ class "SearchResult__img track"
-                                , src "https://i.scdn.co/image/69b5b8dcb648dc590e4fd21b7e6ef402ebb730e5"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "...And Justice For All (1988)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "Metallica" ]
-                                    ]
-                                ]
-                            ]
-                        ]
+        , HE.viewIf (model.searchQuery /= "")
+            (div [ class "SearchResult" ]
+                [ div [ class "SearchResult__section" ]
+                    [ h3 [ class "SearchResult__title" ] [ text "Artists" ]
+                    , ul [ class "SearchResultArtist List unstyled" ]
+                        (model.artists |> List.map artistView)
+                    ]
+                , div [ class "SearchResult__section" ]
+                    [ h3 [ class "SearchResult__title" ] [ text "Albums" ]
+                    , ul [ class "SearchResultArtist List unstyled" ]
+                        (model.albums |> List.map albumView)
+                    ]
+                , div [ class "SearchResult__section" ]
+                    [ h3 [ class "SearchResult__title" ] [ text "Tracks" ]
+                    , ul [ class "SearchResultArtist List unstyled" ]
+                        (model.tracks |> List.map trackView)
                     ]
                 ]
-            ]
+            )
         ]

@@ -42,8 +42,10 @@
 
     &__label {
       color: Color.$font;
+      cursor: pointer;
       font-weight: 700;
       margin-left: 15px;
+      text-decoration: none;
     }
 
     &__subLabel {
@@ -58,10 +60,6 @@
 
       &.artist {
         border-radius: var(--size);
-      }
-
-      &.track {
-        --size: 30px;
       }
     }
 
