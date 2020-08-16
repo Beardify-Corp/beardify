@@ -10,7 +10,7 @@ view : User -> Html msg
 view user =
     let
         avatar =
-            Image.filterByWidth 0 user.avatar
+            Image.filterByWidth Image.Large user.avatar
     in
     div [ class "User" ]
         [ img [ class "User__avatar", src avatar.url ] []

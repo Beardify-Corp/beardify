@@ -1,6 +1,13 @@
-module Data.Image exposing (Image, decode, filterByWidth)
+module Data.Image exposing (Image, Size(..), decode, filterByWidth)
 
 import Json.Decode as Decode exposing (Decoder)
+import List.Extra as LE
+
+
+type Size
+    = Small
+    | Medium
+    | Large
 
 
 type alias Image =
@@ -36,8 +43,14 @@ decode =
         )
 
 
-filterByWidth : Int -> List Image -> Image
+filterByWidth : Size -> List Image -> Image
 filterByWidth width =
-    List.filter (\i -> i.width >= width)
-        >> List.head
-        >> Maybe.withDefault default
+    case width of
+        Small ->
+            LE.getAt 2 >> Maybe.withDefault default
+
+        Medium ->
+            LE.getAt 1 >> Maybe.withDefault default
+
+        Large ->
+            LE.getAt 0 >> Maybe.withDefault default

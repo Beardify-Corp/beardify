@@ -2,10 +2,12 @@
 @use "sass:color";
 
 .List {
+  padding: 5px 15px;
+
   &.unstyled {
     list-style: none;
     margin: 0;
-    padding: 0;
+    // padding: 0;
   }
 
   &__collaborativeIcon {
@@ -26,6 +28,10 @@
     flex: 1;
     padding: 3px;
     text-decoration: none;
+
+    &:hover {
+      color: #fff;
+    }
   }
 
   &__item {
@@ -33,14 +39,19 @@
     border-radius: 3px;
     display: block;
     display: flex;
-    padding-left: 15px;
+    padding-left: 5px;
 
     &:hover {
       color: #fff;
     }
 
     &.active {
+      background-color: rgba(Color.$primary, .2);
       color: Color.$primary;
+
+      .List__link {
+        color: Color.$primary;
+      }
     }
   }
 }

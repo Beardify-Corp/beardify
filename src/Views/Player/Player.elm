@@ -145,7 +145,7 @@ view { player } =
         Just ({ track } as player_) ->
             let
                 cover =
-                    Image.filterByWidth 64 track.album.images
+                    Image.filterByWidth Image.Small track.album.images
 
                 percentDuration =
                     String.fromFloat (toFloat player_.progress / toFloat track.duration * 100) ++ "%"

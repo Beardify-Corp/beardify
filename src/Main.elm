@@ -25,6 +25,7 @@ import Url exposing (Url)
 import Views.Player.Device as Device
 import Views.Player.Player as Player
 import Views.Sidebar as Sidebar
+import Views.Topbar.Topbar as Topbar
 
 
 type alias Flags =
@@ -53,6 +54,7 @@ type alias Model =
     , player : PlayerContext
     , devices : List Device
     , sidebar : Sidebar.Model
+    , topbar : Topbar.Model
     }
 
 
@@ -66,6 +68,7 @@ type Msg
     | HomeMsg Home.Msg
     | LoginMsg Login.Msg
     | SidebarMsg Sidebar.Msg
+    | TopbarMsg Topbar.Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
@@ -85,17 +88,22 @@ initComponent ( model, msgCmd ) =
 
         ( sidebarModel, sidebarCmd ) =
             Sidebar.init model.session
+
+        ( topbarModel, topbarCmd ) =
+            Topbar.init model.session
     in
     ( { model
         | player = playerModel
         , devices = deviceModel
         , sidebar = sidebarModel
+        , topbar = topbarModel
       }
     , Cmd.batch
         [ msgCmd
         , Cmd.map PlayerMsg playerCmd
         , Cmd.map DeviceMsg deviceCmd
         , Cmd.map SidebarMsg sidebarCmd
+        , Cmd.map TopbarMsg topbarCmd
         ]
     )
 
@@ -170,6 +178,7 @@ init flags url navKey =
             , notifications = []
             , user = Nothing
             , store = Session.deserializeStore flags.rawStore
+            , currentUrl = url
             }
 
         model =
@@ -178,6 +187,7 @@ init flags url navKey =
             , devices = []
             , player = PlayerData.defaultPlayerContext
             , sidebar = Sidebar.defaultModel
+            , topbar = Topbar.defaultModel
             }
     in
     case ( url.fragment, url.query ) of
@@ -365,6 +375,18 @@ update msg ({ page, session } as model) =
             , Cmd.batch [ Cmd.map SidebarMsg sidebarCmd ]
             )
 
+        ( TopbarMsg topbarMsg, _ ) ->
+            let
+                ( topbarModel, newSession, topbarCmd ) =
+                    Topbar.update session topbarMsg model.topbar
+            in
+            ( { model
+                | session = newSession
+                , topbar = topbarModel
+              }
+            , Cmd.batch [ Cmd.map TopbarMsg topbarCmd ]
+            )
+
         ( StoreChanged json, _ ) ->
             ( { model | session = { session | store = Session.deserializeStore json } }
             , Cmd.none
@@ -373,7 +395,7 @@ update msg ({ page, session } as model) =
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl session.navKey (Url.toString url) )
+                    ( { model | session = { session | currentUrl = url } }, Nav.pushUrl session.navKey (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
@@ -390,6 +412,7 @@ update msg ({ page, session } as model) =
                         , player = PlayerData.defaultPlayerContext
                         , session = Session.updateUser user model.session
                         , sidebar = Sidebar.defaultModel
+                        , topbar = Topbar.defaultModel
                         }
                         |> initComponent
 
@@ -468,6 +491,7 @@ view { sidebar, page, session, player, devices } =
                 , devices = devices
                 , sidebar = sidebar
                 , sidebarMsg = SidebarMsg
+                , topbarMsg = TopbarMsg
                 }
 
         mapMsg msg ( title, content ) =

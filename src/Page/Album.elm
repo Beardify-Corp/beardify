@@ -135,6 +135,13 @@ view context { album, trackList } =
             List.map (\e -> e.uri) trackList.items
                 |> LE.dropWhile (\t -> t /= trackUri)
 
+        artistName : String
+        artistName =
+            artists
+                |> List.map .name
+                |> List.take 1
+                |> String.concat
+
         trackSumDuration =
             trackList.items
                 |> List.map (\t -> t.duration)
@@ -169,6 +176,12 @@ view context { album, trackList } =
                                             [ div [ class "AlbumPageTrack__left" ]
                                                 [ div [ class "AlbumPageTrack__number" ] [ text <| String.fromInt trackItem.trackNumber ]
                                                 , div [ class "AlbumPageTrack__name" ] [ text trackItem.name ]
+                                                , div [ class "AlbumPageTrack__feat" ]
+                                                    (Views.Artist.view
+                                                        (trackItem.artists
+                                                            |> List.filter (\e -> e.name /= artistName)
+                                                        )
+                                                    )
                                                 ]
                                             , div [] [ text <| Data.Track.durationFormat trackItem.duration ]
                                             ]

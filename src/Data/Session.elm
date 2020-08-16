@@ -12,6 +12,7 @@ module Data.Session exposing
     , notifyInfo
     , notifySuccess
     , serializeStore
+    , switchTheme
     , tickNotifications
     , updateAuth
     , updateState
@@ -23,6 +24,7 @@ import Data.Authorization as Authorization exposing (Authorization)
 import Data.User exposing (User)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
+import Url exposing (Url)
 
 
 type alias Session =
@@ -34,6 +36,7 @@ type alias Session =
     , store : Store
     , notifications : List Notif
     , user : Maybe User
+    , currentUrl : Url
     }
 
 
@@ -49,6 +52,7 @@ across browser restarts, typically in localStorage.
 type alias Store =
     { auth : Maybe Authorization
     , state : String
+    , theme : Bool
     }
 
 
@@ -56,14 +60,16 @@ defaultStore : Store
 defaultStore =
     { auth = Nothing
     , state = ""
+    , theme = True
     }
 
 
 decodeStore : Decoder Store
 decodeStore =
-    Decode.map2 Store
+    Decode.map3 Store
         (Decode.field "auth" Authorization.decode |> Decode.maybe)
         (Decode.field "state" Decode.string)
+        (Decode.field "theme" Decode.bool)
 
 
 encodeStore : Store -> Encode.Value
@@ -75,6 +81,7 @@ encodeStore v =
                 |> Maybe.withDefault Encode.null
           )
         , ( "state", Encode.string v.state )
+        , ( "theme", Encode.bool v.theme )
         ]
 
 
@@ -88,7 +95,17 @@ serializeStore =
     encodeStore >> Encode.encode 0
 
 
+switchTheme : Session -> Session
+switchTheme ({ store } as session) =
+    let
+        currentTheme =
+            session.store.theme
+    in
+    { session | store = { store | theme = not currentTheme } }
 
+
+
+-- session
 -- Authorization
 
 
