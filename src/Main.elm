@@ -25,7 +25,8 @@ import Url exposing (Url)
 import Views.Player.Device as Device
 import Views.Player.Player as Player
 import Views.Sidebar as Sidebar
-import Views.Topbar.Topbar as Topbar
+import Views.Topbar.Nav as Topbar
+import Views.Topbar.Search as Search
 
 
 type alias Flags =
@@ -55,6 +56,7 @@ type alias Model =
     , devices : List Device
     , sidebar : Sidebar.Model
     , topbar : Topbar.Model
+    , search : Search.Model
     }
 
 
@@ -69,6 +71,7 @@ type Msg
     | LoginMsg Login.Msg
     | SidebarMsg Sidebar.Msg
     | TopbarMsg Topbar.Msg
+    | SearchMsg Search.Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
@@ -91,12 +94,16 @@ initComponent ( model, msgCmd ) =
 
         ( topbarModel, topbarCmd ) =
             Topbar.init model.session
+
+        ( searchModel, searchCmd ) =
+            Search.init model.session
     in
     ( { model
         | player = playerModel
         , devices = deviceModel
         , sidebar = sidebarModel
         , topbar = topbarModel
+        , search = searchModel
       }
     , Cmd.batch
         [ msgCmd
@@ -104,6 +111,7 @@ initComponent ( model, msgCmd ) =
         , Cmd.map DeviceMsg deviceCmd
         , Cmd.map SidebarMsg sidebarCmd
         , Cmd.map TopbarMsg topbarCmd
+        , Cmd.map SearchMsg searchCmd
         ]
     )
 
@@ -188,6 +196,7 @@ init flags url navKey =
             , player = PlayerData.defaultPlayerContext
             , sidebar = Sidebar.defaultModel
             , topbar = Topbar.defaultModel
+            , search = Search.defaultModel
             }
     in
     case ( url.fragment, url.query ) of
@@ -384,6 +393,18 @@ update msg ({ page, session } as model) =
             , Cmd.batch [ Cmd.map TopbarMsg componentCmd ]
             )
 
+        ( SearchMsg componentMsg, _ ) ->
+            let
+                ( componentModel, newSession, componentCmd ) =
+                    Search.update session componentMsg model.search
+            in
+            ( { model
+                | session = newSession
+                , search = componentModel
+              }
+            , Cmd.batch [ Cmd.map SearchMsg componentCmd ]
+            )
+
         -- Store
         ( StoreChanged json, _ ) ->
             ( { model | session = { session | store = Session.deserializeStore json } }
@@ -412,6 +433,7 @@ update msg ({ page, session } as model) =
                         , session = Session.updateUser user model.session
                         , sidebar = Sidebar.defaultModel
                         , topbar = Topbar.defaultModel
+                        , search = Search.defaultModel
                         }
                         |> initComponent
 
@@ -467,7 +489,7 @@ subscriptions model =
 
 
 view : Model -> Document Msg
-view { sidebar, page, session, player, devices } =
+view { sidebar, page, session, player, devices, search } =
     let
         frame =
             Page.frame
@@ -480,6 +502,8 @@ view { sidebar, page, session, player, devices } =
                 , sidebar = sidebar
                 , sidebarMsg = SidebarMsg
                 , topbarMsg = TopbarMsg
+                , search = search
+                , searchMsg = SearchMsg
                 }
 
         mapMsg msg ( title, content ) =

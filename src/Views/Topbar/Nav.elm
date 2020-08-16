@@ -1,4 +1,4 @@
-module Views.Topbar.Topbar exposing (Model, Msg(..), defaultModel, init, update, view)
+module Views.Topbar.Nav exposing (Model, Msg(..), defaultModel, init, update, view)
 
 import Browser.Navigation
 import Data.Session exposing (Session)
@@ -7,7 +7,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Html.Extra as HE
 import Route
-import Views.Topbar.Search as Search exposing (..)
 import Views.Topbar.User as User exposing (..)
 
 
@@ -44,14 +43,9 @@ update ({ navKey } as session) msg model =
             ( model, session, Browser.Navigation.forward navKey 1 )
 
 
-view : Session -> Html Msg
-view session =
-    div [ class "Topbar" ]
-        [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]
-        , div [ class "TopbarNavigation" ]
-            [ button [ onClick Back, class "Button nude" ] [ i [ class "icon-previous TopbarNavigation__icon " ] [] ]
-            , button [ onClick Forward, class "Button nude" ] [ i [ class "icon-next TopbarNavigation__icon " ] [] ]
-            ]
-        , Search.view
-        , HE.viewMaybe User.view session.user
+view : Html Msg
+view =
+    div [ class "Nav" ]
+        [ button [ onClick Back, class "Button nude" ] [ i [ class "icon-previous Nav__icon " ] [] ]
+        , button [ onClick Forward, class "Button nude" ] [ i [ class "icon-next Nav__icon " ] [] ]
         ]
