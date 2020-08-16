@@ -12,6 +12,7 @@ import Http
 import Request.Search
 import Route
 import Task
+import Views.Artist
 
 
 type alias Model =
@@ -58,8 +59,8 @@ update session msg model =
 
         Finded (Ok response) ->
             ( { model
-                | artists = response.artists.items
-                , albums = response.albums.items
+                | artists = response.artists.items |> List.take 6
+                , albums = response.albums.items |> List.take 6
                 , tracks = response.tracks.items
               }
             , session
@@ -84,6 +85,23 @@ view model session =
                     , span [ class "SearchResult__label" ] [ text artist.name ]
                     ]
                 ]
+
+        albumView album =
+            li []
+                [ a [ class "SearchResultArtist__item", Route.href (Route.Album album.id) ]
+                    [ img
+                        [ class "SearchResult__img"
+                        , src (Image.filterByWidth Image.Small album.images).url
+                        ]
+                        []
+                    , div []
+                        [ div [ class "SearchResult__label" ] [ text album.name ]
+                        , div [ class "SearchResult__subLabel" ]
+                            [ a [ href "", class "Artist__link" ] (Views.Artist.view album.artists)
+                            ]
+                        ]
+                    ]
+                ]
     in
     div [ class "Search" ]
         [ input [ onInput Query, class "Search__input", type_ "text", placeholder "Search..." ] []
@@ -96,67 +114,7 @@ view model session =
             , div [ class "SearchResult__section" ]
                 [ h3 [ class "SearchResult__title" ] [ text "Albums" ]
                 , ul [ class "SearchResultArtist List unstyled" ]
-                    [ li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img"
-                                , src "https://i.scdn.co/image/08de8ef442ead93a54ce23bc3a717edfbb3a6fd8"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "Metallica (1991)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "Metallica" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img"
-                                , src "https://i.scdn.co/image/4841b1ab42b7c3e0272c3b7df570bc96857e93e4"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "Metal Galaxy (2019)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "BABYMETAL" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img"
-                                , src "https://i.scdn.co/image/c1e6f8f6c02db088661f585c3cb67cddfb511c88"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "Master Of Puppets (Remastered) (1986)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "Metallica" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img"
-                                , src "https://i.scdn.co/image/69b5b8dcb648dc590e4fd21b7e6ef402ebb730e5"
-                                ]
-                                []
-                            , div []
-                                [ div [ class "SearchResult__label" ] [ text "...And Justice For All (1988)" ]
-                                , div [ class "SearchResult__subLabel" ]
-                                    [ a [ href "", class "Artist__link" ] [ text "Metallica" ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
+                    (model.albums |> List.map albumView)
                 ]
             , div [ class "SearchResult__section" ]
                 [ h3 [ class "SearchResult__title" ] [ text "Tracks" ]
