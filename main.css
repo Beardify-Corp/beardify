@@ -371,6 +371,7 @@ template {
   width: 100%;
 }
 .Album__name {
+  color: white;
   font-weight: 700;
 }
 .Album__add {
@@ -695,10 +696,12 @@ template {
   text-decoration: none;
 }
 
+.List {
+  padding: 5px 15px;
+}
 .List.unstyled {
   list-style: none;
   margin: 0;
-  padding: 0;
 }
 .List__collaborativeIcon {
   font-size: 0.8rem;
@@ -717,17 +720,24 @@ template {
   padding: 3px;
   text-decoration: none;
 }
+.List__link:hover {
+  color: #fff;
+}
 .List__item {
   align-items: baseline;
   border-radius: 3px;
   display: block;
   display: flex;
-  padding-left: 15px;
+  padding-left: 5px;
 }
 .List__item:hover {
   color: #fff;
 }
 .List__item.active {
+  background-color: rgba(26, 157, 178, 0.2);
+  color: #1a9db2;
+}
+.List__item.active .List__link {
   color: #1a9db2;
 }
 
@@ -1047,7 +1057,7 @@ template {
   font-style: italic;
   letter-spacing: 0.3px;
   margin: 0;
-  padding: 8px 15px 5px;
+  padding: 15px 21px 5px;
   text-transform: uppercase;
 }
 
@@ -1275,6 +1285,9 @@ template {
 .AlbumPageTrack.active {
   background-color: rgba(26, 157, 178, 0.2);
 }
+.AlbumPageTrack__feat {
+  margin-left: 10px;
+}
 .AlbumPageTrack__name {
   color: white;
   font-weight: bold;
@@ -1420,7 +1433,7 @@ strong {
 
 ::-webkit-scrollbar-thumb {
   background-clip: content-box;
-  background-color: #0e161b;
+  background-color: #0d4f59;
   border: 5px solid transparent;
   border-radius: 20px;
 }
