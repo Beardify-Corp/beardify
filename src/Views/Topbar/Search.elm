@@ -66,7 +66,7 @@ update session msg model =
             ( { model
                 | artists = response.artists.items |> List.take 6
                 , albums = response.albums.items |> List.take 6
-                , tracks = response.tracks.items |> List.take 8
+                , tracks = response.tracks.items |> List.take 7
               }
             , session
             , Cmd.none
@@ -88,8 +88,8 @@ update session msg model =
             ( { model | searchQuery = "" }, session, Cmd.none )
 
 
-view : Model -> Session -> Html Msg
-view model session =
+view : Model -> Html Msg
+view model =
     let
         artistView artist =
             li []
@@ -123,7 +123,7 @@ view model session =
         trackView track =
             li []
                 [ div [ class "SearchResultArtist__item track", href "" ]
-                    [ div [ onClick <| PlayTrack [ track.uri ] ] [ text ">" ]
+                    [ div [ onClick <| PlayTrack [ track.uri ] ] [ i [ class "icon-play" ] [] ]
                     , div []
                         [ div [ onClick <| PlayTrack [ track.uri ], class "SearchResult__label" ] [ text track.name ]
                         , div [ class "SearchResult__subLabel" ] (Views.Artist.view track.artists)
@@ -132,22 +132,22 @@ view model session =
                 ]
     in
     div [ class "Search" ]
-        [ input [ onInput Query, class "Search__input", type_ "text", placeholder "Search..." ] []
+        [ input [ onInput Query, class "Search__input", type_ "text", placeholder "Search artist, album or track..." ] []
         , HE.viewIf (model.searchQuery /= "")
             (div [ class "SearchResult" ]
                 [ div [ class "SearchResult__section" ]
                     [ h3 [ class "SearchResult__title" ] [ text "Artists" ]
-                    , ul [ class "SearchResultArtist List unstyled" ]
+                    , ul [ class "SearchResult__list" ]
                         (model.artists |> List.map artistView)
                     ]
                 , div [ class "SearchResult__section" ]
                     [ h3 [ class "SearchResult__title" ] [ text "Albums" ]
-                    , ul [ class "SearchResultArtist List unstyled" ]
+                    , ul [ class "SearchResult__list" ]
                         (model.albums |> List.map albumView)
                     ]
                 , div [ class "SearchResult__section" ]
                     [ h3 [ class "SearchResult__title" ] [ text "Tracks" ]
-                    , ul [ class "SearchResultArtist List unstyled" ]
+                    , ul [ class "SearchResult__list" ]
                         (model.tracks |> List.map trackView)
                     ]
                 ]

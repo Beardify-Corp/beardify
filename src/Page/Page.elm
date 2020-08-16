@@ -50,7 +50,7 @@ frame { topbarMsg, sidebar, search, searchMsg, sidebarMsg, session, clearNotific
                     [ div [ class "Topbar" ]
                         [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]
                         , Nav.view |> Html.map topbarMsg
-                        , Search.view search session |> Html.map searchMsg
+                        , Search.view search |> Html.map searchMsg
                         , HE.viewMaybe User.view session.user
                         ]
                     , div [ class "App__body" ]

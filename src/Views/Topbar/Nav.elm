@@ -5,9 +5,6 @@ import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
-import Html.Extra as HE
-import Route
-import Views.Topbar.User as User exposing (..)
 
 
 type alias Model =
