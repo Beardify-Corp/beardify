@@ -25,7 +25,8 @@ import Url exposing (Url)
 import Views.Player.Device as Device
 import Views.Player.Player as Player
 import Views.Sidebar as Sidebar
-import Views.Topbar.Topbar as Topbar
+import Views.Topbar.Nav as Topbar
+import Views.Topbar.Search as Search
 
 
 type alias Flags =
@@ -55,6 +56,7 @@ type alias Model =
     , devices : List Device
     , sidebar : Sidebar.Model
     , topbar : Topbar.Model
+    , search : Search.Model
     }
 
 
@@ -69,6 +71,7 @@ type Msg
     | LoginMsg Login.Msg
     | SidebarMsg Sidebar.Msg
     | TopbarMsg Topbar.Msg
+    | SearchMsg Search.Msg
     | PlayerMsg Player.Msg
     | RefreshNotifications Posix
     | StoreChanged String
@@ -91,12 +94,16 @@ initComponent ( model, msgCmd ) =
 
         ( topbarModel, topbarCmd ) =
             Topbar.init model.session
+
+        ( searchModel, searchCmd ) =
+            Search.init model.session
     in
     ( { model
         | player = playerModel
         , devices = deviceModel
         , sidebar = sidebarModel
         , topbar = topbarModel
+        , search = searchModel
       }
     , Cmd.batch
         [ msgCmd
@@ -104,6 +111,7 @@ initComponent ( model, msgCmd ) =
         , Cmd.map DeviceMsg deviceCmd
         , Cmd.map SidebarMsg sidebarCmd
         , Cmd.map TopbarMsg topbarCmd
+        , Cmd.map SearchMsg searchCmd
         ]
     )
 
@@ -188,6 +196,7 @@ init flags url navKey =
             , player = PlayerData.defaultPlayerContext
             , sidebar = Sidebar.defaultModel
             , topbar = Topbar.defaultModel
+            , search = Search.defaultModel
             }
     in
     case ( url.fragment, url.query ) of
@@ -267,6 +276,7 @@ update msg ({ page, session } as model) =
             )
     in
     case ( msg, page ) of
+        -- Pages
         ( ArtistMsg artistMsg, ArtistPage artistModel ) ->
             toPage ArtistPage ArtistMsg Artist.update artistMsg artistModel
 
@@ -279,11 +289,13 @@ update msg ({ page, session } as model) =
         ( CollectionMsg collectionMsg, CollectionPage collectionModel ) ->
             toPage CollectionPage CollectionMsg Collection.update collectionMsg collectionModel
 
-        ( ClearNotification notif, _ ) ->
-            ( { model | session = session |> Session.closeNotification notif }
-            , Cmd.none
-            )
+        ( HomeMsg homeMsg, HomePage homeModel ) ->
+            toPage HomePage HomeMsg Home.update homeMsg homeModel
 
+        ( LoginMsg loginMsg, LoginPage loginModel ) ->
+            toPage LoginPage LoginMsg Login.update loginMsg loginModel
+
+        -- Components
         ( DeviceMsg deviceMsg, _ ) ->
             let
                 ( deviceModel, newSession, deviceCmd ) =
@@ -333,23 +345,17 @@ update msg ({ page, session } as model) =
                         ]
                     )
 
-        ( HomeMsg homeMsg, HomePage homeModel ) ->
-            toPage HomePage HomeMsg Home.update homeMsg homeModel
-
-        ( LoginMsg loginMsg, LoginPage loginModel ) ->
-            toPage LoginPage LoginMsg Login.update loginMsg loginModel
-
         ( PlayerMsg playerMsg, _ ) ->
             let
-                ( playerModel, newSession, playerCmd ) =
+                ( componentModel, newSession, componentCmd ) =
                     Player.update session playerMsg model.player
             in
             ( { model
                 | session = newSession
-                , player = playerModel
+                , player = componentModel
               }
             , Cmd.batch
-                [ Cmd.map PlayerMsg playerCmd
+                [ Cmd.map PlayerMsg componentCmd
                 , if session.store /= newSession.store then
                     newSession.store |> Session.serializeStore |> Ports.saveStore
 
@@ -363,35 +369,49 @@ update msg ({ page, session } as model) =
                 ]
             )
 
-        ( SidebarMsg sidebarMsg, _ ) ->
+        ( SidebarMsg componentMsg, _ ) ->
             let
-                ( sidebarModel, newSession, sidebarCmd ) =
-                    Sidebar.update session sidebarMsg model.sidebar
+                ( componentModel, newSession, componentCmd ) =
+                    Sidebar.update session componentMsg model.sidebar
             in
             ( { model
                 | session = newSession
-                , sidebar = sidebarModel
+                , sidebar = componentModel
               }
-            , Cmd.batch [ Cmd.map SidebarMsg sidebarCmd ]
+            , Cmd.batch [ Cmd.map SidebarMsg componentCmd ]
             )
 
-        ( TopbarMsg topbarMsg, _ ) ->
+        ( TopbarMsg componentMsg, _ ) ->
             let
-                ( topbarModel, newSession, topbarCmd ) =
-                    Topbar.update session topbarMsg model.topbar
+                ( componentModel, newSession, componentCmd ) =
+                    Topbar.update session componentMsg model.topbar
             in
             ( { model
                 | session = newSession
-                , topbar = topbarModel
+                , topbar = componentModel
               }
-            , Cmd.batch [ Cmd.map TopbarMsg topbarCmd ]
+            , Cmd.batch [ Cmd.map TopbarMsg componentCmd ]
             )
 
+        ( SearchMsg componentMsg, _ ) ->
+            let
+                ( componentModel, newSession, componentCmd ) =
+                    Search.update session componentMsg model.search
+            in
+            ( { model
+                | session = newSession
+                , search = componentModel
+              }
+            , Cmd.batch [ Cmd.map SearchMsg componentCmd ]
+            )
+
+        -- Store
         ( StoreChanged json, _ ) ->
             ( { model | session = { session | store = Session.deserializeStore json } }
             , Cmd.none
             )
 
+        -- Routing
         ( UrlRequested urlRequest, _ ) ->
             case urlRequest of
                 Browser.Internal url ->
@@ -413,6 +433,7 @@ update msg ({ page, session } as model) =
                         , session = Session.updateUser user model.session
                         , sidebar = Sidebar.defaultModel
                         , topbar = Topbar.defaultModel
+                        , search = Search.defaultModel
                         }
                         |> initComponent
 
@@ -423,6 +444,12 @@ update msg ({ page, session } as model) =
         ( UserFetched (Err ( newSession, _ )), _ ) ->
             ( { model | session = newSession }, Route.pushUrl session.navKey Route.Login )
 
+        -- Notifications
+        ( ClearNotification notif, _ ) ->
+            ( { model | session = session |> Session.closeNotification notif }
+            , Cmd.none
+            )
+
         ( RefreshNotifications _, _ ) ->
             ( { model
                 | session =
@@ -432,6 +459,7 @@ update msg ({ page, session } as model) =
             , Cmd.none
             )
 
+        -- Misc
         ( _, NotFound ) ->
             ( { model | page = NotFound }, Cmd.none )
 
@@ -451,47 +479,31 @@ subscriptions model =
         , Player.subscriptions model.player
             |> Sub.map PlayerMsg
         , case model.page of
-            ArtistPage _ ->
-                Sub.none
-
-            AlbumPage _ ->
-                Sub.none
-
-            PlaylistPage _ ->
-                Sub.none
-
-            CollectionPage _ ->
-                Sub.none
-
             HomePage homeModel ->
                 Home.subscriptions homeModel
                     |> Sub.map HomeMsg
 
-            LoginPage _ ->
-                Sub.none
-
-            NotFound ->
-                Sub.none
-
-            Blank ->
+            _ ->
                 Sub.none
         ]
 
 
 view : Model -> Document Msg
-view { sidebar, page, session, player, devices } =
+view { sidebar, page, session, player, devices, search } =
     let
         frame =
             Page.frame
                 { session = session
                 , clearNotification = ClearNotification
-                , playerMsg = PlayerMsg
-                , deviceMsg = DeviceMsg
                 , player = player
+                , playerMsg = PlayerMsg
                 , devices = devices
+                , deviceMsg = DeviceMsg
                 , sidebar = sidebar
                 , sidebarMsg = SidebarMsg
                 , topbarMsg = TopbarMsg
+                , search = search
+                , searchMsg = SearchMsg
                 }
 
         mapMsg msg ( title, content ) =

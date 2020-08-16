@@ -7,12 +7,16 @@ import Data.Device exposing (Device)
 import Data.Player exposing (PlayerContext)
 import Data.Session exposing (Notif, Session)
 import Html exposing (..)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (..)
+import Html.Extra as HE
+import Route
 import Views.Notif as Notif
 import Views.Player.Device as Device
 import Views.Player.Player as Player
 import Views.Sidebar as Sidebar
-import Views.Topbar.Topbar as Topbar
+import Views.Topbar.Nav as Nav
+import Views.Topbar.Search as Search
+import Views.Topbar.User as User
 
 
 type alias Config msg =
@@ -24,12 +28,14 @@ type alias Config msg =
     , devices : List Device
     , sidebar : Sidebar.Model
     , sidebarMsg : Sidebar.Msg -> msg
-    , topbarMsg : Topbar.Msg -> msg
+    , topbarMsg : Nav.Msg -> msg
+    , search : Search.Model
+    , searchMsg : Search.Msg -> msg
     }
 
 
 frame : Config msg -> ( String, List (Html msg) ) -> Document msg
-frame { topbarMsg, sidebar, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
+frame { topbarMsg, sidebar, search, searchMsg, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
     { title = title ++ " | Beardify "
     , body =
         [ Notif.component
@@ -41,8 +47,12 @@ frame { topbarMsg, sidebar, sidebarMsg, session, clearNotification, playerMsg, d
         , case session.store.auth of
             Just _ ->
                 main_ [ class "App" ]
-                    [ Topbar.view session
-                        |> Html.map topbarMsg
+                    [ div [ class "Topbar" ]
+                        [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]
+                        , Nav.view |> Html.map topbarMsg
+                        , Search.view search |> Html.map searchMsg
+                        , HE.viewMaybe User.view session.user
+                        ]
                     , div [ class "App__body" ]
                         [ Sidebar.view sidebar session.currentUrl
                             |> Html.map sidebarMsg
