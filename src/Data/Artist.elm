@@ -1,8 +1,10 @@
 module Data.Artist exposing
     ( Artist
+    , ArtistList
     , ArtistSimplified
     , Id
     , decode
+    , decodeArtistList
     , decodeSimplified
     , idToString
     , isFollowing
@@ -10,7 +12,7 @@ module Data.Artist exposing
     )
 
 import Data.Image as Image exposing (Image)
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
 import Url.Parser as Parser exposing (Parser)
 
 
@@ -72,3 +74,24 @@ isFollowing =
 parseId : Parser (Id -> a) a
 parseId =
     Parser.map Id Parser.string
+
+
+type alias ArtistList =
+    { items : List Artist
+    , next : String
+    , total : Int
+    , offset : Int
+    , limit : Int
+    }
+
+
+decodeArtistList : Decode.Decoder ArtistList
+decodeArtistList =
+    Decode.map5 ArtistList
+        (Decode.at [ "items" ] (Decode.list decode))
+        (Decode.field "next"
+            (Decode.oneOf [ string, null "" ])
+        )
+        (Decode.field "total" Decode.int)
+        (Decode.field "offset" Decode.int)
+        (Decode.field "limit" Decode.int)

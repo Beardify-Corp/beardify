@@ -35,7 +35,7 @@ type alias Config msg =
 
 
 frame : Config msg -> ( String, List (Html msg) ) -> Document msg
-frame { topbarMsg, sidebar, searchMsg, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
+frame { topbarMsg, sidebar, search, searchMsg, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
     { title = title ++ " | Beardify "
     , body =
         [ Notif.component
@@ -50,7 +50,7 @@ frame { topbarMsg, sidebar, searchMsg, sidebarMsg, session, clearNotification, p
                     [ div [ class "Topbar" ]
                         [ a [ Route.href Route.Home ] [ img [ class "Topbar__logo", src "./img/logo.svg" ] [] ]
                         , Nav.view |> Html.map topbarMsg
-                        , Search.view session |> Html.map searchMsg
+                        , Search.view search session |> Html.map searchMsg
                         , HE.viewMaybe User.view session.user
                         ]
                     , div [ class "App__body" ]

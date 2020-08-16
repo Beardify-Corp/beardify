@@ -1,9 +1,11 @@
 module Data.Album exposing
     ( Album
+    , AlbumList
     , AlbumSimplified
     , Id
     , Type(..)
     , decodeAlbum
+    , decodeAlbumList
     , decodeSimplified
     , idToString
     , parseId
@@ -12,7 +14,7 @@ module Data.Album exposing
 
 import Data.Artist as Artist exposing (ArtistSimplified)
 import Data.Image as Image exposing (Image)
-import Json.Decode as Decode exposing (Decoder)
+import Json.Decode as Decode exposing (Decoder, null, string)
 import Json.Decode.Pipeline as JDP
 import Url.Parser as Parser exposing (Parser)
 
@@ -130,3 +132,24 @@ typeToString type_ =
 
         Single ->
             "single"
+
+
+type alias AlbumList =
+    { items : List AlbumSimplified
+    , next : String
+    , total : Int
+    , offset : Int
+    , limit : Int
+    }
+
+
+decodeAlbumList : Decode.Decoder AlbumList
+decodeAlbumList =
+    Decode.map5 AlbumList
+        (Decode.at [ "items" ] (Decode.list decodeSimplified))
+        (Decode.field "next"
+            (Decode.oneOf [ string, null "" ])
+        )
+        (Decode.field "total" Decode.int)
+        (Decode.field "offset" Decode.int)
+        (Decode.field "limit" Decode.int)

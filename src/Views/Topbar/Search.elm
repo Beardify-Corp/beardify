@@ -1,19 +1,33 @@
 module Views.Topbar.Search exposing (Model, Msg(..), defaultModel, init, update, view)
 
+import Data.Album
+import Data.Artist
+import Data.Image as Image
 import Data.Session exposing (Session)
+import Data.Track
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Http
+import Request.Search
+import Route
+import Task
 
 
 type alias Model =
     { searchQuery : String
+    , artists : List Data.Artist.Artist
+    , albums : List Data.Album.AlbumSimplified
+    , tracks : List Data.Track.Track
     }
 
 
 defaultModel : Model
 defaultModel =
     { searchQuery = ""
+    , artists = []
+    , albums = []
+    , tracks = []
     }
 
 
@@ -27,78 +41,57 @@ init _ =
 type Msg
     = NoOp
     | Query String
+    | Finded (Result ( Session, Http.Error ) Request.Search.Search)
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update session msg model =
     case msg of
         NoOp ->
-            let
-                _ =
-                    Debug.log "test" "test"
-            in
             ( model, session, Cmd.none )
 
         Query query ->
-            let
-                _ =
-                    Debug.log "test" model.searchQuery
-            in
             ( { model | searchQuery = query }
+            , session
+            , Task.attempt Finded (Request.Search.get session query)
+            )
+
+        Finded (Ok response) ->
+            ( { model
+                | artists = response.artists.items
+                , albums = response.albums.items
+                , tracks = response.tracks.items
+              }
             , session
             , Cmd.none
             )
 
+        Finded (Err _) ->
+            ( model, session, Cmd.none )
 
-view : Session -> Html Msg
-view session =
+
+view : Model -> Session -> Html Msg
+view model session =
+    let
+        artistView artist =
+            li []
+                [ a [ class "SearchResultArtist__item", Route.href (Route.Artist artist.id) ]
+                    [ img
+                        [ class "SearchResult__img artist"
+                        , src (Image.filterByWidth Image.Small artist.images).url
+                        ]
+                        []
+                    , span [ class "SearchResult__label" ] [ text artist.name ]
+                    ]
+                ]
+    in
     div [ class "Search" ]
         [ input [ onInput Query, class "Search__input", type_ "text", placeholder "Search..." ] []
         , div [ class "SearchResult" ]
             [ div [ class "SearchResult__section" ]
                 [ h3 [ class "SearchResult__title" ] [ text "Artists" ]
                 , ul [ class "SearchResultArtist List unstyled" ]
-                    [ li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img artist"
-                                , src "https://i.scdn.co/image/c1fb4d88de092b5617e649bd4c406b5cab7d3ddd"
-                                ]
-                                []
-                            , span [ class "SearchResult__label" ] [ text "Metallica" ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img artist"
-                                , src "https://i.scdn.co/image/4fd99c3f72971a5b67b653155fe00caf9289ba8c"
-                                ]
-                                []
-                            , span [ class "SearchResult__label" ] [ text "Eagles Of Death Metal" ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img artist"
-                                , src "https://i.scdn.co/image/ab67616d0000485119fb43a41125d19db1066e4c"
-                                ]
-                                []
-                            , span [ class "SearchResult__label" ] [ text "Metalocalypse: Dethklok" ]
-                            ]
-                        ]
-                    , li []
-                        [ a [ class "SearchResultArtist__item", href "" ]
-                            [ img
-                                [ class "SearchResult__img artist"
-                                , src "https://i.scdn.co/image/c1fb4d88de092b5617e649bd4c406b5cab7d3ddd"
-                                ]
-                                []
-                            , span [ class "SearchResult__label" ] [ text "Metallica" ]
-                            ]
-                        ]
-                    ]
+                    (model.artists |> List.map artistView)
                 ]
             , div [ class "SearchResult__section" ]
                 [ h3 [ class "SearchResult__title" ] [ text "Albums" ]

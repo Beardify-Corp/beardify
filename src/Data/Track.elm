@@ -3,9 +3,11 @@ module Data.Track exposing
     , PlaylistTrackObject
     , Track
     , TrackItem
+    , TrackList
     , decodeAlbumTrackObject
     , decodePlaylistTrackObject
     , decodeTrack
+    , decodeTrackList
     , durationFormat
     )
 
@@ -180,3 +182,24 @@ decodeTrackItem =
         (Decode.field "added_at" Decode.string)
         (Decode.at [ "added_by" ] decodeTrackOwner)
         (Decode.at [ "track" ] decodeTrack)
+
+
+type alias TrackList =
+    { items : List Track
+    , limit : Int
+    , next : String
+    , offset : Int
+    , total : Int
+    }
+
+
+decodeTrackList : Decode.Decoder TrackList
+decodeTrackList =
+    Decode.map5 TrackList
+        (Decode.at [ "items" ] (Decode.list decodeTrack))
+        (Decode.field "limit" Decode.int)
+        (Decode.field "next"
+            (Decode.oneOf [ string, null "" ])
+        )
+        (Decode.field "offset" Decode.int)
+        (Decode.field "total" Decode.int)
