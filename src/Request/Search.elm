@@ -1,11 +1,8 @@
-module Request.Search exposing (Search, decodeSearch, get)
+module Request.Search exposing (get)
 
-import Data.Album exposing (AlbumList, decodeAlbumList)
-import Data.Artist exposing (ArtistList, decodeArtistList)
+import Data.Search exposing (Search, decodeSearch)
 import Data.Session exposing (Session)
-import Data.Track exposing (TrackList, decodeTrackList)
 import Http
-import Json.Decode as Decode
 import Request.Api as Api
 import Task exposing (Task)
 
@@ -21,18 +18,3 @@ get session query =
         , timeout = Nothing
         }
         |> Api.mapError session
-
-
-type alias Search =
-    { albums : AlbumList
-    , artists : ArtistList
-    , tracks : TrackList
-    }
-
-
-decodeSearch : Decode.Decoder Search
-decodeSearch =
-    Decode.map3 Search
-        (Decode.field "albums" decodeAlbumList)
-        (Decode.field "artists" decodeArtistList)
-        (Decode.field "tracks" decodeTrackList)

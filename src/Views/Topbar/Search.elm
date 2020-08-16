@@ -3,6 +3,7 @@ module Views.Topbar.Search exposing (Model, Msg(..), defaultModel, init, update,
 import Data.Album
 import Data.Artist
 import Data.Image as Image
+import Data.Search
 import Data.Session exposing (Session)
 import Data.Track
 import Html exposing (..)
@@ -44,7 +45,7 @@ init _ =
 type Msg
     = NoOp
     | Query String
-    | Finded (Result ( Session, Http.Error ) Request.Search.Search)
+    | Finded (Result ( Session, Http.Error ) Data.Search.Search)
     | PlayTrack (List String)
     | Played (Result ( Session, Http.Error ) ())
     | Bye
