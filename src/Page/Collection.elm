@@ -1,6 +1,6 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
-import Data.Id
+import Data.Id exposing (Id)
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
@@ -32,10 +32,10 @@ type Msg
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
     | NewFace Int
-    | NoOp Data.Id.Id
+    | NoOp Id
 
 
-init : Data.Id.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
       , trackList =

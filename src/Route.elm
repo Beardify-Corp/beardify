@@ -1,9 +1,7 @@
 module Route exposing (Route(..), fromUrl, href, pushUrl)
 
 import Browser.Navigation as Nav
-import Data.Artist as Artist
-import Data.Id
-import Data.Playlist as Playlist
+import Data.Id exposing (Id, idToString, parseId)
 import Html exposing (Attribute)
 import Html.Attributes as Attr
 import Url exposing (Url)
@@ -12,10 +10,10 @@ import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, top)
 
 type Route
     = Home
-    | Artist Data.Id.Id
-    | Playlist Data.Id.Id
-    | Collection Data.Id.Id
-    | Album Data.Id.Id
+    | Artist Id
+    | Playlist Id
+    | Collection Id
+    | Album Id
     | Login
 
 
@@ -24,10 +22,10 @@ parser =
     oneOf
         [ Parser.map Home top
         , Parser.map Login (s "login")
-        , Parser.map Artist (s "artist" </> Data.Id.parseId)
-        , Parser.map Playlist (s "playlist" </> Data.Id.parseId)
-        , Parser.map Collection (s "collection" </> Data.Id.parseId)
-        , Parser.map Album (s "album" </> Data.Id.parseId)
+        , Parser.map Artist (s "artist" </> parseId)
+        , Parser.map Playlist (s "playlist" </> parseId)
+        , Parser.map Collection (s "collection" </> parseId)
+        , Parser.map Album (s "album" </> parseId)
         ]
 
 
@@ -53,16 +51,16 @@ toString route =
         pieces =
             case route of
                 Artist id ->
-                    [ "artist", Data.Id.idToString id ]
+                    [ "artist", idToString id ]
 
                 Playlist id ->
-                    [ "playlist", Data.Id.idToString id ]
+                    [ "playlist", idToString id ]
 
                 Collection id ->
-                    [ "collection", Data.Id.idToString id ]
+                    [ "collection", idToString id ]
 
                 Album id ->
-                    [ "album", Data.Id.idToString id ]
+                    [ "album", idToString id ]
 
                 Home ->
                     []

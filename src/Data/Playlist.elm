@@ -6,13 +6,13 @@ module Data.Playlist exposing
     , decodePlaylistList
     )
 
-import Data.Id
+import Data.Id exposing (Id, decodeId)
 import Data.Image exposing (Image, decode)
 import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
 
 
 type alias PlaylistSimple =
-    { id : Data.Id.Id
+    { id : Id
     , name : String
     }
 
@@ -20,7 +20,7 @@ type alias PlaylistSimple =
 decodePlaylistSimple : Decode.Decoder PlaylistSimple
 decodePlaylistSimple =
     Decode.map2 PlaylistSimple
-        (Decode.field "id" Data.Id.decodeId)
+        (Decode.field "id" decodeId)
         (Decode.field "name" Decode.string)
 
 
@@ -42,7 +42,7 @@ decodePlaylistOwner =
 
 
 type alias Playlist =
-    { id : Data.Id.Id
+    { id : Id
     , images : List Image
     , name : String
     , uri : String
@@ -54,7 +54,7 @@ type alias Playlist =
 decodePlaylist : Decode.Decoder Playlist
 decodePlaylist =
     Decode.map6 Playlist
-        (Decode.field "id" Data.Id.decodeId)
+        (Decode.field "id" decodeId)
         (Decode.at [ "images" ] (Decode.list Data.Image.decode))
         (Decode.field "name" Decode.string)
         (Decode.field "uri" Decode.string)

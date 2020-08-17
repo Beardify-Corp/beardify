@@ -1,10 +1,8 @@
 module Page.Album exposing (Model, Msg(..), init, update, view)
 
--- import Data.Youtube as Youtube
-
-import Data.Album.Album
+import Data.Album.Album exposing (Album)
 import Data.Artist as Artist
-import Data.Id
+import Data.Id exposing (Id)
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
 import Data.Track
@@ -23,20 +21,20 @@ import Views.Cover as Cover
 
 
 type alias Model =
-    { album : Maybe Data.Album.Album.Album
+    { album : Maybe Album
     , trackList : Data.Track.AlbumTrackObject
     }
 
 
 type Msg
-    = InitAlbumInfos (Result ( Session, Http.Error ) Data.Album.Album.Album)
+    = InitAlbumInfos (Result ( Session, Http.Error ) Album)
     | AddTracklist (Result ( Session, Http.Error ) Data.Track.AlbumTrackObject)
     | PlayAlbum String
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
 
 
-init : Data.Id.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { album = Nothing
       , trackList =

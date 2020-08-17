@@ -8,13 +8,13 @@ module Data.Artist exposing
     , isFollowing
     )
 
-import Data.Id
+import Data.Id exposing (Id, decodeId)
 import Data.Image as Image exposing (Image)
 import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
 
 
 type alias Artist =
-    { id : Data.Id.Id
+    { id : Id
     , name : String
     , images : List Image
     , popularity : Int
@@ -23,7 +23,7 @@ type alias Artist =
 
 
 type alias ArtistSimplified =
-    { id : Data.Id.Id
+    { id : Id
     , name : String
     }
 
@@ -35,7 +35,7 @@ type alias IsFollowing =
 decode : Decoder Artist
 decode =
     Decode.map5 Artist
-        (Decode.field "id" Data.Id.decodeId)
+        (Decode.field "id" decodeId)
         (Decode.field "name" Decode.string)
         (Decode.field "images" (Decode.list Image.decode))
         (Decode.field "popularity" Decode.int)
@@ -45,7 +45,7 @@ decode =
 decodeSimplified : Decoder ArtistSimplified
 decodeSimplified =
     Decode.map2 ArtistSimplified
-        (Decode.field "id" Data.Id.decodeId)
+        (Decode.field "id" decodeId)
         (Decode.field "name" Decode.string)
 
 

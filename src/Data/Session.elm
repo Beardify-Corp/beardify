@@ -106,11 +106,6 @@ switchTheme ({ store } as session) =
     { session | store = { store | theme = not currentTheme } }
 
 
-
--- session
--- Authorization
-
-
 updateState : String -> Session -> Session
 updateState newState ({ store } as session) =
     { session | store = { store | state = newState } }

@@ -1,10 +1,10 @@
 module Page.Artist exposing (Model, Msg(..), init, update, view)
 
-import Data.Album.Album
-import Data.Album.AlbumSimplified
+import Data.Album.Album exposing (Album)
+import Data.Album.AlbumSimplified exposing (AlbumSimplified)
 import Data.Album.AlbumType
 import Data.Artist exposing (Artist)
-import Data.Id
+import Data.Id exposing (Id, idToString)
 import Data.Image as Image
 import Data.Player exposing (..)
 import Data.Session exposing (Session)
@@ -27,8 +27,8 @@ import Views.Track
 
 type alias Model =
     { artist : Maybe Artist
-    , albums : List Data.Album.AlbumSimplified.AlbumSimplified
-    , singles : List Data.Album.AlbumSimplified.AlbumSimplified
+    , albums : List AlbumSimplified
+    , singles : List AlbumSimplified
     , tracks : List Track
     , relatedArtists : List Artist
     , followed : List Bool
@@ -43,11 +43,11 @@ type Msg
     | PlayAlbum String
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
-    | GetAlbum Data.Id.Id
-    | AddToPocket (Result ( Session, Http.Error ) Data.Album.Album.Album)
+    | GetAlbum Id
+    | AddToPocket (Result ( Session, Http.Error ) Album)
 
 
-init : Data.Id.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { artist = Nothing
       , albums = []
@@ -160,7 +160,7 @@ topTrackViews context tracks =
         ]
 
 
-albumsListView : PlayerContext -> List Data.Album.AlbumSimplified.AlbumSimplified -> String -> Html Msg
+albumsListView : PlayerContext -> List AlbumSimplified -> String -> Html Msg
 albumsListView context albums listName =
     let
         hasAlbums : Bool
@@ -195,7 +195,7 @@ view context ({ artist, followed } as model) =
         artistId =
             case Maybe.map .id artist of
                 Just id ->
-                    Data.Id.idToString id
+                    idToString id
 
                 Nothing ->
                     ""

@@ -16,8 +16,7 @@ type alias Model =
 
 
 type Msg
-    = NoOp
-    | Reset
+    = Reset
     | Add
     | Played (Result ( Session, Http.Error ) ())
 
@@ -28,7 +27,7 @@ defaultModel =
 
 
 init : Session -> ( Model, Cmd Msg )
-init session =
+init _ =
     ( defaultModel
     , Cmd.none
     )
@@ -37,15 +36,12 @@ init session =
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
 update ({ pocket } as session) msg model =
     case msg of
-        NoOp ->
-            ( model, session, Cmd.none )
-
         Reset ->
             ( model, { session | pocket = { pocket | albums = [] } }, Cmd.none )
 
         Add ->
             let
-                uris =
+                _ =
                     pocket.albums
             in
             ( model, session, Task.attempt Played (Request.Playlist.addAlbum session "3CL7dAZOAWOfJWLkO3YyTo" pocket.albums) )
@@ -58,7 +54,7 @@ update ({ pocket } as session) msg model =
 
 
 view : Model -> Session -> Html Msg
-view model session =
+view _ session =
     div [ class "Pocket" ]
         [ div [ class "Pocket__head" ] [ button [ onClick Reset ] [ text "Reset" ] ]
         , div []

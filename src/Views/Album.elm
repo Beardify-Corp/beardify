@@ -1,7 +1,7 @@
 module Views.Album exposing (view)
 
-import Data.Album.AlbumSimplified
-import Data.Id
+import Data.Album.AlbumSimplified exposing (AlbumSimplified)
+import Data.Id exposing (Id)
 import Data.Image as Image
 import Data.Player as Player exposing (..)
 import Html exposing (..)
@@ -14,11 +14,11 @@ import Views.Artist
 
 type alias Config msg =
     { playAlbum : String -> msg
-    , addToPocket : Data.Id.Id -> msg
+    , addToPocket : Id -> msg
     }
 
 
-view : Config msg -> PlayerContext -> Bool -> Data.Album.AlbumSimplified.AlbumSimplified -> Html msg
+view : Config msg -> PlayerContext -> Bool -> AlbumSimplified -> Html msg
 view config context showArtist album =
     let
         cover : Image.Image
