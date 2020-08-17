@@ -3,12 +3,13 @@ module Page.Collection exposing (Model, Msg(..), init, update, view)
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
-import Html.Extra as HE
 import Http
+import List.Extra as LE
+import Random
 import Request.Player
 import Request.Playlist
 import String
@@ -20,6 +21,7 @@ import Views.Cover as Cover
 type alias Model =
     { playlist : Maybe Data.Playlist.Playlist
     , trackList : Data.Track.PlaylistTrackObject
+    , dieFace : Int
     }
 
 
@@ -28,6 +30,7 @@ type Msg
     | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
+    | NewFace Int
 
 
 init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -40,6 +43,7 @@ init id session =
             , offset = 0
             , total = 0
             }
+      , dieFace = 0
       }
     , session
     , Task.attempt InitPlaylistInfos (Request.Playlist.get session id)
@@ -81,7 +85,7 @@ update session msg ({ trackList } as model) =
                 )
 
             else
-                ( model, session, Cmd.none )
+                ( model, session, Random.generate NewFace (Random.int 1 newModel.total) )
 
         AddTracklist (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
@@ -95,9 +99,15 @@ update session msg ({ trackList } as model) =
         Played (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
+        NewFace newFace ->
+            ( { model | dieFace = newFace }
+            , session
+            , Cmd.none
+            )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
-view context { playlist, trackList } =
+view context { playlist, trackList, dieFace } =
     let
         playlistName : String
         playlistName =
@@ -117,33 +127,41 @@ view context { playlist, trackList } =
                 }
                 (Maybe.map .owner playlist)
 
-        artistCover : String
-        artistCover =
-            Maybe.withDefault [] (Maybe.map .images playlist)
-                |> List.take 1
-                |> List.map (\e -> e.url)
-                |> String.concat
-
         tracks : List Data.Track.TrackItem
         tracks =
             trackList.items
+                |> LE.uniqueBy (\e -> e.track.album.name)
+
+        randomCover : String
+        randomCover =
+            case trackList.items |> LE.getAt dieFace of
+                Just a ->
+                    a.track.album.images |> List.take 1 |> List.map (\e -> e.url) |> String.concat
+
+                Nothing ->
+                    ""
+
+        albumLength : String
+        albumLength =
+            tracks |> List.length |> String.fromInt
     in
     ( playlistName
     , [ div [ class "Flex fullHeight" ]
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Playlist__body HelperScrollArea__target" ]
-                    [ div [ class "Playlist__content Flex spaceBetween centeredVertical" ]
-                        [ div [ class "PlaylistHead InFront" ]
-                            [ HE.viewIf (artistCover /= "") (img [ class "PlaylistHead__cover", src artistCover, width 100, height 100 ] [])
-                            , div []
-                                [ h1 [ class "Artist__name Heading first" ]
-                                    [ text playlistName
-                                    , span [ class "PlaylistHead__owner" ] [ text <| "by " ++ playlistOwner.display_name ]
-                                    ]
-                                , div [] [ text playlistDescription ]
+                    [ div [ class "Collection Flex " ]
+                        [ div [ class "CollectionHead InFront" ]
+                            [ h1 [ class "Artist__name Heading first" ]
+                                [ text <| String.replace "#Collection " "" playlistName ]
+                            , div [ class "CollectionHead__owner" ]
+                                [ text playlistOwner.display_name
+                                , text " - "
+                                , text albumLength
+                                , text " albums"
                                 ]
+                            , div [ class "CollectionHead__description" ] [ text playlistDescription ]
                             ]
-                        , Cover.view artistCover Cover.Light
+                        , Cover.view randomCover Cover.Normal
                         ]
                     , div [ class "Playlist__content InFront" ]
                         [ div [ class "Artist__releaseList AlbumList" ]
