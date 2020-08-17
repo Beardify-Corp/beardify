@@ -4,8 +4,7 @@ module Data.Playlist.PlaylistSimplified exposing
     )
 
 import Data.Id exposing (Id, decodeId)
-import Data.Image exposing (Image, decode)
-import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
+import Json.Decode as Decode exposing (Decoder(..), field, string)
 
 
 type alias PlaylistSimplified =

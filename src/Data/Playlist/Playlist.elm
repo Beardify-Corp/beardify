@@ -6,7 +6,7 @@ module Data.Playlist.Playlist exposing
 import Data.Id exposing (Id, decodeId)
 import Data.Image exposing (Image, decode)
 import Data.Playlist.PlaylistOwner exposing (PlaylistOwner, decodePlaylistOwner)
-import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
+import Json.Decode as Decode exposing (Decoder(..), at, field, string)
 
 
 type alias Playlist =
