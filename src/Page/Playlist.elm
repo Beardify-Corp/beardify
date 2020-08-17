@@ -1,6 +1,6 @@
 module Page.Playlist exposing (Model, Msg(..), init, update, view)
 
-import Data.Album.Index
+import Data.Album.AlbumType
 import Data.Id
 import Data.Player as Player exposing (..)
 import Data.Playlist exposing (..)
@@ -142,13 +142,13 @@ view context { playlist, trackList } =
             List.map (\e -> e.track.uri) trackList.items
                 |> LE.dropWhile (\t -> t /= trackUri)
 
-        setIcon : Data.Album.Index.Type -> Html msg
+        setIcon : Data.Album.AlbumType.Type -> Html msg
         setIcon albumType =
             case albumType of
-                Data.Album.Index.AlbumType ->
+                Data.Album.AlbumType.AlbumType ->
                     i [ class "PlaylistTracks__icon PlaylistTracks__icon--primary icon-discogs" ] []
 
-                Data.Album.Index.Single ->
+                Data.Album.AlbumType.Single ->
                     i [ class "PlaylistTracks__icon PlaylistTracks__icon--secondary icon-pizza" ] []
 
                 _ ->

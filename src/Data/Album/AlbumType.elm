@@ -1,4 +1,4 @@
-module Data.Album.Index exposing (..)
+module Data.Album.AlbumType exposing (..)
 
 import Json.Decode as Decode exposing (Decoder, string)
 

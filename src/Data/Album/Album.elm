@@ -3,7 +3,7 @@ module Data.Album.Album exposing
     , decodeAlbum
     )
 
-import Data.Album.Index
+import Data.Album.AlbumType
 import Data.Artist as Artist exposing (ArtistSimplified)
 import Data.Id
 import Data.Image as Image exposing (Image)
@@ -12,7 +12,7 @@ import Json.Decode as Decode exposing (Decoder, string)
 
 
 type alias Album =
-    { type_ : Data.Album.Index.Type
+    { type_ : Data.Album.AlbumType.Type
     , artists : List ArtistSimplified
     , id : Data.Id.Id
     , images : List Image
@@ -26,7 +26,7 @@ type alias Album =
 decodeAlbum : Decoder Album
 decodeAlbum =
     Decode.map8 Album
-        (Decode.field "album_type" Data.Album.Index.decodeType)
+        (Decode.field "album_type" Data.Album.AlbumType.decodeType)
         (Decode.field "artists" (Decode.list Artist.decodeSimplified))
         (Decode.field "id" Data.Id.decodeId)
         (Decode.at [ "images" ] (Decode.list Image.decode))

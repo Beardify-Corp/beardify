@@ -1,11 +1,9 @@
 module Page.Artist exposing (Model, Msg(..), init, update, view)
 
--- import Data.Youtube as Youtube
-
 import Data.Album.Album
 import Data.Album.AlbumSimplified
-import Data.Album.Index
-import Data.Artist as Artist exposing (Artist)
+import Data.Album.AlbumType
+import Data.Artist exposing (Artist)
 import Data.Id
 import Data.Image as Image
 import Data.Player exposing (..)
@@ -243,8 +241,8 @@ view context ({ artist, followed } as model) =
                         [ topTrackViews context model.tracks
                         , relatedArtistsView model.relatedArtists
                         ]
-                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.Index.AlbumType) model.albums) "Albums"
-                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.Index.Single) model.singles) "Singles / EPs"
+                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.AlbumType.AlbumType) model.albums) "Albums"
+                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.AlbumType.Single) model.singles) "Singles / EPs"
                     ]
                 ]
             , div [ class "Artist__videos HelperScrollArea" ]
