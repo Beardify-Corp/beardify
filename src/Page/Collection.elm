@@ -169,7 +169,7 @@ view context { playlist, trackList, dieFace } =
                         , Cover.view randomCover Cover.Normal
                         ]
                     , div [ class "Playlist__content InFront" ]
-                        [ div [ class "Artist__releaseList AlbumList" ]
+                        [ div [ class "Artist__releaseList AlbumPaging" ]
                             (tracks
                                 |> List.map
                                     (\a ->

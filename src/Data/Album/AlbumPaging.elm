@@ -1,13 +1,13 @@
-module Data.Album.AlbumList exposing
-    ( AlbumList
-    , decodeAlbumList
+module Data.Album.AlbumPaging exposing
+    ( AlbumPaging
+    , decodeAlbumPaging
     )
 
 import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeSimplified)
 import Json.Decode as Decode exposing (null, string)
 
 
-type alias AlbumList =
+type alias AlbumPaging =
     { items : List AlbumSimplified
     , next : String
     , total : Int
@@ -16,9 +16,9 @@ type alias AlbumList =
     }
 
 
-decodeAlbumList : Decode.Decoder AlbumList
-decodeAlbumList =
-    Decode.map5 AlbumList
+decodeAlbumPaging : Decode.Decoder AlbumPaging
+decodeAlbumPaging =
+    Decode.map5 AlbumPaging
         (Decode.at [ "items" ] (Decode.list decodeSimplified))
         (Decode.field "next"
             (Decode.oneOf [ string, null "" ])
