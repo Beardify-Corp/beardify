@@ -49,7 +49,7 @@ type Msg
     | AddToPocket (Result ( Session, Http.Error ) Data.Album.Album.Album)
 
 
-init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Data.Id.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { artist = Nothing
       , albums = []
@@ -197,7 +197,7 @@ view context ({ artist, followed } as model) =
         artistId =
             case Maybe.map .id artist of
                 Just id ->
-                    Artist.idToString id
+                    Data.Id.idToString id
 
                 Nothing ->
                     ""

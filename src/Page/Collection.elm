@@ -35,7 +35,7 @@ type Msg
     | NoOp Data.Id.Id
 
 
-init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Data.Id.Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
       , trackList =

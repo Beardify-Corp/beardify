@@ -1,48 +1,18 @@
 module Data.Playlist exposing
-    ( Id
-    , Playlist
+    ( Playlist
     , PlaylistList
     , PlaylistOwner
     , decodePlaylist
     , decodePlaylistList
-    , idToString
-    , parseId
     )
 
+import Data.Id
 import Data.Image exposing (Image, decode)
 import Json.Decode as Decode exposing (Decoder(..), at, field, null, string)
-import Url.Parser as Parser exposing (Parser)
-
-
-
--- ROUTING
-
-
-parseId : Parser (Id -> a) a
-parseId =
-    Parser.map Id Parser.string
-
-
-idToString : Id -> String
-idToString (Id id) =
-    id
-
-
-type Id
-    = Id String
-
-
-decodeId : Decoder Id
-decodeId =
-    Decode.map Id Decode.string
-
-
-
--- DECODERS
 
 
 type alias PlaylistSimple =
-    { id : Id
+    { id : Data.Id.Id
     , name : String
     }
 
@@ -50,7 +20,7 @@ type alias PlaylistSimple =
 decodePlaylistSimple : Decode.Decoder PlaylistSimple
 decodePlaylistSimple =
     Decode.map2 PlaylistSimple
-        (Decode.field "id" decodeId)
+        (Decode.field "id" Data.Id.decodeId)
         (Decode.field "name" Decode.string)
 
 
@@ -72,7 +42,7 @@ decodePlaylistOwner =
 
 
 type alias Playlist =
-    { id : Id
+    { id : Data.Id.Id
     , images : List Image
     , name : String
     , uri : String
@@ -84,7 +54,7 @@ type alias Playlist =
 decodePlaylist : Decode.Decoder Playlist
 decodePlaylist =
     Decode.map6 Playlist
-        (Decode.field "id" decodeId)
+        (Decode.field "id" Data.Id.decodeId)
         (Decode.at [ "images" ] (Decode.list Data.Image.decode))
         (Decode.field "name" Decode.string)
         (Decode.field "uri" Decode.string)

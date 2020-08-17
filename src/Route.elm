@@ -12,9 +12,9 @@ import Url.Parser as Parser exposing ((</>), Parser, oneOf, s, top)
 
 type Route
     = Home
-    | Artist Artist.Id
-    | Playlist Playlist.Id
-    | Collection Playlist.Id
+    | Artist Data.Id.Id
+    | Playlist Data.Id.Id
+    | Collection Data.Id.Id
     | Album Data.Id.Id
     | Login
 
@@ -24,9 +24,9 @@ parser =
     oneOf
         [ Parser.map Home top
         , Parser.map Login (s "login")
-        , Parser.map Artist (s "artist" </> Artist.parseId)
-        , Parser.map Playlist (s "playlist" </> Playlist.parseId)
-        , Parser.map Collection (s "collection" </> Playlist.parseId)
+        , Parser.map Artist (s "artist" </> Data.Id.parseId)
+        , Parser.map Playlist (s "playlist" </> Data.Id.parseId)
+        , Parser.map Collection (s "collection" </> Data.Id.parseId)
         , Parser.map Album (s "album" </> Data.Id.parseId)
         ]
 
@@ -53,13 +53,13 @@ toString route =
         pieces =
             case route of
                 Artist id ->
-                    [ "artist", Artist.idToString id ]
+                    [ "artist", Data.Id.idToString id ]
 
                 Playlist id ->
-                    [ "playlist", Playlist.idToString id ]
+                    [ "playlist", Data.Id.idToString id ]
 
                 Collection id ->
-                    [ "collection", Playlist.idToString id ]
+                    [ "collection", Data.Id.idToString id ]
 
                 Album id ->
                     [ "album", Data.Id.idToString id ]

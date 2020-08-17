@@ -85,20 +85,6 @@ decodeContext =
         (Decode.field "type" Decode.string)
 
 
-
--- getCurrentUri : PlayerContext -> String
--- getCurrentUri context =
---     case Maybe.map .context context.player of
---         Just id ->
---             case id of
---                 Just a ->
---                     a.uri
---                 Nothing ->
---                     ""
---         Nothing ->
---             ""
-
-
 getCurrentAlbumUri : PlayerContext -> String
 getCurrentAlbumUri context =
     case Maybe.map .track context.player of

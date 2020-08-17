@@ -1,5 +1,6 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
+import Data.Id
 import Data.Playlist exposing (Playlist, PlaylistList)
 import Data.Session exposing (Session)
 import Html exposing (..)
@@ -83,7 +84,7 @@ playlistItem currentUrl playlistList playlistType =
                             (\item ->
                                 li
                                     [ class "List__item"
-                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/collection/" ++ Data.Playlist.idToString item.id ) ]
+                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/collection/" ++ Data.Id.idToString item.id ) ]
                                     ]
                                     [ i [ class "List__icon icon-collection" ] []
                                     , a [ class "List__link", Route.href (Route.Collection item.id) ] [ text <| String.replace "#Collection " "" item.name ]
@@ -104,7 +105,7 @@ playlistItem currentUrl playlistList playlistType =
                             (\item ->
                                 li
                                     [ class "List__item"
-                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/playlist/" ++ Data.Playlist.idToString item.id ) ]
+                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/playlist/" ++ Data.Id.idToString item.id ) ]
                                     ]
                                     [ i [ class "List__icon icon-playlist" ] []
                                     , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text item.name ]

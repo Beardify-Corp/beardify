@@ -1,4 +1,4 @@
-module Data.Id exposing (Id, decodeId, idToString, parseId)
+module Data.Id exposing (Id, createId, decodeId, idToString, parseId)
 
 import Json.Decode as Decode exposing (Decoder, string)
 import Url.Parser as Parser exposing (Parser)
@@ -21,3 +21,8 @@ type Id
 decodeId : Decoder Id
 decodeId =
     Decode.map Id Decode.string
+
+
+createId : String -> Id
+createId string =
+    Id string
