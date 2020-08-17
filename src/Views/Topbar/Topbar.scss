@@ -6,9 +6,28 @@
   background-color: Color.$backgroundDarker;
   border-bottom: 1px solid Color.$border;
   display: grid;
-  gap: 40px;
+  gap: 20px;
   grid-template-columns: auto auto 1fr auto;
   padding: 10px 15px;
+
+  &__home {
+    padding-left: 10px;
+    position: relative;
+  }
+
+  &__version {
+    background: #ff7300;
+    border-radius: 3px;
+    color: white;
+    font-size: .8rem;
+    font-weight: bold;
+    left: -25px;
+    padding: 0 4px;
+    position: absolute;
+    text-transform: uppercase;
+    top: 8px;
+    transform: rotate(-90deg);
+  }
 
   &__logo {
     display: block;
