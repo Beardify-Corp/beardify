@@ -9,6 +9,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
+import List.Extra as LE
 import Request.Player
 import Request.Playlist
 import String
@@ -127,6 +128,7 @@ view context { playlist, trackList } =
         tracks : List Data.Track.TrackItem
         tracks =
             trackList.items
+                |> LE.uniqueBy (\e -> e.track.album.name)
     in
     ( playlistName
     , [ div [ class "Flex fullHeight" ]
