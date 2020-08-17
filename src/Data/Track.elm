@@ -10,7 +10,6 @@ module Data.Track exposing
     , decodeTrack
     , decodeTrackList
     , decodeTrackSimplified
-    , durationFormat
     )
 
 import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeAlbumSimplified)
@@ -18,35 +17,6 @@ import Data.Artist.ArtistSimplified exposing (ArtistSimplified, decodeArtistSimp
 import Data.Id exposing (Id, decodeId)
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline as JDP
-import Time
-
-
-durationFormat : Int -> String
-durationFormat duration =
-    let
-        toTime unit =
-            duration
-                |> Time.millisToPosix
-                |> unit Time.utc
-
-        hour =
-            if toTime Time.toHour > 0 then
-                String.fromInt (toTime Time.toHour) ++ ":"
-
-            else
-                ""
-
-        minute =
-            String.fromInt (toTime Time.toMinute) ++ ":"
-
-        second =
-            if toTime Time.toSecond < 10 then
-                "0" ++ String.fromInt (toTime Time.toSecond)
-
-            else
-                String.fromInt (toTime Time.toSecond)
-    in
-    hour ++ minute ++ second
 
 
 

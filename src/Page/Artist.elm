@@ -172,7 +172,7 @@ albumsListView context albums listName =
             div []
                 [ h2 [ class "Heading second" ] [ text listName ]
                 , List.map (Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context False) albums
-                    |> div [ class "Artist__releaseList Paging" ]
+                    |> div [ class "Artist__releaseList AlbumList" ]
                 ]
     in
     HE.viewIf hasAlbums albumList

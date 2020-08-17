@@ -3,6 +3,7 @@ module Views.Track exposing (view)
 import Data.Image as Image
 import Data.Player as Player exposing (..)
 import Data.Track
+import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -42,6 +43,6 @@ view config context trackList =
                     ]
                     [ img [ class "Track__cover", src cover.url ] []
                     , div [ class "Track__name Flex__full" ] [ text track.name ]
-                    , div [ class "Track__duration" ] [ text <| Data.Track.durationFormat track.duration ]
+                    , div [ class "Track__duration" ] [ text <| Helper.durationFormat track.duration ]
                     ]
             )

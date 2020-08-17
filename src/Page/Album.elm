@@ -182,7 +182,7 @@ view context { album, trackList } =
                                                         )
                                                     )
                                                 ]
-                                            , div [] [ text <| Data.Track.durationFormat trackItem.duration ]
+                                            , div [] [ text <| Helper.durationFormat trackItem.duration ]
                                             ]
                                     )
                             )

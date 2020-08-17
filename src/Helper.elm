@@ -1,4 +1,4 @@
-module Helper exposing (convertDate, durationFormatMinutes, releaseDateFormat)
+module Helper exposing (convertDate, durationFormat, durationFormatMinutes, releaseDateFormat)
 
 import Iso8601
 import Time exposing (Month(..), millisToPosix, toHour, toMinute, utc)
@@ -85,3 +85,31 @@ releaseDateFormat date =
         |> String.split "-"
         |> List.head
         |> Maybe.withDefault ""
+
+
+durationFormat : Int -> String
+durationFormat duration =
+    let
+        toTime unit =
+            duration
+                |> Time.millisToPosix
+                |> unit Time.utc
+
+        hour =
+            if toTime Time.toHour > 0 then
+                String.fromInt (toTime Time.toHour) ++ ":"
+
+            else
+                ""
+
+        minute =
+            String.fromInt (toTime Time.toMinute) ++ ":"
+
+        second =
+            if toTime Time.toSecond < 10 then
+                "0" ++ String.fromInt (toTime Time.toSecond)
+
+            else
+                String.fromInt (toTime Time.toSecond)
+    in
+    hour ++ minute ++ second

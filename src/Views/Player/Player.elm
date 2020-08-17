@@ -10,6 +10,7 @@ import Data.Image as Image
 import Data.Player as Player exposing (Player, PlayerContext)
 import Data.Session exposing (Session)
 import Data.Track as Track
+import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -186,7 +187,7 @@ view { player } =
                                 ++ Views.Artist.view track.artists
                             )
                         , div [ class "PlayerCurrent__bar" ]
-                            [ span [ class "PlayerCurrent__time" ] [ text <| Track.durationFormat player_.progress ]
+                            [ span [ class "PlayerCurrent__time" ] [ text <| Helper.durationFormat player_.progress ]
                             , div [ class "Range" ]
                                 [ input
                                     [ class "Range__input"
@@ -199,7 +200,7 @@ view { player } =
                                     []
                                 , div [ class "Range__progress", style "width" percentDuration ] []
                                 ]
-                            , span [ class "PlayerCurrent__time" ] [ text <| Track.durationFormat track.duration ]
+                            , span [ class "PlayerCurrent__time" ] [ text <| Helper.durationFormat track.duration ]
                             ]
                         ]
                     ]

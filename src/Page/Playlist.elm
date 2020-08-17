@@ -169,7 +169,7 @@ view context { playlist, trackList } =
                     , div [ class "PlaylistTracks__item" ] (Views.Artist.view trackItem.track.artists)
                     , div [ class "PlaylistTracks__item" ] [ text <| trackItem.addedBy.id ]
                     , div [ class "PlaylistTracks__item" ] [ text <| Helper.convertDate trackItem.addedAt ]
-                    , div [ class "PlaylistTracks__item" ] [ text <| Data.Track.durationFormat trackItem.track.duration ]
+                    , div [ class "PlaylistTracks__item" ] [ text <| Helper.durationFormat trackItem.track.duration ]
                     ]
                 ]
     in
