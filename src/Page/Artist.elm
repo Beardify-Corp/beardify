@@ -3,7 +3,7 @@ module Page.Artist exposing (Model, Msg(..), init, update, view)
 import Data.Album.Album exposing (Album)
 import Data.Album.AlbumSimplified exposing (AlbumSimplified)
 import Data.Album.AlbumType
-import Data.Artist exposing (Artist)
+import Data.Artist.Artist exposing (Artist)
 import Data.Id exposing (Id, idToString)
 import Data.Image as Image
 import Data.Player exposing (..)

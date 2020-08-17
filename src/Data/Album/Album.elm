@@ -4,7 +4,7 @@ module Data.Album.Album exposing
     )
 
 import Data.Album.AlbumType
-import Data.Artist as Artist exposing (ArtistSimplified)
+import Data.Artist.ArtistSimplified exposing (ArtistSimplified, decodeArtistSimplified)
 import Data.Id exposing (Id, decodeId)
 import Data.Image as Image exposing (Image)
 import Data.Track
@@ -27,7 +27,7 @@ decodeAlbum : Decoder Album
 decodeAlbum =
     Decode.map8 Album
         (Decode.field "album_type" Data.Album.AlbumType.decodeType)
-        (Decode.field "artists" (Decode.list Artist.decodeSimplified))
+        (Decode.field "artists" (Decode.list decodeArtistSimplified))
         (Decode.field "id" decodeId)
         (Decode.at [ "images" ] (Decode.list Image.decode))
         (Decode.field "name" Decode.string)

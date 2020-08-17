@@ -1,10 +1,10 @@
 module Data.Album.AlbumSimplified exposing
     ( AlbumSimplified
-    , decodeSimplified
+    , decodeAlbumSimplified
     )
 
 import Data.Album.AlbumType
-import Data.Artist as Artist exposing (ArtistSimplified)
+import Data.Artist.ArtistSimplified exposing (ArtistSimplified, decodeArtistSimplified)
 import Data.Id exposing (Id, decodeId)
 import Data.Image as Image exposing (Image)
 import Json.Decode as Decode exposing (Decoder, string)
@@ -22,11 +22,11 @@ type alias AlbumSimplified =
     }
 
 
-decodeSimplified : Decoder AlbumSimplified
-decodeSimplified =
+decodeAlbumSimplified : Decoder AlbumSimplified
+decodeAlbumSimplified =
     Decode.succeed AlbumSimplified
         |> JDP.required "album_type" Data.Album.AlbumType.decodeType
-        |> JDP.required "artists" (Decode.list Artist.decodeSimplified)
+        |> JDP.required "artists" (Decode.list decodeArtistSimplified)
         |> JDP.required "id" decodeId
         |> JDP.requiredAt [ "images" ] (Decode.list Image.decode)
         |> JDP.required "name" Decode.string

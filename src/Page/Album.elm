@@ -1,7 +1,7 @@
 module Page.Album exposing (Model, Msg(..), init, update, view)
 
 import Data.Album.Album exposing (Album)
-import Data.Artist as Artist
+import Data.Artist.ArtistSimplified exposing (ArtistSimplified)
 import Data.Id exposing (Id)
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
@@ -121,7 +121,7 @@ view context { album, trackList } =
         albumReleaseDate =
             Maybe.withDefault "" (Maybe.map .releaseDate album)
 
-        artists : List Artist.ArtistSimplified
+        artists : List ArtistSimplified
         artists =
             Maybe.withDefault [] (Maybe.map .artists album)
 

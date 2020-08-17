@@ -7,8 +7,8 @@ module Request.Artist exposing
     , getTopTrack
     )
 
-import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeSimplified)
-import Data.Artist as Artist exposing (Artist)
+import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeAlbumSimplified)
+import Data.Artist.Artist exposing (Artist, decodeArtist, isFollowing)
 import Data.Id exposing (Id, idToString)
 import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
@@ -26,7 +26,7 @@ get session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "artists/" ++ idToString id
         , body = Http.emptyBody
-        , resolver = Artist.decode |> Api.jsonResolver
+        , resolver = decodeArtist |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
@@ -62,7 +62,7 @@ getItems group session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "artists/" ++ idToString id ++ "/albums" ++ "?country=" ++ country ++ "&limit=50&include_groups=" ++ group
         , body = Http.emptyBody
-        , resolver = Decode.at [ "items" ] (Decode.list decodeSimplified) |> Api.jsonResolver
+        , resolver = Decode.at [ "items" ] (Decode.list decodeAlbumSimplified) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
@@ -75,7 +75,7 @@ getRelatedArtists session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "artists/" ++ idToString id ++ "/related-artists"
         , body = Http.emptyBody
-        , resolver = Decode.at [ "artists" ] (Decode.list Artist.decode) |> Api.jsonResolver
+        , resolver = Decode.at [ "artists" ] (Decode.list decodeArtist) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
@@ -88,7 +88,7 @@ getFollowedArtist session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "me/following/contains?type=artist&ids=" ++ idToString id
         , body = Http.emptyBody
-        , resolver = Artist.isFollowing |> Api.jsonResolver
+        , resolver = isFollowing |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
@@ -105,17 +105,3 @@ follow session method id msg =
         , timeout = Nothing
         , tracker = Nothing
         }
-
-
-
--- getVideos : Session -> String -> Task ( Session, Http.Error ) (List Youtube.Video)
--- getVideos session query =
---     Http.task
---         { method = "GET"
---         , headers = [ Http.header "Authorization" "Bearer " ]
---         , url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=surfing&key="
---         , body = Http.emptyBody
---         , resolver = Youtube.decodeYoutube |> Api.jsonResolver
---         , timeout = Nothing
---         }
---         |> Api.mapError session

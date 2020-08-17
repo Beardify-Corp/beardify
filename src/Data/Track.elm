@@ -13,8 +13,8 @@ module Data.Track exposing
     , durationFormat
     )
 
-import Data.Album.AlbumSimplified exposing (AlbumSimplified)
-import Data.Artist as Artist exposing (ArtistSimplified)
+import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeAlbumSimplified)
+import Data.Artist.ArtistSimplified exposing (ArtistSimplified, decodeArtistSimplified)
 import Data.Id exposing (Id, decodeId)
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline as JDP
@@ -71,8 +71,8 @@ type alias Track =
 decodeTrack : Decoder Track
 decodeTrack =
     Decode.succeed Track
-        |> JDP.required "album" Data.Album.AlbumSimplified.decodeSimplified
-        |> JDP.required "artists" (Decode.list Artist.decodeSimplified)
+        |> JDP.required "album" decodeAlbumSimplified
+        |> JDP.required "artists" (Decode.list decodeArtistSimplified)
         |> JDP.required "disc_number" Decode.int
         |> JDP.required "duration_ms" Decode.int
         |> JDP.required "explicit" Decode.bool
@@ -100,7 +100,7 @@ type alias TrackSimplified =
 decodeTrackSimplified : Decoder TrackSimplified
 decodeTrackSimplified =
     Decode.succeed TrackSimplified
-        |> JDP.required "artists" (Decode.list Artist.decodeSimplified)
+        |> JDP.required "artists" (Decode.list decodeArtistSimplified)
         |> JDP.required "disc_number" Decode.int
         |> JDP.required "duration_ms" Decode.int
         |> JDP.required "explicit" Decode.bool
