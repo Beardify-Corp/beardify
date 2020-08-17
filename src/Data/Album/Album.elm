@@ -7,7 +7,8 @@ import Data.Album.AlbumType
 import Data.Artist.ArtistSimplified exposing (ArtistSimplified, decodeArtistSimplified)
 import Data.Id exposing (Id, decodeId)
 import Data.Image as Image exposing (Image)
-import Data.Track
+import Data.Paging exposing (Paging, decodePaging)
+import Data.Track.TrackSimplified exposing (TrackSimplified, decodeTrackSimplified)
 import Json.Decode as Decode exposing (Decoder, string)
 
 
@@ -19,7 +20,7 @@ type alias Album =
     , name : String
     , releaseDate : String
     , uri : String
-    , tracks : Data.Track.AlbumTrackObject
+    , tracks : Paging TrackSimplified
     }
 
 
@@ -33,4 +34,4 @@ decodeAlbum =
         (Decode.field "name" Decode.string)
         (Decode.field "release_date" Decode.string)
         (Decode.field "uri" Decode.string)
-        (Decode.field "tracks" Data.Track.decodeAlbumTrackObject)
+        (Decode.field "tracks" (decodePaging decodeTrackSimplified))

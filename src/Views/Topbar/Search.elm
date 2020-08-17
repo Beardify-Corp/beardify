@@ -5,7 +5,7 @@ import Data.Artist.Artist exposing (Artist)
 import Data.Image as Image
 import Data.Search
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -22,7 +22,7 @@ type alias Model =
     { searchQuery : String
     , artists : List Artist
     , albums : List AlbumSimplified
-    , tracks : List Data.Track.Track
+    , tracks : List Track
     }
 
 

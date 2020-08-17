@@ -3,9 +3,10 @@ module Page.Album exposing (Model, Msg(..), init, update, view)
 import Data.Album.Album exposing (Album)
 import Data.Artist.ArtistSimplified exposing (ArtistSimplified)
 import Data.Id exposing (Id)
+import Data.Paging exposing (Paging)
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.TrackSimplified exposing (TrackSimplified)
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -22,13 +23,13 @@ import Views.Cover as Cover
 
 type alias Model =
     { album : Maybe Album
-    , trackList : Data.Track.AlbumTrackObject
+    , trackList : Paging TrackSimplified
     }
 
 
 type Msg
     = InitAlbumInfos (Result ( Session, Http.Error ) Album)
-    | AddTracklist (Result ( Session, Http.Error ) Data.Track.AlbumTrackObject)
+    | AddTracklist (Result ( Session, Http.Error ) (Paging TrackSimplified))
     | PlayAlbum String
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())

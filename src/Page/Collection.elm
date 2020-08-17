@@ -1,10 +1,11 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
 import Data.Id exposing (Id)
+import Data.Paging exposing (Paging)
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
-import Data.Track exposing (..)
+import Data.Track.TrackItem exposing (TrackItem)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -21,13 +22,13 @@ import Views.Cover as Cover
 
 type alias Model =
     { playlist : Maybe Data.Playlist.Playlist
-    , trackList : Data.Track.PlaylistTrackObject
+    , trackList : Paging TrackItem
     , dieFace : Int
     }
 
 
 type Msg
-    = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
+    = AddTracklist (Result ( Session, Http.Error ) (Paging TrackItem))
     | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
@@ -132,7 +133,7 @@ view context { playlist, trackList, dieFace } =
                 }
                 (Maybe.map .owner playlist)
 
-        tracks : List Data.Track.TrackItem
+        tracks : List TrackItem
         tracks =
             trackList.items
                 |> LE.uniqueBy (\e -> e.track.album.name)

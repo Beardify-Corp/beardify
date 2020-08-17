@@ -2,7 +2,7 @@ module Views.Track exposing (view)
 
 import Data.Image as Image
 import Data.Player as Player exposing (..)
-import Data.Track
+import Data.Track.Track exposing (Track)
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -15,7 +15,7 @@ type alias Config msg =
     }
 
 
-view : Config msg -> PlayerContext -> List Data.Track.Track -> List (Html msg)
+view : Config msg -> PlayerContext -> List Track -> List (Html msg)
 view config context trackList =
     let
         listTracksUri : String -> List String

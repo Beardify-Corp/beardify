@@ -10,7 +10,7 @@ module Data.Player exposing
     )
 
 import Data.Device as Device exposing (Device)
-import Data.Track as Track exposing (Track)
+import Data.Track.Track exposing (Track, decodeTrack)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Decode.Pipeline as JDP
 
@@ -66,7 +66,7 @@ decode =
         |> JDP.optional "context" (Decode.map Just decodeContext) Nothing
         |> JDP.required "shuffle_state" Decode.bool
         |> JDP.required "timestamp" Decode.int
-        |> JDP.required "item" Track.decodeTrack
+        |> JDP.required "item" decodeTrack
         |> JDP.required "progress_ms" Decode.int
         |> JDP.required "is_playing" Decode.bool
         |> JDP.required "currently_playing_type" Decode.string

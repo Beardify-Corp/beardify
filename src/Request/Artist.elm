@@ -11,7 +11,7 @@ import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeAlbumSimplifi
 import Data.Artist.Artist exposing (Artist, decodeArtist, isFollowing)
 import Data.Id exposing (Id, idToString)
 import Data.Session exposing (Session)
-import Data.Track as Track exposing (Track)
+import Data.Track.Track exposing (Track, decodeTrack)
 import Data.User as User
 import Http
 import Json.Decode as Decode
@@ -44,7 +44,7 @@ getTopTrack session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "artists/" ++ idToString id ++ "/top-tracks?country=" ++ country
         , body = Http.emptyBody
-        , resolver = Decode.at [ "tracks" ] (Decode.list Track.decodeTrack) |> Api.jsonResolver
+        , resolver = Decode.at [ "tracks" ] (Decode.list decodeTrack) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session

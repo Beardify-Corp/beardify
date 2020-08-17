@@ -2,8 +2,9 @@ module Request.Album exposing (get, getTracks)
 
 import Data.Album.Album exposing (Album)
 import Data.Id exposing (Id, idToString)
+import Data.Paging exposing (Paging, decodePaging)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.TrackSimplified exposing (TrackSimplified, decodeTrackSimplified)
 import Http
 import Request.Api as Api
 import Task exposing (Task)
@@ -22,14 +23,14 @@ get session id =
         |> Api.mapError session
 
 
-getTracks : Session -> Id -> Int -> Task ( Session, Http.Error ) Data.Track.AlbumTrackObject
+getTracks : Session -> Id -> Int -> Task ( Session, Http.Error ) (Paging TrackSimplified)
 getTracks session id offset =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "albums/" ++ idToString id ++ "/tracks?&offset=" ++ String.fromInt offset ++ "&limit=50"
         , body = Http.emptyBody
-        , resolver = Data.Track.decodeAlbumTrackObject |> Api.jsonResolver
+        , resolver = decodePaging decodeTrackSimplified |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session

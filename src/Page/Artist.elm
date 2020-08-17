@@ -8,7 +8,7 @@ import Data.Id exposing (Id, idToString)
 import Data.Image as Image
 import Data.Player exposing (..)
 import Data.Session exposing (Session)
-import Data.Track exposing (Track)
+import Data.Track.Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)

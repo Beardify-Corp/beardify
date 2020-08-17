@@ -9,7 +9,6 @@ module Views.Player.Player exposing
 import Data.Image as Image
 import Data.Player as Player exposing (Player, PlayerContext)
 import Data.Session exposing (Session)
-import Data.Track as Track
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)

@@ -2,10 +2,11 @@ module Page.Playlist exposing (Model, Msg(..), init, update, view)
 
 import Data.Album.AlbumType
 import Data.Id exposing (Id)
+import Data.Paging exposing (Paging)
 import Data.Player as Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.TrackItem exposing (TrackItem)
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -24,12 +25,12 @@ import Views.Cover as Cover
 
 type alias Model =
     { playlist : Maybe Data.Playlist.Playlist
-    , trackList : Data.Track.PlaylistTrackObject
+    , trackList : Paging TrackItem
     }
 
 
 type Msg
-    = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
+    = AddTracklist (Result ( Session, Http.Error ) (Paging TrackItem))
     | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
@@ -129,7 +130,7 @@ view context { playlist, trackList } =
                 |> List.map (\e -> e.url)
                 |> String.concat
 
-        tracks : List Data.Track.TrackItem
+        tracks : List TrackItem
         tracks =
             trackList.items
 
@@ -154,7 +155,7 @@ view context { playlist, trackList } =
                 _ ->
                     i [ class "PlaylistTracks__icon icon-discogs" ] []
 
-        trackView : Data.Track.TrackItem -> Html Msg
+        trackView : TrackItem -> Html Msg
         trackView trackItem =
             div [ class "Playlist__content InFront" ]
                 [ div
