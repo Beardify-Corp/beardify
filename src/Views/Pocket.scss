@@ -1,0 +1,10 @@
+@use "../Color";
+@use "sass:color";
+
+.Pocket {
+  background-color: Color.$primary;
+  position: absolute;
+  right: 40px;
+  top: 20px;
+  z-index: 999;
+}
