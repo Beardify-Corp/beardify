@@ -1,5 +1,6 @@
 module Request.Playlist exposing
-    ( get
+    ( addAlbum
+    , get
     , getTracks
     )
 
@@ -35,3 +36,30 @@ getTracks session id offset =
         , timeout = Nothing
         }
         |> Api.mapError session
+
+
+addAlbum : Session -> String -> List String -> Task ( Session, Http.Error ) ()
+addAlbum session playlistId uris =
+    Http.task
+        { method = "POST"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "playlists/" ++ playlistId ++ "/tracks?uris=" ++ String.join "," uris
+        , body = Http.emptyBody
+        , resolver = Api.valueResolver ()
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+
+-- addAlbum : Session -> Data.Playlist.Id -> List String -> Task ( Session, Http.Error ) ()
+-- addAlbum session playlistId uris =
+--     Http.task
+--         { method = "POST"
+--         , headers = [ Api.authHeader session ]
+--         , url = Api.url ++ "playlists/" ++ Data.Playlist.idToString playlistId ++ "tracks?uris" ++ String.join "," uris
+--         , body = Http.emptyBody
+--         , resolver = Api.valueResolver ()
+--         , timeout = Nothing
+--         }
+--         |> Api.mapError session

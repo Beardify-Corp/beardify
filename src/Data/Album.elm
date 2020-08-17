@@ -50,6 +50,8 @@ type alias Album =
     , name : String
     , releaseDate : String
     , uri : String
+
+    -- , tracks : List TrackSimplified
     }
 
 

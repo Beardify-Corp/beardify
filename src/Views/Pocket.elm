@@ -4,6 +4,10 @@ import Data.Pocket exposing (Pocket, defaultPocket)
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Html.Events exposing (..)
+import Http
+import Request.Playlist
+import Task
 
 
 type alias Model =
@@ -13,6 +17,9 @@ type alias Model =
 
 type Msg
     = NoOp
+    | Reset
+    | Add
+    | Played (Result ( Session, Http.Error ) ())
 
 
 defaultModel : Model
@@ -28,14 +35,35 @@ init session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg model =
+update ({ pocket } as session) msg model =
     case msg of
         NoOp ->
             ( model, session, Cmd.none )
+
+        Reset ->
+            ( model, { session | pocket = { pocket | albums = [] } }, Cmd.none )
+
+        Add ->
+            let
+                uris =
+                    pocket.albums
+            in
+            ( model, session, Task.attempt Played (Request.Playlist.addAlbum session "3CL7dAZOAWOfJWLkO3YyTo" pocket.albums) )
+
+        Played (Ok _) ->
+            ( model, session, Cmd.none )
+
+        Played (Err ( newSession, _ )) ->
+            ( model, newSession, Cmd.none )
 
 
 view : Model -> Session -> Html Msg
 view model session =
     div [ class "Pocket" ]
-        [ text "pocket"
+        [ div [ class "Pocket__head" ] [ button [ onClick Reset ] [ text "Reset" ] ]
+        , div []
+            (session.pocket.albums
+                |> List.map (\e -> div [] [ text e ])
+            )
+        , button [ onClick Add ] [ text "GO" ]
         ]

@@ -13,6 +13,7 @@ import Views.Artist
 
 type alias Config msg =
     { playAlbum : String -> msg
+    , addToPocket : Data.Album.Id -> msg
     }
 
 
@@ -39,7 +40,7 @@ view config context showArtist album =
         [ div [ class "Album__link" ]
             [ a [ Route.href (Route.Album album.id) ] [ img [ attribute "loading" "lazy", class "Album__cover", src cover.url ] [] ]
             , button [ onClick <| config.playAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
-            , button [ class "Album__add" ] [ i [ class "icon-add" ] [] ]
+            , button [ onClick <| config.addToPocket album.id, class "Album__add" ] [ i [ class "icon-add" ] [] ]
             ]
         , div [ class "Album__name" ] [ text album.name ]
         , HE.viewIf showArtist (div [ class "Album__name" ] [ span [] (Views.Artist.view album.artists) ])

@@ -13,6 +13,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
+import Request.Album
 import Request.Artist
 import Request.Player
 import Route
@@ -41,6 +42,8 @@ type Msg
     | PlayAlbum String
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
+    | AddAlbumToPocket Album.Id
+    | Yes (Result ( Session, Http.Error ) Album.Album)
 
 
 init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -65,7 +68,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg model =
+update ({ pocket } as session) msg model =
     case msg of
         Follow artistId ->
             ( model, session, Request.Artist.follow session "PUT" artistId ResultFollow )
@@ -107,6 +110,38 @@ update session msg model =
 
         Played (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
+
+        AddAlbumToPocket albumId ->
+            let
+                -- currentAlbumsInPocket =
+                --     pocket.albums
+                -- _ =
+                --     Debug.log "AddAlbumToPocket" currentAlbumsInPocket
+                _ =
+                    Debug.log "AddAlbumToPocket" session.pocket.albums
+            in
+            ( model, session, Task.attempt Yes (Request.Album.get session albumId) )
+
+        Yes album ->
+            let
+                _ =
+                    Debug.log "album" album
+            in
+            ( model, session, Cmd.none )
+
+
+
+-- AddAlbumToPocket albumId ->
+--     let
+--         currentAlbumsInPocket =
+--             pocket.albums
+--         _ =
+--             Debug.log "AddAlbumToPocket" currentAlbumsInPocket
+--         _ =
+--             Debug.log "AddAlbumToPocket" session.pocket.albums
+--     in
+--     ( model, session, Cmd.none )
+-- ( model, { session | pocket = { pocket | albums = List.append [ uri ] currentAlbumsInPocket } }, Cmd.none )
 
 
 relatedArtistsView : List Artist -> Html msg
@@ -154,7 +189,7 @@ albumsListView context albums listName =
         albumList =
             div []
                 [ h2 [ class "Heading second" ] [ text listName ]
-                , List.map (Views.Album.view { playAlbum = PlayAlbum } context False) albums
+                , List.map (Views.Album.view { playAlbum = PlayAlbum, addToPocket = AddAlbumToPocket } context False) albums
                     |> div [ class "Artist__releaseList AlbumList" ]
                 ]
     in

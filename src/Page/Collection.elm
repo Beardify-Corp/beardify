@@ -1,5 +1,6 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
+import Data.Album
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
@@ -31,6 +32,7 @@ type Msg
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
     | NewFace Int
+    | NoOp Data.Album.Id
 
 
 init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -105,6 +107,9 @@ update session msg ({ trackList } as model) =
             , Cmd.none
             )
 
+        NoOp _ ->
+            ( model, session, Cmd.none )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view context { playlist, trackList, dieFace } =
@@ -168,7 +173,7 @@ view context { playlist, trackList, dieFace } =
                             (tracks
                                 |> List.map
                                     (\a ->
-                                        Views.Album.view { playAlbum = PlayAlbum } context True a.track.album
+                                        Views.Album.view { playAlbum = PlayAlbum, addToPocket = NoOp } context True a.track.album
                                     )
                             )
                         ]
