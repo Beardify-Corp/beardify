@@ -3,7 +3,7 @@ module Page.Collection exposing (Model, Msg(..), init, update, view)
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
-import Data.Track exposing (TrackList)
+import Data.Track exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -158,8 +158,6 @@ view context { playlist, trackList, dieFace } =
                                 , text " - "
                                 , text albumLength
                                 , text " albums"
-                                , text " - "
-                                , text <| String.fromInt dieFace
                                 ]
                             , div [ class "CollectionHead__description" ] [ text playlistDescription ]
                             ]

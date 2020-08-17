@@ -28,6 +28,7 @@
 @use "Page/Artist";
 @use "Page/AlbumPage";
 @use "Page/Collection";
+@use "Page/Home";
 @use "Page/Login";
 @use "Page/Playlist";
 
@@ -50,6 +51,7 @@
 
 b,
 strong {
+  color: white;
   font-weight: 700;
 }
 
