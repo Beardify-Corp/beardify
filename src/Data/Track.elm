@@ -15,18 +15,10 @@ module Data.Track exposing
 
 import Data.Album.AlbumSimplified
 import Data.Artist as Artist exposing (ArtistSimplified)
+import Data.Id
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline as JDP
 import Time
-
-
-decodeId : Decoder Id
-decodeId =
-    Decode.map Id Decode.string
-
-
-type Id
-    = Id String
 
 
 durationFormat : Int -> String
@@ -68,7 +60,7 @@ type alias Track =
     , duration : Int
     , explicit : Bool
     , href : String
-    , id : Id
+    , id : Data.Id.Id
     , name : String
     , popularity : Int
     , trackNumber : Int
@@ -85,7 +77,7 @@ decodeTrack =
         |> JDP.required "duration_ms" Decode.int
         |> JDP.required "explicit" Decode.bool
         |> JDP.required "href" Decode.string
-        |> JDP.required "id" decodeId
+        |> JDP.required "id" Data.Id.decodeId
         |> JDP.required "name" Decode.string
         |> JDP.required "popularity" Decode.int
         |> JDP.required "track_number" Decode.int
@@ -98,7 +90,7 @@ type alias TrackSimplified =
     , duration : Int
     , explicit : Bool
     , href : String
-    , id : Id
+    , id : Data.Id.Id
     , name : String
     , trackNumber : Int
     , uri : String
@@ -113,7 +105,7 @@ decodeTrackSimplified =
         |> JDP.required "duration_ms" Decode.int
         |> JDP.required "explicit" Decode.bool
         |> JDP.required "href" Decode.string
-        |> JDP.required "id" decodeId
+        |> JDP.required "id" Data.Id.decodeId
         |> JDP.required "name" Decode.string
         |> JDP.required "track_number" Decode.int
         |> JDP.required "uri" Decode.string
