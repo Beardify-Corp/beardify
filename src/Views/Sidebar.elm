@@ -8,7 +8,7 @@ import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
-import Request.Sidebar
+import Request.Playlist
 import Route
 import Task
 import Url exposing (Url)
@@ -39,7 +39,7 @@ init : Session -> ( Model, Cmd Msg )
 init session =
     ( defaultModel
     , Task.map Model
-        (Request.Sidebar.get session 0)
+        (Request.Playlist.getAll session 0)
         |> Task.attempt Fetched
     )
 
@@ -57,7 +57,7 @@ update session msg ({ playlists } as model) =
                   }
                 , session
                 , Task.map Model
-                    (Request.Sidebar.get session (newModel.playlists.offset + 50))
+                    (Request.Playlist.getAll session (newModel.playlists.offset + 50))
                     |> Task.attempt Fetched
                 )
 
