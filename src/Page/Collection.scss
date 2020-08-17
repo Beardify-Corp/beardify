@@ -1,0 +1,17 @@
+.Collection {
+  justify-content: center;
+  margin-bottom: 40px;
+
+  &Head {
+    text-align: center;
+
+    &__owner {
+      margin-bottom: 7px;
+    }
+
+    &__description {
+      font-style: italic;
+      opacity: .5;
+    }
+  }
+}
