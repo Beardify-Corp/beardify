@@ -1,6 +1,6 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
-import Data.Album
+import Data.Id
 import Data.Player exposing (..)
 import Data.Playlist exposing (..)
 import Data.Session exposing (Session)
@@ -32,7 +32,7 @@ type Msg
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
     | NewFace Int
-    | NoOp Data.Album.Id
+    | NoOp Data.Id.Id
 
 
 init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )

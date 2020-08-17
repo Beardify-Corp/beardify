@@ -2,8 +2,11 @@ module Page.Artist exposing (Model, Msg(..), init, update, view)
 
 -- import Data.Youtube as Youtube
 
-import Data.Album as Album exposing (AlbumSimplified)
+import Data.Album.Album
+import Data.Album.AlbumSimplified
+import Data.Album.Index
 import Data.Artist as Artist exposing (Artist)
+import Data.Id
 import Data.Image as Image
 import Data.Player exposing (..)
 import Data.Session exposing (Session)
@@ -26,8 +29,8 @@ import Views.Track
 
 type alias Model =
     { artist : Maybe Artist
-    , albums : List AlbumSimplified
-    , singles : List AlbumSimplified
+    , albums : List Data.Album.AlbumSimplified.AlbumSimplified
+    , singles : List Data.Album.AlbumSimplified.AlbumSimplified
     , tracks : List Track
     , relatedArtists : List Artist
     , followed : List Bool
@@ -42,8 +45,8 @@ type Msg
     | PlayAlbum String
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
-    | AddAlbumToPocket Album.Id
-    | Yes (Result ( Session, Http.Error ) Album.Album)
+    | GetAlbum Data.Id.Id
+    | AddToPocket (Result ( Session, Http.Error ) Data.Album.Album.Album)
 
 
 init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
@@ -111,37 +114,18 @@ update ({ pocket } as session) msg model =
         Played (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
-        AddAlbumToPocket albumId ->
-            let
-                -- currentAlbumsInPocket =
-                --     pocket.albums
-                -- _ =
-                --     Debug.log "AddAlbumToPocket" currentAlbumsInPocket
-                _ =
-                    Debug.log "AddAlbumToPocket" session.pocket.albums
-            in
-            ( model, session, Task.attempt Yes (Request.Album.get session albumId) )
+        GetAlbum albumId ->
+            ( model, session, Task.attempt AddToPocket (Request.Album.get session albumId) )
 
-        Yes album ->
+        AddToPocket (Ok album) ->
             let
-                _ =
-                    Debug.log "album" album
+                firstTrackOfAlbum =
+                    album.tracks.items |> List.take 1 |> List.map .uri
             in
+            ( model, { session | pocket = { pocket | albums = List.append firstTrackOfAlbum pocket.albums } }, Cmd.none )
+
+        AddToPocket (Err _) ->
             ( model, session, Cmd.none )
-
-
-
--- AddAlbumToPocket albumId ->
---     let
---         currentAlbumsInPocket =
---             pocket.albums
---         _ =
---             Debug.log "AddAlbumToPocket" currentAlbumsInPocket
---         _ =
---             Debug.log "AddAlbumToPocket" session.pocket.albums
---     in
---     ( model, session, Cmd.none )
--- ( model, { session | pocket = { pocket | albums = List.append [ uri ] currentAlbumsInPocket } }, Cmd.none )
 
 
 relatedArtistsView : List Artist -> Html msg
@@ -178,7 +162,7 @@ topTrackViews context tracks =
         ]
 
 
-albumsListView : PlayerContext -> List AlbumSimplified -> String -> Html Msg
+albumsListView : PlayerContext -> List Data.Album.AlbumSimplified.AlbumSimplified -> String -> Html Msg
 albumsListView context albums listName =
     let
         hasAlbums : Bool
@@ -189,7 +173,7 @@ albumsListView context albums listName =
         albumList =
             div []
                 [ h2 [ class "Heading second" ] [ text listName ]
-                , List.map (Views.Album.view { playAlbum = PlayAlbum, addToPocket = AddAlbumToPocket } context False) albums
+                , List.map (Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context False) albums
                     |> div [ class "Artist__releaseList AlbumList" ]
                 ]
     in
@@ -259,8 +243,8 @@ view context ({ artist, followed } as model) =
                         [ topTrackViews context model.tracks
                         , relatedArtistsView model.relatedArtists
                         ]
-                    , albumsListView context (List.filter (\a -> a.type_ == Album.AlbumType) model.albums) "Albums"
-                    , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"
+                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.Index.AlbumType) model.albums) "Albums"
+                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.Index.Single) model.singles) "Singles / EPs"
                     ]
                 ]
             , div [ class "Artist__videos HelperScrollArea" ]

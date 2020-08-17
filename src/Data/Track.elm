@@ -4,14 +4,16 @@ module Data.Track exposing
     , Track
     , TrackItem
     , TrackList
+    , TrackSimplified
     , decodeAlbumTrackObject
     , decodePlaylistTrackObject
     , decodeTrack
     , decodeTrackList
+    , decodeTrackSimplified
     , durationFormat
     )
 
-import Data.Album as Album exposing (AlbumSimplified)
+import Data.Album.AlbumSimplified
 import Data.Artist as Artist exposing (ArtistSimplified)
 import Json.Decode as Decode exposing (..)
 import Json.Decode.Pipeline as JDP
@@ -60,7 +62,7 @@ durationFormat duration =
 
 
 type alias Track =
-    { album : AlbumSimplified
+    { album : Data.Album.AlbumSimplified.AlbumSimplified
     , artists : List ArtistSimplified
     , discNumber : Int
     , duration : Int
@@ -77,7 +79,7 @@ type alias Track =
 decodeTrack : Decoder Track
 decodeTrack =
     Decode.succeed Track
-        |> JDP.required "album" Album.decodeSimplified
+        |> JDP.required "album" Data.Album.AlbumSimplified.decodeSimplified
         |> JDP.required "artists" (Decode.list Artist.decodeSimplified)
         |> JDP.required "disc_number" Decode.int
         |> JDP.required "duration_ms" Decode.int

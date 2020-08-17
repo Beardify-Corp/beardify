@@ -4,14 +4,10 @@ module Request.Artist exposing
     , getFollowedArtist
     , getItems
     , getRelatedArtists
-    ,  getTopTrack
-       -- , getVideos
-
+    , getTopTrack
     )
 
--- import Data.Youtube as Youtube
-
-import Data.Album as Album exposing (AlbumSimplified)
+import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeSimplified)
 import Data.Artist as Artist exposing (Artist)
 import Data.Session exposing (Session)
 import Data.Track as Track exposing (Track)
@@ -65,7 +61,7 @@ getItems group session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/albums" ++ "?country=" ++ country ++ "&limit=50&include_groups=" ++ group
         , body = Http.emptyBody
-        , resolver = Decode.at [ "items" ] (Decode.list Album.decodeSimplified) |> Api.jsonResolver
+        , resolver = Decode.at [ "items" ] (Decode.list decodeSimplified) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session

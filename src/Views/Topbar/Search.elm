@@ -1,6 +1,6 @@
 module Views.Topbar.Search exposing (Model, Msg(..), defaultModel, init, update, view)
 
-import Data.Album
+import Data.Album.AlbumSimplified
 import Data.Artist
 import Data.Image as Image
 import Data.Search
@@ -21,7 +21,7 @@ import Views.Artist
 type alias Model =
     { searchQuery : String
     , artists : List Data.Artist.Artist
-    , albums : List Data.Album.AlbumSimplified
+    , albums : List Data.Album.AlbumSimplified.AlbumSimplified
     , tracks : List Data.Track.Track
     }
 
