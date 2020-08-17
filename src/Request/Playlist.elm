@@ -6,7 +6,7 @@ module Request.Playlist exposing
 
 import Data.Id exposing (Id, idToString)
 import Data.Paging exposing (Paging, decodePaging)
-import Data.Playlist exposing (..)
+import Data.Playlist.Playlist exposing (Playlist, decodePlaylist)
 import Data.Session exposing (Session)
 import Data.Track.TrackItem exposing (TrackItem, decodeTrackItem)
 import Http
@@ -14,14 +14,14 @@ import Request.Api as Api
 import Task exposing (Task)
 
 
-get : Session -> Id -> Task ( Session, Http.Error ) Data.Playlist.Playlist
+get : Session -> Id -> Task ( Session, Http.Error ) Playlist
 get session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "playlists/" ++ idToString id ++ "?fields=description,uri,id,images,name,uri,owner"
         , body = Http.emptyBody
-        , resolver = Data.Playlist.decodePlaylist |> Api.jsonResolver
+        , resolver = decodePlaylist |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session

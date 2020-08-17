@@ -1,7 +1,9 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
 import Data.Id exposing (idToString)
-import Data.Playlist exposing (Playlist, PlaylistList)
+import Data.Paging exposing (Paging)
+import Data.Playlist.Playlist exposing (Playlist)
+import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified)
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -13,7 +15,7 @@ import Url exposing (Url)
 
 
 type alias Model =
-    { playlists : PlaylistList
+    { playlists : Paging PlaylistSimplified
     }
 
 
@@ -71,7 +73,7 @@ type PlaylistType
     | Collection
 
 
-playlistItem : Url -> PlaylistList -> PlaylistType -> Html msg
+playlistItem : Url -> Paging PlaylistSimplified -> PlaylistType -> Html msg
 playlistItem currentUrl playlistList playlistType =
     if playlistType == Collection then
         div [ class "Sidebar__item" ]

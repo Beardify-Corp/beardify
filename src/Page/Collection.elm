@@ -3,7 +3,8 @@ module Page.Collection exposing (Model, Msg(..), init, update, view)
 import Data.Id exposing (Id)
 import Data.Paging exposing (Paging)
 import Data.Player exposing (..)
-import Data.Playlist exposing (..)
+import Data.Playlist.Playlist exposing (Playlist)
+import Data.Playlist.PlaylistOwner exposing (PlaylistOwner)
 import Data.Session exposing (Session)
 import Data.Track.TrackItem exposing (TrackItem)
 import Html exposing (..)
@@ -21,7 +22,7 @@ import Views.Cover as Cover
 
 
 type alias Model =
-    { playlist : Maybe Data.Playlist.Playlist
+    { playlist : Maybe Playlist
     , trackList : Paging TrackItem
     , dieFace : Int
     }
@@ -29,7 +30,7 @@ type alias Model =
 
 type Msg
     = AddTracklist (Result ( Session, Http.Error ) (Paging TrackItem))
-    | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
+    | InitPlaylistInfos (Result ( Session, Http.Error ) Playlist)
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
     | NewFace Int
@@ -123,7 +124,7 @@ view context { playlist, trackList, dieFace } =
         playlistDescription =
             Maybe.withDefault "" (Maybe.map .description playlist)
 
-        playlistOwner : Data.Playlist.PlaylistOwner
+        playlistOwner : PlaylistOwner
         playlistOwner =
             Maybe.withDefault
                 { display_name = ""
