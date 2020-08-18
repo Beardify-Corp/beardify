@@ -1,5 +1,6 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
+import Data.Id exposing (idToString)
 import Data.Paging exposing (Paging)
 import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified)
 import Data.Session exposing (Session)
@@ -7,9 +8,9 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
 import Request.Playlist
+import Route
 import Task
 import Url exposing (Url)
-import Views.List
 
 
 type alias Model =
@@ -71,6 +72,28 @@ type PlaylistType
     | Collection
 
 
+collectionView : Url -> PlaylistSimplified -> Html msg
+collectionView currentUrl item =
+    li
+        [ class "List__item"
+        , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/collection/" ++ idToString item.id ) ]
+        ]
+        [ i [ class "List__icon icon-collection" ] []
+        , a [ class "List__link", Route.href (Route.Collection item.id) ] [ text <| String.replace "#Collection " "" item.name ]
+        ]
+
+
+playlistView : Url -> PlaylistSimplified -> Html msg
+playlistView currentUrl item =
+    li
+        [ class "List__item"
+        , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/playlist/" ++ idToString item.id ) ]
+        ]
+        [ i [ class "List__icon icon-playlist" ] []
+        , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text item.name ]
+        ]
+
+
 playlistItem : Url -> Paging PlaylistSimplified -> PlaylistType -> Html msg
 playlistItem currentUrl playlistList playlistType =
     if playlistType == Collection then
@@ -80,7 +103,7 @@ playlistItem currentUrl playlistList playlistType =
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     (playlistList.items
                         |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
-                        |> List.map (Views.List.collection currentUrl)
+                        |> List.map (collectionView currentUrl)
                     )
                 ]
             ]
@@ -92,7 +115,7 @@ playlistItem currentUrl playlistList playlistType =
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     (playlistList.items
                         |> List.filter (\playlist -> not (String.startsWith "#Collection" playlist.name))
-                        |> List.map (Views.List.playlist currentUrl)
+                        |> List.map (playlistView currentUrl)
                     )
                 ]
             ]
