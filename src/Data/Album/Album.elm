@@ -1,15 +1,29 @@
 module Data.Album.Album exposing
     ( Album
     , decodeAlbum
+    , defaultAlbum
     )
 
 import Data.Album.AlbumType
 import Data.Artist.ArtistSimplified exposing (ArtistSimplified, decodeArtistSimplified)
-import Data.Id exposing (Id, decodeId)
+import Data.Id exposing (Id, createId, decodeId)
 import Data.Image as Image exposing (Image)
-import Data.Paging exposing (Paging, decodePaging)
+import Data.Paging exposing (Paging, decodePaging, defaultPaging)
 import Data.Track.TrackSimplified exposing (TrackSimplified, decodeTrackSimplified)
 import Json.Decode as Decode exposing (Decoder, string)
+
+
+defaultAlbum : Album
+defaultAlbum =
+    { type_ = Data.Album.AlbumType.AlbumType
+    , artists = []
+    , id = createId ""
+    , images = []
+    , name = ""
+    , releaseDate = ""
+    , uri = ""
+    , tracks = defaultPaging
+    }
 
 
 type alias Album =

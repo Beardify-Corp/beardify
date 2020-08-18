@@ -1,5 +1,6 @@
-module Views.Album exposing (view)
+module Views.Album exposing (view, viewSolo)
 
+import Data.Album.Album exposing (Album)
 import Data.Album.AlbumSimplified exposing (AlbumSimplified)
 import Data.Id exposing (Id)
 import Data.Image as Image
@@ -46,5 +47,27 @@ view config context showArtist album =
         , div [ class "Album__name" ] [ text album.name ]
         , HE.viewIf showArtist (div [ class "Album__name" ] [ span [] (Views.Artist.view album.artists) ])
         , div [ class "Album__release" ] [ text <| releaseFormat album.releaseDate ]
+        , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
+        ]
+
+
+viewSolo : Config msg -> PlayerContext -> Album -> Html msg
+viewSolo config context album =
+    let
+        cover : Image.Image
+        cover =
+            Image.filterByWidth Image.Large album.images
+
+        isCurrentlyPlaying : Bool
+        isCurrentlyPlaying =
+            album.uri == Player.getCurrentAlbumUri context
+    in
+    div
+        [ class "Album" ]
+        [ div [ class "Album__link" ]
+            [ img [ attribute "loading" "lazy", class "Album__cover", src cover.url ] []
+            , button [ onClick <| config.playAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
+            , button [ onClick <| config.addToPocket album.id, class "Album__add" ] [ i [ class "icon-add" ] [] ]
+            ]
         , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
         ]
