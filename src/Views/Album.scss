@@ -55,6 +55,7 @@
     top: 15px;
     transform: scale(0);
     transition: all ease .2s;
+    z-index: 9;
   }
 
   &__play {
@@ -73,6 +74,7 @@
     transform: translate(-50%, -50%) scale(0);
     transition: all ease .2s;
     width: $size;
+    z-index: 9;
 
     &:hover {
       opacity: 1;
@@ -87,9 +89,25 @@
     display: block;
     position: relative;
 
+    &::after {
+      background-color: Color.$background;
+      border-radius: 3px;
+      bottom: 0;
+      content: "";
+      left: 0;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transition: all ease .2s;
+      visibility: hidden;
+    }
+
     &:hover {
-      .Album__cover {
+      &::after {
         opacity: .3;
+        visibility: visible;
       }
 
       .Album__play {

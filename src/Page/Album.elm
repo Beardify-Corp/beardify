@@ -173,7 +173,7 @@ view context { album, trackList } =
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "AlbumPage__head" ]
                         [ div []
-                            [ h1 [ class "AlbumPage__title Heading first" ] [ text albumName ]
+                            [ h1 [ class "AlbumPage__title Heading first InFront" ] [ text albumName ]
                             , Cover.view albumCover Cover.Normal
                             ]
                         , div [ class "InFront" ]
