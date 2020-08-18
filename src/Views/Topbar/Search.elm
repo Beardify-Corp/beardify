@@ -133,7 +133,10 @@ view model =
                 ]
     in
     div [ class "Search" ]
-        [ input [ onInput Query, class "Search__input", type_ "text", placeholder "Search artist, album or track...", value model.searchQuery ] []
+        [ div [ class "SearchBox" ]
+            [ i [ class "SearchBox__icon icon-magnifying-glass" ] []
+            , input [ onInput Query, class "SearchBox__input", type_ "text", placeholder "Search artist, album or track...", value model.searchQuery ] []
+            ]
         , HE.viewIf (model.searchQuery /= "")
             (div [ class "SearchResult" ]
                 [ div [ class "SearchResult__section" ]

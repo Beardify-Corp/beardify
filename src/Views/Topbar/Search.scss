@@ -4,28 +4,42 @@
 .Search {
   position: relative;
 
-  &__input {
-    background-color: transparent;
-    background-image: linear-gradient(45deg, Color.$backgroundLight, transparent);
-    border: 0;
-    border-radius: 4px;
-    color: #fff;
-    font-weight: bold;
-    outline: 0;
-    padding: 10px 20px;
+  &Box {
     position: relative;
-    transition: all ease .3s;
-    width: 100%;
-    z-index: 100;
 
-    &:focus {
-      background-image: linear-gradient(45deg, color.scale(Color.$backgroundLight, $lightness: 5%), transparent);
-      box-shadow: 0px 4px 20px rgba(0, 0, 0, .3);
+    &__icon {
+      color: rgba(163, 214, 241, .303);
+      font-size: 1.2rem;
+      left: 12px;
+      position: absolute;
+      top: calc(50% - 1px);
+      transform: translateY(-50%);
+      z-index: 110;
     }
 
-    &::placeholder {
-      color: rgba(163, 214, 241, .303);
-      font-style: italic;
+    &__input {
+      background-color: transparent;
+      background-image: linear-gradient(45deg, Color.$backgroundLight, transparent);
+      border: 0;
+      border-radius: 4px;
+      color: #fff;
+      font-weight: bold;
+      outline: 0;
+      padding: 10px 20px 10px 40px;
+      position: relative;
+      transition: all ease .3s;
+      width: 100%;
+      z-index: 100;
+
+      &:focus {
+        background-image: linear-gradient(45deg, color.scale(Color.$backgroundLight, $lightness: 5%), transparent);
+        box-shadow: 0px 4px 20px rgba(0, 0, 0, .3);
+      }
+
+      &::placeholder {
+        color: rgba(163, 214, 241, .303);
+        font-style: italic;
+      }
     }
   }
 
