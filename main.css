@@ -717,6 +717,7 @@ template {
   color: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   flex: 1;
+  font-weight: bold;
   padding: 3px;
   text-decoration: none;
 }
@@ -962,20 +963,89 @@ template {
   transform: translateY(-50%);
 }
 
+@keyframes bounce {
+  0% {
+    transform: scale(0.8);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.Pocket {
+  animation: bounce 0.2s ease 0s forwards alternate;
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+  position: absolute;
+  right: 71px;
+  top: -47px;
+  z-index: 999;
+}
+.Pocket__head {
+  background-color: #c03d0a;
+  border-radius: 5px;
+  display: grid;
+  font-weight: bold;
+  gap: 50px;
+  grid-template-columns: 1fr auto;
+  justify-content: space-between;
+  padding: 7px 8px 7px 12px;
+}
+.Pocket__close {
+  background-color: transparent;
+  border: 0;
+  border-radius: 3px;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 3px 5px 0;
+}
+.Pocket__close:hover {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+.PocketPlaylists {
+  background-color: #182630;
+  border-radius: 0 0 5px 5px;
+  font-weight: bold;
+  max-height: 0;
+  overflow: auto;
+}
+.PocketPlaylists__addTo {
+  font-weight: bold;
+  padding: 10px 20px;
+}
+.PocketPlaylists__item {
+  cursor: pointer;
+  margin: 0 10px;
+  padding: 5px 10px;
+}
+.PocketPlaylists__item:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.Pocket:hover .Pocket__head {
+  border-radius: 5px 5px 0 0;
+}
+.Pocket:hover .PocketPlaylists {
+  max-height: 400px;
+}
+
 .Search {
   position: relative;
 }
 .Search__input {
-  background: #131e26;
-  border: 1px solid #0c1418;
+  background-color: transparent;
+  background-image: linear-gradient(45deg, #182630, transparent);
+  border: 0;
   border-radius: 4px;
   color: #fff;
   font-weight: bold;
   outline: 0;
   padding: 10px 20px;
   position: relative;
+  transition: all ease 0.3s;
   width: 100%;
   z-index: 100;
+}
+.Search__input:focus {
+  background-image: linear-gradient(45deg, #20323e, transparent);
+  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
 }
 .Search__input::placeholder {
   color: rgba(163, 214, 241, 0.303);
@@ -1087,7 +1157,7 @@ template {
   position: relative;
 }
 .Topbar__version {
-  background: #ff4800;
+  background: #c03d0a;
   border-radius: 3px;
   color: white;
   font-size: 0.8rem;
@@ -1282,6 +1352,10 @@ template {
 .AlbumPage__head {
   margin: 0 auto;
   max-width: 1000px;
+  text-align: center;
+}
+.AlbumPage__title {
+  margin-bottom: 0;
 }
 .AlbumPage__body {
   display: flex;
@@ -1311,18 +1385,18 @@ template {
 .AlbumPageTrack.active {
   background-color: rgba(26, 157, 178, 0.2);
 }
-.AlbumPageTrack__feat {
-  margin-left: 10px;
-}
 .AlbumPageTrack__name {
   color: white;
   font-weight: bold;
 }
-.AlbumPageTrack__left {
-  display: flex;
+.AlbumPageTrack__duration {
+  text-align: right;
 }
-.AlbumPageTrack__number {
-  width: 40px;
+.AlbumPageTrack__left {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 25px 1fr 1fr 50px;
+  width: 100%;
 }
 
 .Collection {
@@ -1407,7 +1481,7 @@ template {
   border-radius: 5px;
   cursor: pointer;
   display: grid;
-  grid-template-columns: 2fr 1fr 100px auto auto;
+  grid-template-columns: 2fr 1fr auto 60px;
 }
 .PlaylistTracks:hover {
   background-color: rgba(0, 0, 0, 0.2);
@@ -1433,10 +1507,13 @@ template {
   color: #1a9db2;
 }
 .PlaylistTracks__icon--secondary {
-  color: #ffa600;
+  color: #c03d0a;
 }
 .PlaylistTracks__item {
   padding: 5px 10px;
+}
+.PlaylistTracks__item.duration {
+  text-align: right;
 }
 .PlaylistTracks__name {
   color: white;
@@ -1458,6 +1535,7 @@ template {
 .App__body {
   display: flex;
   flex: 1;
+  position: relative;
 }
 
 b,
