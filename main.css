@@ -386,6 +386,7 @@ template {
   top: 15px;
   transform: scale(0);
   transition: all ease 0.2s;
+  z-index: 9;
 }
 .Album__play {
   border: 0;
@@ -402,6 +403,7 @@ template {
   transform: translate(-50%, -50%) scale(0);
   transition: all ease 0.2s;
   width: 60px;
+  z-index: 9;
 }
 .Album__play:hover {
   opacity: 1;
@@ -413,8 +415,23 @@ template {
   display: block;
   position: relative;
 }
-.Album__link:hover .Album__cover {
+.Album__link::after {
+  background-color: #152229;
+  border-radius: 3px;
+  bottom: 0;
+  content: "";
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: all ease 0.2s;
+  visibility: hidden;
+}
+.Album__link:hover::after {
   opacity: 0.3;
+  visibility: visible;
 }
 .Album__link:hover .Album__play {
   transform: translate(-50%, -50%) scale(1);
@@ -671,7 +688,8 @@ template {
 }
 
 .Heading.first {
-  font-size: 2.6rem;
+  font-size: 3rem;
+  font-weight: 100;
 }
 .Heading.second {
   color: #1a9db2;
@@ -935,6 +953,10 @@ template {
   vertical-align: middle;
   width: 100%;
 }
+.Range__input::-moz-range-thumb {
+  background: transparent;
+  border: none;
+}
 .Range__input::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -1029,7 +1051,19 @@ template {
 .Search {
   position: relative;
 }
-.Search__input {
+.SearchBox {
+  position: relative;
+}
+.SearchBox__icon {
+  color: rgba(163, 214, 241, 0.303);
+  font-size: 1.2rem;
+  left: 12px;
+  position: absolute;
+  top: calc(50% - 1px);
+  transform: translateY(-50%);
+  z-index: 110;
+}
+.SearchBox__input {
   background-color: transparent;
   background-image: linear-gradient(45deg, #182630, transparent);
   border: 0;
@@ -1037,17 +1071,17 @@ template {
   color: #fff;
   font-weight: bold;
   outline: 0;
-  padding: 10px 20px;
+  padding: 10px 20px 10px 40px;
   position: relative;
   transition: all ease 0.3s;
   width: 100%;
   z-index: 100;
 }
-.Search__input:focus {
+.SearchBox__input:focus {
   background-image: linear-gradient(45deg, #20323e, transparent);
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
 }
-.Search__input::placeholder {
+.SearchBox__input::placeholder {
   color: rgba(163, 214, 241, 0.303);
   font-style: italic;
 }
@@ -1355,6 +1389,7 @@ template {
   text-align: center;
 }
 .AlbumPage__title {
+  color: white;
   margin-bottom: 0;
 }
 .AlbumPage__body {
@@ -1549,7 +1584,7 @@ strong {
 *::after {
   box-sizing: border-box;
   -ms-overflow-style: -ms-autohiding-scrollbar;
-  scrollbar-color: #0a1014 rgba(0, 0, 0, 0);
+  scrollbar-color: #0d4f59 rgba(0, 0, 0, 0);
   scrollbar-width: thin;
 }
 
