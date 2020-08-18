@@ -39,7 +39,7 @@ type alias Config msg =
 
 frame : Config msg -> ( String, List (Html msg) ) -> Document msg
 frame { pocketMsg, pocket, topbarMsg, search, searchMsg, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
-    { title = title ++ " | Beardify "
+    { title = title ++ " ⋅ Beardify "
     , body =
         [ Notif.component
             { clear = clearNotification

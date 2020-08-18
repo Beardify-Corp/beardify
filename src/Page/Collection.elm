@@ -130,6 +130,7 @@ view context { playlist, trackList, dieFace } =
         playlistName : String
         playlistName =
             Maybe.withDefault "" (Maybe.map .name playlist)
+                |> String.replace "#Collection " ""
 
         playlistDescription : String
         playlistDescription =
@@ -170,7 +171,7 @@ view context { playlist, trackList, dieFace } =
                     [ div [ class "Collection Flex " ]
                         [ div [ class "CollectionHead InFront" ]
                             [ h1 [ class "Artist__name Heading first" ]
-                                [ text <| String.replace "#Collection " "" playlistName ]
+                                [ text playlistName ]
                             , div [ class "CollectionHead__owner" ]
                                 [ text playlistOwner.display_name
                                 , text " ⋅ "
