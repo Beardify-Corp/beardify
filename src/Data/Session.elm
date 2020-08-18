@@ -21,6 +21,9 @@ module Data.Session exposing
 
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization exposing (Authorization)
+import Data.Paging exposing (Paging)
+import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified)
+import Data.Pocket exposing (Pocket)
 import Data.User exposing (User)
 import Json.Decode as Decode exposing (Decoder)
 import Json.Encode as Encode
@@ -37,6 +40,8 @@ type alias Session =
     , notifications : List Notif
     , user : Maybe User
     , currentUrl : Url
+    , pocket : Pocket
+    , playlists : Paging PlaylistSimplified
     }
 
 
@@ -102,11 +107,6 @@ switchTheme ({ store } as session) =
             session.store.theme
     in
     { session | store = { store | theme = not currentTheme } }
-
-
-
--- session
--- Authorization
 
 
 updateState : String -> Session -> Session

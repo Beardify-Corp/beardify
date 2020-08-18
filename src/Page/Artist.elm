@@ -1,18 +1,21 @@
 module Page.Artist exposing (Model, Msg(..), init, update, view)
 
--- import Data.Youtube as Youtube
-
-import Data.Album as Album exposing (AlbumSimplified)
-import Data.Artist as Artist exposing (Artist)
+import Data.Album.Album exposing (Album)
+import Data.Album.AlbumSimplified exposing (AlbumSimplified)
+import Data.Album.AlbumType
+import Data.Artist.Artist exposing (Artist)
+import Data.Id exposing (Id, idToString)
 import Data.Image as Image
 import Data.Player exposing (..)
 import Data.Session exposing (Session)
-import Data.Track exposing (Track)
+import Data.Track.Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
+import List.Extra as LE
+import Request.Album
 import Request.Artist
 import Request.Player
 import Route
@@ -41,9 +44,11 @@ type Msg
     | PlayAlbum String
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
+    | GetAlbum Id
+    | AddToPocket (Result ( Session, Http.Error ) Album)
 
 
-init : Artist.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { artist = Nothing
       , albums = []
@@ -65,7 +70,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg model =
+update ({ pocket } as session) msg model =
     case msg of
         Follow artistId ->
             ( model, session, Request.Artist.follow session "PUT" artistId ResultFollow )
@@ -107,6 +112,19 @@ update session msg model =
 
         Played (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
+
+        GetAlbum albumId ->
+            ( model, session, Task.attempt AddToPocket (Request.Album.get session albumId) )
+
+        AddToPocket (Ok album) ->
+            let
+                firstTrackOfAlbum =
+                    album.tracks.items |> List.take 1 |> List.map .uri
+            in
+            ( model, { session | pocket = { pocket | albums = List.append firstTrackOfAlbum pocket.albums |> LE.unique } }, Cmd.none )
+
+        AddToPocket (Err _) ->
+            ( model, session, Cmd.none )
 
 
 relatedArtistsView : List Artist -> Html msg
@@ -154,7 +172,7 @@ albumsListView context albums listName =
         albumList =
             div []
                 [ h2 [ class "Heading second" ] [ text listName ]
-                , List.map (Views.Album.view { playAlbum = PlayAlbum } context False) albums
+                , List.map (Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context False) albums
                     |> div [ class "Artist__releaseList AlbumList" ]
                 ]
     in
@@ -178,7 +196,7 @@ view context ({ artist, followed } as model) =
         artistId =
             case Maybe.map .id artist of
                 Just id ->
-                    Artist.idToString id
+                    idToString id
 
                 Nothing ->
                     ""
@@ -224,8 +242,8 @@ view context ({ artist, followed } as model) =
                         [ topTrackViews context model.tracks
                         , relatedArtistsView model.relatedArtists
                         ]
-                    , albumsListView context (List.filter (\a -> a.type_ == Album.AlbumType) model.albums) "Albums"
-                    , albumsListView context (List.filter (\a -> a.type_ == Album.Single) model.singles) "Singles / EPs"
+                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.AlbumType.AlbumType) model.albums) "Albums"
+                    , albumsListView context (List.filter (\a -> a.type_ == Data.Album.AlbumType.Single) model.singles) "Singles / EPs"
                     ]
                 ]
             , div [ class "Artist__videos HelperScrollArea" ]

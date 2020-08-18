@@ -1,21 +1,22 @@
 module Data.Search exposing (Search, decodeSearch)
 
-import Data.Album exposing (AlbumList, decodeAlbumList)
-import Data.Artist exposing (ArtistList, decodeArtistList)
-import Data.Track exposing (TrackList, decodeTrackList)
+import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeAlbumSimplified)
+import Data.Artist.Artist exposing (Artist, decodeArtist)
+import Data.Paging exposing (Paging, decodePaging)
+import Data.Track.Track exposing (Track, decodeTrack)
 import Json.Decode as Decode
 
 
 type alias Search =
-    { albums : AlbumList
-    , artists : ArtistList
-    , tracks : TrackList
+    { albums : Paging AlbumSimplified
+    , artists : Paging Artist
+    , tracks : Paging Track
     }
 
 
 decodeSearch : Decode.Decoder Search
 decodeSearch =
     Decode.map3 Search
-        (Decode.field "albums" decodeAlbumList)
-        (Decode.field "artists" decodeArtistList)
-        (Decode.field "tracks" decodeTrackList)
+        (Decode.field "albums" (decodePaging decodeAlbumSimplified))
+        (Decode.field "artists" (decodePaging decodeArtist))
+        (Decode.field "tracks" (decodePaging decodeTrack))

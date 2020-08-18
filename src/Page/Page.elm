@@ -13,6 +13,7 @@ import Route
 import Views.Notif as Notif
 import Views.Player.Device as Device
 import Views.Player.Player as Player
+import Views.Pocket as Pocket
 import Views.Sidebar as Sidebar
 import Views.Topbar.Nav as Nav
 import Views.Topbar.Search as Search
@@ -31,12 +32,14 @@ type alias Config msg =
     , topbarMsg : Nav.Msg -> msg
     , search : Search.Model
     , searchMsg : Search.Msg -> msg
+    , pocket : Pocket.Model
+    , pocketMsg : Pocket.Msg -> msg
     }
 
 
 frame : Config msg -> ( String, List (Html msg) ) -> Document msg
-frame { topbarMsg, sidebar, search, searchMsg, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
-    { title = title ++ " | Beardify "
+frame { pocketMsg, pocket, topbarMsg, search, searchMsg, sidebarMsg, session, clearNotification, playerMsg, deviceMsg, player, devices } ( title, content ) =
+    { title = title ++ " ⋅ Beardify "
     , body =
         [ Notif.component
             { clear = clearNotification
@@ -57,7 +60,9 @@ frame { topbarMsg, sidebar, search, searchMsg, sidebarMsg, session, clearNotific
                         , HE.viewMaybe User.view session.user
                         ]
                     , div [ class "App__body" ]
-                        [ Sidebar.view sidebar session.currentUrl
+                        [ Pocket.view pocket session
+                            |> Html.map pocketMsg
+                        , Sidebar.view session
                             |> Html.map sidebarMsg
                         , div [ class "Content" ]
                             [ div [ class "Page HelperScrollArea" ] content

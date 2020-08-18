@@ -1,12 +1,12 @@
 module Page.Album exposing (Model, Msg(..), init, update, view)
 
--- import Data.Youtube as Youtube
-
-import Data.Album
-import Data.Artist as Artist
+import Data.Album.Album exposing (Album, defaultAlbum)
+import Data.Artist.ArtistSimplified exposing (ArtistSimplified)
+import Data.Id exposing (Id)
+import Data.Paging exposing (Paging)
 import Data.Player as Player exposing (..)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.TrackSimplified exposing (TrackSimplified)
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -17,25 +17,28 @@ import List.Extra as LE
 import Request.Album
 import Request.Player
 import Task
+import Views.Album
 import Views.Artist
 import Views.Cover as Cover
 
 
 type alias Model =
-    { album : Maybe Data.Album.Album
-    , trackList : Data.Track.AlbumTrackObject
+    { album : Maybe Album
+    , trackList : Paging TrackSimplified
     }
 
 
 type Msg
-    = InitAlbumInfos (Result ( Session, Http.Error ) Data.Album.Album)
-    | AddTracklist (Result ( Session, Http.Error ) Data.Track.AlbumTrackObject)
+    = InitAlbumInfos (Result ( Session, Http.Error ) Album)
+    | AddTracklist (Result ( Session, Http.Error ) (Paging TrackSimplified))
     | PlayAlbum String
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
+    | GetAlbum Id
+    | AddToPocket (Result ( Session, Http.Error ) Album)
 
 
-init : Data.Album.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { album = Nothing
       , trackList =
@@ -52,7 +55,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg ({ trackList } as model) =
+update ({ pocket } as session) msg ({ trackList } as model) =
     case msg of
         InitAlbumInfos (Ok albumInfos) ->
             ( { model | album = Just albumInfos }
@@ -103,6 +106,19 @@ update session msg ({ trackList } as model) =
         Played (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
+        GetAlbum albumId ->
+            ( model, session, Task.attempt AddToPocket (Request.Album.get session albumId) )
+
+        AddToPocket (Ok album) ->
+            let
+                firstTrackOfAlbum =
+                    album.tracks.items |> List.take 1 |> List.map .uri
+            in
+            ( model, { session | pocket = { pocket | albums = List.append firstTrackOfAlbum pocket.albums |> LE.unique } }, Cmd.none )
+
+        AddToPocket (Err _) ->
+            ( model, session, Cmd.none )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view context { album, trackList } =
@@ -122,7 +138,7 @@ view context { album, trackList } =
         albumReleaseDate =
             Maybe.withDefault "" (Maybe.map .releaseDate album)
 
-        artists : List Artist.ArtistSimplified
+        artists : List ArtistSimplified
         artists =
             Maybe.withDefault [] (Maybe.map .artists album)
 
@@ -142,6 +158,10 @@ view context { album, trackList } =
                 |> List.take 1
                 |> String.concat
 
+        albumObject : Album
+        albumObject =
+            Maybe.withDefault defaultAlbum album
+
         trackSumDuration =
             trackList.items
                 |> List.map (\t -> t.duration)
@@ -152,18 +172,23 @@ view context { album, trackList } =
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "AlbumPage__head" ]
-                        [ div [ class "Flex spaceBetween centeredVertical" ]
-                            [ h1 [ class "Artist__name Heading first" ] [ text albumName ]
+                        [ div []
+                            [ h1 [ class "AlbumPage__title Heading first" ] [ text albumName ]
                             , Cover.view albumCover Cover.Normal
                             ]
-                        , div [ class "InFront" ] (Views.Artist.view artists)
+                        , div [ class "InFront" ]
+                            [ span [] (Views.Artist.view artists)
+                            , span [] [ text " ⋅ " ]
+                            , span [] [ text <| Helper.releaseDateFormat albumReleaseDate ]
+                            , span [] [ text " ⋅ " ]
+                            , span [] [ text <| Helper.durationFormatMinutes trackSumDuration ]
+                            ]
                         ]
                     , div [ class "AlbumPage__body InFront" ]
-                        [ div []
-                            [ HE.viewIf (albumCover /= "") (img [ class "AlbumPage__cover", src albumCover, width 300, height 300 ] [])
-                            , div [] [ text <| Helper.releaseDateFormat albumReleaseDate ]
-                            , div [] [ text <| Helper.durationFormatMinutes trackSumDuration ]
-                            ]
+                        [ HE.viewIf (albumCover /= "")
+                            (div [ class "AlbumPage__cover" ]
+                                [ Views.Album.viewSolo { playAlbum = PlayAlbum, addToPocket = GetAlbum } context albumObject ]
+                            )
                         , div [ class "AlbumPage__tracklist" ]
                             (trackList.items
                                 |> List.map
@@ -174,16 +199,16 @@ view context { album, trackList } =
                                             , classList [ ( "active", isTrackPlaying == trackItem.uri ) ]
                                             ]
                                             [ div [ class "AlbumPageTrack__left" ]
-                                                [ div [ class "AlbumPageTrack__number" ] [ text <| String.fromInt trackItem.trackNumber ]
+                                                [ div [] [ text <| String.fromInt trackItem.trackNumber ]
                                                 , div [ class "AlbumPageTrack__name" ] [ text trackItem.name ]
-                                                , div [ class "AlbumPageTrack__feat" ]
+                                                , div []
                                                     (Views.Artist.view
                                                         (trackItem.artists
                                                             |> List.filter (\e -> e.name /= artistName)
                                                         )
                                                     )
+                                                , div [ class "AlbumPageTrack__duration" ] [ text <| Helper.durationFormat trackItem.duration ]
                                                 ]
-                                            , div [] [ text <| Data.Track.durationFormat trackItem.duration ]
                                             ]
                                     )
                             )

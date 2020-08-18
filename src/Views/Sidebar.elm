@@ -1,61 +1,52 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
-import Data.Playlist exposing (Playlist, PlaylistList)
+import Data.Id exposing (idToString)
+import Data.Paging exposing (Paging)
+import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified)
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Http
-import Request.Sidebar
+import Request.Playlist
 import Route
 import Task
 import Url exposing (Url)
 
 
 type alias Model =
-    { playlists : PlaylistList
-    }
+    {}
 
 
 type Msg
-    = Fetched (Result ( Session, Http.Error ) Model)
+    = Fetched (Result ( Session, Http.Error ) (Paging PlaylistSimplified))
 
 
 defaultModel : Model
 defaultModel =
-    { playlists =
-        { items = []
-        , next = ""
-        , total = 0
-        , offset = 0
-        , limit = 0
-        }
-    }
+    {}
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( defaultModel
-    , Task.map Model
-        (Request.Sidebar.get session 0)
-        |> Task.attempt Fetched
+    , Task.attempt Fetched (Request.Playlist.getAll session 0)
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg ({ playlists } as model) =
+update ({ playlists } as session) msg model =
     case msg of
         Fetched (Ok newModel) ->
-            if newModel.playlists.total > newModel.playlists.offset then
-                ( { playlists =
+            if newModel.total > newModel.offset then
+                ( model
+                , { session
+                    | playlists =
                         { playlists
-                            | items = List.append playlists.items newModel.playlists.items
-                            , offset = newModel.playlists.offset
+                            | items = List.append playlists.items newModel.items
+                            , offset = newModel.offset
                         }
                   }
-                , session
-                , Task.map Model
-                    (Request.Sidebar.get session (newModel.playlists.offset + 50))
-                    |> Task.attempt Fetched
+                , Task.attempt Fetched (Request.Playlist.getAll session (newModel.offset + 50))
                 )
 
             else
@@ -70,25 +61,38 @@ type PlaylistType
     | Collection
 
 
-playlistItem : Url -> PlaylistList -> PlaylistType -> Html msg
+collectionView : Url -> PlaylistSimplified -> Html msg
+collectionView currentUrl item =
+    li
+        [ class "List__item"
+        , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/collection/" ++ idToString item.id ) ]
+        ]
+        [ i [ class "List__icon icon-collection" ] []
+        , a [ class "List__link", Route.href (Route.Collection item.id) ] [ text <| String.replace "#Collection " "" item.name ]
+        ]
+
+
+playlistView : Url -> PlaylistSimplified -> Html msg
+playlistView currentUrl item =
+    li
+        [ class "List__item"
+        , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/playlist/" ++ idToString item.id ) ]
+        ]
+        [ i [ class "List__icon icon-playlist" ] []
+        , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text item.name ]
+        ]
+
+
+playlistItem : Url -> Paging PlaylistSimplified -> PlaylistType -> Html msg
 playlistItem currentUrl playlistList playlistType =
     if playlistType == Collection then
         div [ class "Sidebar__item" ]
-            [ h2 [ class "Sidebar__title Heading" ] [ text "Collection" ]
+            [ h2 [ class "Sidebar__title Heading" ] [ text "Collections" ]
             , div [ class "Sidebar__collections HelperScrollArea" ]
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     (playlistList.items
                         |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
-                        |> List.map
-                            (\item ->
-                                li
-                                    [ class "List__item"
-                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/collection/" ++ Data.Playlist.idToString item.id ) ]
-                                    ]
-                                    [ i [ class "List__icon icon-collection" ] []
-                                    , a [ class "List__link", Route.href (Route.Collection item.id) ] [ text <| String.replace "#Collection " "" item.name ]
-                                    ]
-                            )
+                        |> List.map (collectionView currentUrl)
                     )
                 ]
             ]
@@ -100,23 +104,14 @@ playlistItem currentUrl playlistList playlistType =
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     (playlistList.items
                         |> List.filter (\playlist -> not (String.startsWith "#Collection" playlist.name))
-                        |> List.map
-                            (\item ->
-                                li
-                                    [ class "List__item"
-                                    , classList [ ( "active", Maybe.withDefault "" currentUrl.fragment == "/playlist/" ++ Data.Playlist.idToString item.id ) ]
-                                    ]
-                                    [ i [ class "List__icon icon-playlist" ] []
-                                    , a [ class "List__link", Route.href (Route.Playlist item.id) ] [ text item.name ]
-                                    ]
-                            )
+                        |> List.map (playlistView currentUrl)
                     )
                 ]
             ]
 
 
-view : Model -> Url -> Html Msg
-view { playlists } currentUrl =
+view : Session -> Html Msg
+view { playlists, currentUrl } =
     div [ class "Sidebar" ]
         [ playlistItem currentUrl playlists Collection
         , playlistItem currentUrl playlists List

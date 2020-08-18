@@ -1,15 +1,20 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
+import Data.Album.Album exposing (Album)
+import Data.Id exposing (Id)
+import Data.Paging exposing (Paging, defaultPaging)
 import Data.Player exposing (..)
-import Data.Playlist exposing (..)
+import Data.Playlist.Playlist exposing (Playlist)
+import Data.Playlist.PlaylistOwner exposing (PlaylistOwner)
 import Data.Session exposing (Session)
-import Data.Track exposing (..)
+import Data.Track.TrackItem exposing (TrackItem)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
 import List.Extra as LE
 import Random
+import Request.Album
 import Request.Player
 import Request.Playlist
 import String
@@ -19,30 +24,27 @@ import Views.Cover as Cover
 
 
 type alias Model =
-    { playlist : Maybe Data.Playlist.Playlist
-    , trackList : Data.Track.PlaylistTrackObject
+    { playlist : Maybe Playlist
+    , trackList : Paging TrackItem
     , dieFace : Int
     }
 
 
 type Msg
-    = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
-    | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
+    = AddTracklist (Result ( Session, Http.Error ) (Paging TrackItem))
+    | InitPlaylistInfos (Result ( Session, Http.Error ) Playlist)
     | Played (Result ( Session, Http.Error ) ())
     | PlayAlbum String
     | NewFace Int
+    | NoOp Id
+    | GetAlbum Id
+    | AddToPocket (Result ( Session, Http.Error ) Album)
 
 
-init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
-      , trackList =
-            { items = []
-            , limit = 0
-            , next = ""
-            , offset = 0
-            , total = 0
-            }
+      , trackList = defaultPaging
       , dieFace = 0
       }
     , session
@@ -51,7 +53,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg ({ trackList } as model) =
+update ({ pocket } as session) msg ({ trackList } as model) =
     case msg of
         InitPlaylistInfos (Ok playlistInfo) ->
             ( { model | playlist = Just playlistInfo }
@@ -105,6 +107,22 @@ update session msg ({ trackList } as model) =
             , Cmd.none
             )
 
+        NoOp _ ->
+            ( model, session, Cmd.none )
+
+        GetAlbum albumId ->
+            ( model, session, Task.attempt AddToPocket (Request.Album.get session albumId) )
+
+        AddToPocket (Ok album) ->
+            let
+                firstTrackOfAlbum =
+                    album.tracks.items |> List.take 1 |> List.map .uri
+            in
+            ( model, { session | pocket = { pocket | albums = List.append firstTrackOfAlbum pocket.albums |> LE.unique } }, Cmd.none )
+
+        AddToPocket (Err _) ->
+            ( model, session, Cmd.none )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view context { playlist, trackList, dieFace } =
@@ -112,12 +130,13 @@ view context { playlist, trackList, dieFace } =
         playlistName : String
         playlistName =
             Maybe.withDefault "" (Maybe.map .name playlist)
+                |> String.replace "#Collection " ""
 
         playlistDescription : String
         playlistDescription =
             Maybe.withDefault "" (Maybe.map .description playlist)
 
-        playlistOwner : Data.Playlist.PlaylistOwner
+        playlistOwner : PlaylistOwner
         playlistOwner =
             Maybe.withDefault
                 { display_name = ""
@@ -127,7 +146,7 @@ view context { playlist, trackList, dieFace } =
                 }
                 (Maybe.map .owner playlist)
 
-        tracks : List Data.Track.TrackItem
+        tracks : List TrackItem
         tracks =
             trackList.items
                 |> LE.uniqueBy (\e -> e.track.album.name)
@@ -152,10 +171,10 @@ view context { playlist, trackList, dieFace } =
                     [ div [ class "Collection Flex " ]
                         [ div [ class "CollectionHead InFront" ]
                             [ h1 [ class "Artist__name Heading first" ]
-                                [ text <| String.replace "#Collection " "" playlistName ]
+                                [ text playlistName ]
                             , div [ class "CollectionHead__owner" ]
                                 [ text playlistOwner.display_name
-                                , text " - "
+                                , text " ⋅ "
                                 , text albumLength
                                 , text " albums"
                                 ]
@@ -168,7 +187,7 @@ view context { playlist, trackList, dieFace } =
                             (tracks
                                 |> List.map
                                     (\a ->
-                                        Views.Album.view { playAlbum = PlayAlbum } context True a.track.album
+                                        Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context True a.track.album
                                     )
                             )
                         ]

@@ -1,10 +1,13 @@
 module Page.Playlist exposing (Model, Msg(..), init, update, view)
 
-import Data.Album
+import Data.Album.AlbumType
+import Data.Id exposing (Id)
+import Data.Paging exposing (Paging, defaultPaging)
 import Data.Player as Player exposing (..)
-import Data.Playlist exposing (..)
+import Data.Playlist.Playlist exposing (Playlist)
+import Data.Playlist.PlaylistOwner exposing (PlaylistOwner)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.TrackItem exposing (TrackItem)
 import Helper
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -22,28 +25,22 @@ import Views.Cover as Cover
 
 
 type alias Model =
-    { playlist : Maybe Data.Playlist.Playlist
-    , trackList : Data.Track.PlaylistTrackObject
+    { playlist : Maybe Playlist
+    , trackList : Paging TrackItem
     }
 
 
 type Msg
-    = AddTracklist (Result ( Session, Http.Error ) Data.Track.PlaylistTrackObject)
-    | InitPlaylistInfos (Result ( Session, Http.Error ) Data.Playlist.Playlist)
+    = AddTracklist (Result ( Session, Http.Error ) (Paging TrackItem))
+    | InitPlaylistInfos (Result ( Session, Http.Error ) Playlist)
     | PlayTracks (List String)
     | Played (Result ( Session, Http.Error ) ())
 
 
-init : Data.Playlist.Id -> Session -> ( Model, Session, Cmd Msg )
+init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
-      , trackList =
-            { items = []
-            , limit = 0
-            , next = ""
-            , offset = 0
-            , total = 0
-            }
+      , trackList = defaultPaging
       }
     , session
     , Task.attempt InitPlaylistInfos (Request.Playlist.get session id)
@@ -111,7 +108,7 @@ view context { playlist, trackList } =
         playlistDescription =
             Maybe.withDefault "" (Maybe.map .description playlist)
 
-        playlistOwner : Data.Playlist.PlaylistOwner
+        playlistOwner : PlaylistOwner
         playlistOwner =
             Maybe.withDefault
                 { display_name = ""
@@ -128,7 +125,7 @@ view context { playlist, trackList } =
                 |> List.map (\e -> e.url)
                 |> String.concat
 
-        tracks : List Data.Track.TrackItem
+        tracks : List TrackItem
         tracks =
             trackList.items
 
@@ -141,19 +138,19 @@ view context { playlist, trackList } =
             List.map (\e -> e.track.uri) trackList.items
                 |> LE.dropWhile (\t -> t /= trackUri)
 
-        setIcon : Data.Album.Type -> Html msg
+        setIcon : Data.Album.AlbumType.Type -> Html msg
         setIcon albumType =
             case albumType of
-                Data.Album.AlbumType ->
+                Data.Album.AlbumType.AlbumType ->
                     i [ class "PlaylistTracks__icon PlaylistTracks__icon--primary icon-discogs" ] []
 
-                Data.Album.Single ->
+                Data.Album.AlbumType.Single ->
                     i [ class "PlaylistTracks__icon PlaylistTracks__icon--secondary icon-pizza" ] []
 
                 _ ->
                     i [ class "PlaylistTracks__icon icon-discogs" ] []
 
-        trackView : Data.Track.TrackItem -> Html Msg
+        trackView : TrackItem -> Html Msg
         trackView trackItem =
             div [ class "Playlist__content InFront" ]
                 [ div
@@ -166,9 +163,8 @@ view context { playlist, trackList } =
                         , a [ class "PlaylistTracks__album", Route.href (Route.Album trackItem.track.album.id) ] [ setIcon trackItem.track.album.type_, text trackItem.track.album.name ]
                         ]
                     , div [ class "PlaylistTracks__item" ] (Views.Artist.view trackItem.track.artists)
-                    , div [ class "PlaylistTracks__item" ] [ text <| trackItem.addedBy.id ]
                     , div [ class "PlaylistTracks__item" ] [ text <| Helper.convertDate trackItem.addedAt ]
-                    , div [ class "PlaylistTracks__item" ] [ text <| Data.Track.durationFormat trackItem.track.duration ]
+                    , div [ class "PlaylistTracks__item duration" ] [ text <| Helper.durationFormat trackItem.track.duration ]
                     ]
                 ]
     in

@@ -1,37 +1,68 @@
 module Request.Playlist exposing
-    ( get
+    ( addAlbum
+    , get
+    , getAll
     , getTracks
     )
 
-import Data.Playlist exposing (..)
+import Data.Id exposing (Id, idToString)
+import Data.Paging exposing (Paging, decodePaging)
+import Data.Playlist.Playlist exposing (Playlist, decodePlaylist)
+import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified, decodePlaylistSimplified)
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.TrackItem exposing (TrackItem, decodeTrackItem)
 import Http
 import Request.Api as Api
 import Task exposing (Task)
 
 
-get : Session -> Data.Playlist.Id -> Task ( Session, Http.Error ) Data.Playlist.Playlist
-get session id =
+getAll : Session -> Int -> Task ( Session, Http.Error ) (Paging PlaylistSimplified)
+getAll session offset =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "playlists/" ++ Data.Playlist.idToString id ++ "?fields=description,uri,id,images,name,uri,owner"
+        , url = Api.url ++ "me/playlists" ++ "?offset=" ++ String.fromInt offset ++ "&limit=50"
         , body = Http.emptyBody
-        , resolver = Data.Playlist.decodePlaylist |> Api.jsonResolver
+        , resolver = decodePaging decodePlaylistSimplified |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
 
 
-getTracks : Session -> Data.Playlist.Id -> Int -> Task ( Session, Http.Error ) Data.Track.PlaylistTrackObject
+get : Session -> Id -> Task ( Session, Http.Error ) Playlist
+get session id =
+    Http.task
+        { method = "GET"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "playlists/" ++ idToString id ++ "?fields=description,uri,id,images,name,uri,owner"
+        , body = Http.emptyBody
+        , resolver = decodePlaylist |> Api.jsonResolver
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+getTracks : Session -> Id -> Int -> Task ( Session, Http.Error ) (Paging TrackItem)
 getTracks session id offset =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "playlists/" ++ Data.Playlist.idToString id ++ "/tracks?&offset=" ++ String.fromInt offset ++ "&limit=100"
+        , url = Api.url ++ "playlists/" ++ idToString id ++ "/tracks?&offset=" ++ String.fromInt offset ++ "&limit=100"
         , body = Http.emptyBody
-        , resolver = Data.Track.decodePlaylistTrackObject |> Api.jsonResolver
+        , resolver = decodePaging decodeTrackItem |> Api.jsonResolver
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+addAlbum : Session -> String -> List String -> Task ( Session, Http.Error ) ()
+addAlbum session playlistId uris =
+    Http.task
+        { method = "POST"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "playlists/" ++ playlistId ++ "/tracks?uris=" ++ String.join "," uris
+        , body = Http.emptyBody
+        , resolver = Api.valueResolver ()
         , timeout = Nothing
         }
         |> Api.mapError session

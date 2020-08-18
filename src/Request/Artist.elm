@@ -4,17 +4,14 @@ module Request.Artist exposing
     , getFollowedArtist
     , getItems
     , getRelatedArtists
-    ,  getTopTrack
-       -- , getVideos
-
+    , getTopTrack
     )
 
--- import Data.Youtube as Youtube
-
-import Data.Album as Album exposing (AlbumSimplified)
-import Data.Artist as Artist exposing (Artist)
+import Data.Album.AlbumSimplified exposing (AlbumSimplified, decodeAlbumSimplified)
+import Data.Artist.Artist exposing (Artist, decodeArtist, isFollowing)
+import Data.Id exposing (Id, idToString)
 import Data.Session exposing (Session)
-import Data.Track as Track exposing (Track)
+import Data.Track.Track exposing (Track, decodeTrack)
 import Data.User as User
 import Http
 import Json.Decode as Decode
@@ -22,20 +19,20 @@ import Request.Api as Api
 import Task exposing (Task)
 
 
-get : Session -> Artist.Id -> Task ( Session, Http.Error ) Artist
+get : Session -> Id -> Task ( Session, Http.Error ) Artist
 get session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "artists/" ++ Artist.idToString id
+        , url = Api.url ++ "artists/" ++ idToString id
         , body = Http.emptyBody
-        , resolver = Artist.decode |> Api.jsonResolver
+        , resolver = decodeArtist |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
 
 
-getTopTrack : Session -> Artist.Id -> Task ( Session, Http.Error ) (List Track)
+getTopTrack : Session -> Id -> Task ( Session, Http.Error ) (List Track)
 getTopTrack session id =
     let
         country =
@@ -45,15 +42,15 @@ getTopTrack session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/top-tracks?country=" ++ country
+        , url = Api.url ++ "artists/" ++ idToString id ++ "/top-tracks?country=" ++ country
         , body = Http.emptyBody
-        , resolver = Decode.at [ "tracks" ] (Decode.list Track.decodeTrack) |> Api.jsonResolver
+        , resolver = Decode.at [ "tracks" ] (Decode.list decodeTrack) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
 
 
-getItems : String -> Session -> Artist.Id -> Task ( Session, Http.Error ) (List AlbumSimplified)
+getItems : String -> Session -> Id -> Task ( Session, Http.Error ) (List AlbumSimplified)
 getItems group session id =
     let
         country =
@@ -63,35 +60,35 @@ getItems group session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/albums" ++ "?country=" ++ country ++ "&limit=50&include_groups=" ++ group
+        , url = Api.url ++ "artists/" ++ idToString id ++ "/albums" ++ "?country=" ++ country ++ "&limit=50&include_groups=" ++ group
         , body = Http.emptyBody
-        , resolver = Decode.at [ "items" ] (Decode.list Album.decodeSimplified) |> Api.jsonResolver
+        , resolver = Decode.at [ "items" ] (Decode.list decodeAlbumSimplified) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
 
 
-getRelatedArtists : Session -> Artist.Id -> Task ( Session, Http.Error ) (List Artist)
+getRelatedArtists : Session -> Id -> Task ( Session, Http.Error ) (List Artist)
 getRelatedArtists session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "artists/" ++ Artist.idToString id ++ "/related-artists"
+        , url = Api.url ++ "artists/" ++ idToString id ++ "/related-artists"
         , body = Http.emptyBody
-        , resolver = Decode.at [ "artists" ] (Decode.list Artist.decode) |> Api.jsonResolver
+        , resolver = Decode.at [ "artists" ] (Decode.list decodeArtist) |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
 
 
-getFollowedArtist : Session -> Artist.Id -> Task ( Session, Http.Error ) (List Bool)
+getFollowedArtist : Session -> Id -> Task ( Session, Http.Error ) (List Bool)
 getFollowedArtist session id =
     Http.task
         { method = "GET"
         , headers = [ Api.authHeader session ]
-        , url = Api.url ++ "me/following/contains?type=artist&ids=" ++ Artist.idToString id
+        , url = Api.url ++ "me/following/contains?type=artist&ids=" ++ idToString id
         , body = Http.emptyBody
-        , resolver = Artist.isFollowing |> Api.jsonResolver
+        , resolver = isFollowing |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
@@ -108,17 +105,3 @@ follow session method id msg =
         , timeout = Nothing
         , tracker = Nothing
         }
-
-
-
--- getVideos : Session -> String -> Task ( Session, Http.Error ) (List Youtube.Video)
--- getVideos session query =
---     Http.task
---         { method = "GET"
---         , headers = [ Http.header "Authorization" "Bearer " ]
---         , url = "https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=surfing&key="
---         , body = Http.emptyBody
---         , resolver = Youtube.decodeYoutube |> Api.jsonResolver
---         , timeout = Nothing
---         }
---         |> Api.mapError session

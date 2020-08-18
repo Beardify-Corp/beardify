@@ -4,7 +4,9 @@ import Browser exposing (Document)
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization
 import Data.Device exposing (Device)
+import Data.Paging exposing (defaultPaging)
 import Data.Player as PlayerData exposing (PlayerContext)
+import Data.Pocket exposing (defaultPocket)
 import Data.Session as Session exposing (Notif, Session)
 import Data.User exposing (User)
 import Html exposing (..)
@@ -24,6 +26,7 @@ import Time exposing (Posix)
 import Url exposing (Url)
 import Views.Player.Device as Device
 import Views.Player.Player as Player
+import Views.Pocket as Pocket
 import Views.Sidebar as Sidebar
 import Views.Topbar.Nav as Topbar
 import Views.Topbar.Search as Search
@@ -57,6 +60,7 @@ type alias Model =
     , sidebar : Sidebar.Model
     , topbar : Topbar.Model
     , search : Search.Model
+    , pocket : Pocket.Model
     }
 
 
@@ -70,6 +74,7 @@ type Msg
     | HomeMsg Home.Msg
     | LoginMsg Login.Msg
     | SidebarMsg Sidebar.Msg
+    | PocketMsg Pocket.Msg
     | TopbarMsg Topbar.Msg
     | SearchMsg Search.Msg
     | PlayerMsg Player.Msg
@@ -187,6 +192,8 @@ init flags url navKey =
             , user = Nothing
             , store = Session.deserializeStore flags.rawStore
             , currentUrl = url
+            , pocket = defaultPocket
+            , playlists = defaultPaging
             }
 
         model =
@@ -197,6 +204,7 @@ init flags url navKey =
             , sidebar = Sidebar.defaultModel
             , topbar = Topbar.defaultModel
             , search = Search.defaultModel
+            , pocket = Pocket.defaultModel
             }
     in
     case ( url.fragment, url.query ) of
@@ -405,6 +413,18 @@ update msg ({ page, session } as model) =
             , Cmd.batch [ Cmd.map SearchMsg componentCmd ]
             )
 
+        ( PocketMsg componentMsg, _ ) ->
+            let
+                ( componentModel, newSession, componentCmd ) =
+                    Pocket.update session componentMsg model.pocket
+            in
+            ( { model
+                | session = newSession
+                , pocket = componentModel
+              }
+            , Cmd.batch [ Cmd.map PocketMsg componentCmd ]
+            )
+
         -- Store
         ( StoreChanged json, _ ) ->
             ( { model | session = { session | store = Session.deserializeStore json } }
@@ -434,6 +454,7 @@ update msg ({ page, session } as model) =
                         , sidebar = Sidebar.defaultModel
                         , topbar = Topbar.defaultModel
                         , search = Search.defaultModel
+                        , pocket = Pocket.defaultModel
                         }
                         |> initComponent
 
@@ -489,7 +510,7 @@ subscriptions model =
 
 
 view : Model -> Document Msg
-view { sidebar, page, session, player, devices, search } =
+view { sidebar, page, session, player, devices, search, pocket } =
     let
         frame =
             Page.frame
@@ -504,6 +525,8 @@ view { sidebar, page, session, player, devices, search } =
                 , topbarMsg = TopbarMsg
                 , search = search
                 , searchMsg = SearchMsg
+                , pocket = pocket
+                , pocketMsg = PocketMsg
                 }
 
         mapMsg msg ( title, content ) =

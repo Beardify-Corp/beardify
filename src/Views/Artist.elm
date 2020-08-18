@@ -1,6 +1,6 @@
 module Views.Artist exposing (view)
 
-import Data.Artist exposing (ArtistSimplified)
+import Data.Artist.ArtistSimplified exposing (ArtistSimplified)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)

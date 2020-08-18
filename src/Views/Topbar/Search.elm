@@ -1,11 +1,11 @@
 module Views.Topbar.Search exposing (Model, Msg(..), defaultModel, init, update, view)
 
-import Data.Album
-import Data.Artist
+import Data.Album.AlbumSimplified exposing (AlbumSimplified)
+import Data.Artist.Artist exposing (Artist)
 import Data.Image as Image
 import Data.Search
 import Data.Session exposing (Session)
-import Data.Track
+import Data.Track.Track exposing (Track)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
@@ -20,9 +20,9 @@ import Views.Artist
 
 type alias Model =
     { searchQuery : String
-    , artists : List Data.Artist.Artist
-    , albums : List Data.Album.AlbumSimplified
-    , tracks : List Data.Track.Track
+    , artists : List Artist
+    , albums : List AlbumSimplified
+    , tracks : List Track
     }
 
 
