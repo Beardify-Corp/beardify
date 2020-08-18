@@ -15,24 +15,45 @@
   animation: bounce .2s ease 0s forwards alternate;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, .3);
   position: absolute;
-  right: 40px;
-  top: 20px;
+  right: 71px;
+  top: -47px;
   z-index: 999;
 
   &__head {
-    background-color: Color.$primary;
+    background-color: Color.$secondary;
     border-radius: $radius;
-    display: flex;
+    display: grid;
     font-weight: bold;
+    gap: 50px;
+    grid-template-columns: 1fr auto;
     justify-content: space-between;
-    padding: 7px 15px;
+    padding: 7px 8px 7px 12px;
+  }
+
+  &__close {
+    background-color: transparent;
+    border: 0;
+    border-radius: 3px;
+    color: rgba(255, 255, 255, .7);
+    cursor: pointer;
+    padding: 3px 5px 0;
+
+    &:hover {
+      background-color: rgba(black, .2);
+    }
   }
 
   &Playlists {
     background-color: Color.$backgroundLight;
     border-radius: 0 0 $radius $radius;
+    font-weight: bold;
     max-height: 0;
     overflow: auto;
+
+    &__addTo {
+      font-weight: bold;
+      padding: 10px 20px;
+    }
 
     &__item {
       cursor: pointer;
@@ -48,6 +69,7 @@
     .Pocket__head {
       border-radius: $radius $radius 0 0;
     }
+
     .PocketPlaylists {
       max-height: 400px;
     }

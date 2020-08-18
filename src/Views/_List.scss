@@ -7,7 +7,6 @@
   &.unstyled {
     list-style: none;
     margin: 0;
-    // padding: 0;
   }
 
   &__collaborativeIcon {
@@ -26,6 +25,7 @@
     color: Color.$font;
     cursor: pointer;
     flex: 1;
+    font-weight: bold;
     padding: 3px;
     text-decoration: none;
 

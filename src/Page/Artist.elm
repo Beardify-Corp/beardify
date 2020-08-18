@@ -14,6 +14,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
+import List.Extra as LE
 import Request.Album
 import Request.Artist
 import Request.Player
@@ -120,7 +121,7 @@ update ({ pocket } as session) msg model =
                 firstTrackOfAlbum =
                     album.tracks.items |> List.take 1 |> List.map .uri
             in
-            ( model, { session | pocket = { pocket | albums = List.append firstTrackOfAlbum pocket.albums } }, Cmd.none )
+            ( model, { session | pocket = { pocket | albums = List.append firstTrackOfAlbum pocket.albums |> LE.unique } }, Cmd.none )
 
         AddToPocket (Err _) ->
             ( model, session, Cmd.none )

@@ -32,7 +32,7 @@
     border-radius: 5px;
     cursor: pointer;
     display: grid;
-    grid-template-columns: 2fr 1fr 100px auto auto;
+    grid-template-columns: 2fr 1fr auto 60px;
 
     &:hover {
       background-color: rgba(black, .2);
@@ -69,6 +69,10 @@
 
     &__item {
       padding: 5px 10px;
+
+      &.duration {
+        text-align: right;
+      }
     }
 
     &__name {

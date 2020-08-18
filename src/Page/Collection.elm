@@ -1,7 +1,8 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
+import Data.Album.Album exposing (Album)
 import Data.Id exposing (Id)
-import Data.Paging exposing (Paging)
+import Data.Paging exposing (Paging, defaultPaging)
 import Data.Player exposing (..)
 import Data.Playlist.Playlist exposing (Playlist)
 import Data.Playlist.PlaylistOwner exposing (PlaylistOwner)
@@ -13,6 +14,7 @@ import Html.Events exposing (..)
 import Http
 import List.Extra as LE
 import Random
+import Request.Album
 import Request.Player
 import Request.Playlist
 import String
@@ -35,18 +37,14 @@ type Msg
     | PlayAlbum String
     | NewFace Int
     | NoOp Id
+    | GetAlbum Id
+    | AddToPocket (Result ( Session, Http.Error ) Album)
 
 
 init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
-      , trackList =
-            { items = []
-            , limit = 0
-            , next = ""
-            , offset = 0
-            , total = 0
-            }
+      , trackList = defaultPaging
       , dieFace = 0
       }
     , session
@@ -55,7 +53,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg ({ trackList } as model) =
+update ({ pocket } as session) msg ({ trackList } as model) =
     case msg of
         InitPlaylistInfos (Ok playlistInfo) ->
             ( { model | playlist = Just playlistInfo }
@@ -112,6 +110,19 @@ update session msg ({ trackList } as model) =
         NoOp _ ->
             ( model, session, Cmd.none )
 
+        GetAlbum albumId ->
+            ( model, session, Task.attempt AddToPocket (Request.Album.get session albumId) )
+
+        AddToPocket (Ok album) ->
+            let
+                firstTrackOfAlbum =
+                    album.tracks.items |> List.take 1 |> List.map .uri
+            in
+            ( model, { session | pocket = { pocket | albums = List.append firstTrackOfAlbum pocket.albums |> LE.unique } }, Cmd.none )
+
+        AddToPocket (Err _) ->
+            ( model, session, Cmd.none )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view context { playlist, trackList, dieFace } =
@@ -162,7 +173,7 @@ view context { playlist, trackList, dieFace } =
                                 [ text <| String.replace "#Collection " "" playlistName ]
                             , div [ class "CollectionHead__owner" ]
                                 [ text playlistOwner.display_name
-                                , text " - "
+                                , text " ⋅ "
                                 , text albumLength
                                 , text " albums"
                                 ]
@@ -175,7 +186,7 @@ view context { playlist, trackList, dieFace } =
                             (tracks
                                 |> List.map
                                     (\a ->
-                                        Views.Album.view { playAlbum = PlayAlbum, addToPocket = NoOp } context True a.track.album
+                                        Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context True a.track.album
                                     )
                             )
                         ]

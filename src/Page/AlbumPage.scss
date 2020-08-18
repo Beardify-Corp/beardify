@@ -5,6 +5,11 @@
   &__head {
     margin: 0 auto;
     max-width: 1000px;
+    text-align: center;
+  }
+
+  &__title {
+    margin-bottom: 0;
   }
 
   &__body {
@@ -40,21 +45,20 @@
       background-color: rgba(Color.$primary, .2);
     }
 
-    &__feat {
-      margin-left: 10px;
-    }
-
     &__name {
       color: white;
       font-weight: bold;
     }
 
-    &__left {
-      display: flex;
+    &__duration {
+      text-align: right;
     }
 
-    &__number {
-      width: 40px;
+    &__left {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 25px 1fr 1fr 50px;
+      width: 100%;
     }
   }
 }

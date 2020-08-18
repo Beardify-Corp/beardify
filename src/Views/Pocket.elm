@@ -9,6 +9,7 @@ import Html.Events exposing (..)
 import Html.Extra as HE
 import Http
 import Request.Playlist
+import String.Extra as SE
 import Task
 
 
@@ -59,16 +60,19 @@ view _ session =
     HE.viewIf (List.length session.pocket.albums > 0)
         (div [ class "Pocket" ]
             [ div [ class "Pocket__head" ]
-                [ div [] [ text <| String.fromInt (List.length session.pocket.albums) ++ " Album(s) in pocket" ]
-                , button [ onClick Reset ] [ text "X" ]
+                [ div [] [ text <| SE.pluralize "album" "albums" (List.length session.pocket.albums) ++ " in pocket" ]
+                , button [ onClick Reset, class "Pocket__close" ] [ i [ class "icon-close" ] [] ]
                 ]
             , div [ class "PocketPlaylists" ]
-                (session.playlists.items
-                    |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
-                    |> List.map
-                        (\playlist ->
-                            div [ onClick <| Add (idToString playlist.id), class "PocketPlaylists__item" ] [ text playlist.name ]
-                        )
-                )
+                [ div [ class "PocketPlaylists__addTo" ] [ text "Add to :" ]
+                , div []
+                    (session.playlists.items
+                        |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
+                        |> List.map
+                            (\playlist ->
+                                div [ onClick <| Add (idToString playlist.id), class "PocketPlaylists__item" ] [ i [ class "List__icon icon-collection" ] [], text <| String.replace "#Collection " "" playlist.name ]
+                            )
+                    )
+                ]
             ]
         )

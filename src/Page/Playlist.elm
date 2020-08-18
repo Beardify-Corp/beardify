@@ -2,7 +2,7 @@ module Page.Playlist exposing (Model, Msg(..), init, update, view)
 
 import Data.Album.AlbumType
 import Data.Id exposing (Id)
-import Data.Paging exposing (Paging)
+import Data.Paging exposing (Paging, defaultPaging)
 import Data.Player as Player exposing (..)
 import Data.Playlist.Playlist exposing (Playlist)
 import Data.Playlist.PlaylistOwner exposing (PlaylistOwner)
@@ -40,13 +40,7 @@ type Msg
 init : Id -> Session -> ( Model, Session, Cmd Msg )
 init id session =
     ( { playlist = Nothing
-      , trackList =
-            { items = []
-            , limit = 0
-            , next = ""
-            , offset = 0
-            , total = 0
-            }
+      , trackList = defaultPaging
       }
     , session
     , Task.attempt InitPlaylistInfos (Request.Playlist.get session id)
@@ -169,9 +163,8 @@ view context { playlist, trackList } =
                         , a [ class "PlaylistTracks__album", Route.href (Route.Album trackItem.track.album.id) ] [ setIcon trackItem.track.album.type_, text trackItem.track.album.name ]
                         ]
                     , div [ class "PlaylistTracks__item" ] (Views.Artist.view trackItem.track.artists)
-                    , div [ class "PlaylistTracks__item" ] [ text <| trackItem.addedBy.id ]
                     , div [ class "PlaylistTracks__item" ] [ text <| Helper.convertDate trackItem.addedAt ]
-                    , div [ class "PlaylistTracks__item" ] [ text <| Helper.durationFormat trackItem.track.duration ]
+                    , div [ class "PlaylistTracks__item duration" ] [ text <| Helper.durationFormat trackItem.track.duration ]
                     ]
                 ]
     in

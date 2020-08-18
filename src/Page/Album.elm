@@ -152,18 +152,20 @@ view context { album, trackList } =
             [ div [ class "Flex__full HelperScrollArea" ]
                 [ div [ class "Artist__body HelperScrollArea__target" ]
                     [ div [ class "AlbumPage__head" ]
-                        [ div [ class "Flex spaceBetween centeredVertical" ]
-                            [ h1 [ class "Artist__name Heading first" ] [ text albumName ]
+                        [ div []
+                            [ h1 [ class "AlbumPage__title Heading first" ] [ text albumName ]
                             , Cover.view albumCover Cover.Normal
                             ]
-                        , div [ class "InFront" ] (Views.Artist.view artists)
+                        , div [ class "InFront" ]
+                            [ span [] (Views.Artist.view artists)
+                            , span [] [ text " ⋅ " ]
+                            , span [] [ text <| Helper.releaseDateFormat albumReleaseDate ]
+                            , span [] [ text " ⋅ " ]
+                            , span [] [ text <| Helper.durationFormatMinutes trackSumDuration ]
+                            ]
                         ]
                     , div [ class "AlbumPage__body InFront" ]
-                        [ div []
-                            [ HE.viewIf (albumCover /= "") (img [ class "AlbumPage__cover", src albumCover, width 300, height 300 ] [])
-                            , div [] [ text <| Helper.releaseDateFormat albumReleaseDate ]
-                            , div [] [ text <| Helper.durationFormatMinutes trackSumDuration ]
-                            ]
+                        [ HE.viewIf (albumCover /= "") (img [ class "AlbumPage__cover", src albumCover, width 300, height 300 ] [])
                         , div [ class "AlbumPage__tracklist" ]
                             (trackList.items
                                 |> List.map
@@ -174,16 +176,16 @@ view context { album, trackList } =
                                             , classList [ ( "active", isTrackPlaying == trackItem.uri ) ]
                                             ]
                                             [ div [ class "AlbumPageTrack__left" ]
-                                                [ div [ class "AlbumPageTrack__number" ] [ text <| String.fromInt trackItem.trackNumber ]
+                                                [ div [] [ text <| String.fromInt trackItem.trackNumber ]
                                                 , div [ class "AlbumPageTrack__name" ] [ text trackItem.name ]
-                                                , div [ class "AlbumPageTrack__feat" ]
+                                                , div []
                                                     (Views.Artist.view
                                                         (trackItem.artists
                                                             |> List.filter (\e -> e.name /= artistName)
                                                         )
                                                     )
+                                                , div [ class "AlbumPageTrack__duration" ] [ text <| Helper.durationFormat trackItem.duration ]
                                                 ]
-                                            , div [] [ text <| Helper.durationFormat trackItem.duration ]
                                             ]
                                     )
                             )

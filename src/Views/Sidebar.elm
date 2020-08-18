@@ -87,7 +87,7 @@ playlistItem : Url -> Paging PlaylistSimplified -> PlaylistType -> Html msg
 playlistItem currentUrl playlistList playlistType =
     if playlistType == Collection then
         div [ class "Sidebar__item" ]
-            [ h2 [ class "Sidebar__title Heading" ] [ text "Collection" ]
+            [ h2 [ class "Sidebar__title Heading" ] [ text "Collections" ]
             , div [ class "Sidebar__collections HelperScrollArea" ]
                 [ ul [ class "HelperScrollArea__target List unstyled" ]
                     (playlistList.items
