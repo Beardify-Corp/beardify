@@ -62,7 +62,7 @@ frame { pocketMsg, pocket, topbarMsg, sidebar, search, searchMsg, sidebarMsg, se
                     , div [ class "App__body" ]
                         [ Pocket.view pocket session
                             |> Html.map pocketMsg
-                        , Sidebar.view sidebar session.currentUrl
+                        , Sidebar.view session
                             |> Html.map sidebarMsg
                         , div [ class "Content" ]
                             [ div [ class "Page HelperScrollArea" ] content

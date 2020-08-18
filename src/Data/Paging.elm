@@ -1,9 +1,20 @@
 module Data.Paging exposing
     ( Paging
     , decodePaging
+    , defaultPaging
     )
 
 import Json.Decode as Decode exposing (Decoder, null, string)
+
+
+defaultPaging : Paging a
+defaultPaging =
+    { items = []
+    , next = ""
+    , total = 0
+    , offset = 0
+    , limit = 0
+    }
 
 
 type alias Paging a =

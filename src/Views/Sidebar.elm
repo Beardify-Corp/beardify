@@ -1,7 +1,7 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
 import Data.Id exposing (idToString)
-import Data.Paging exposing (Paging)
+import Data.Paging exposing (Paging, defaultPaging)
 import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified)
 import Data.Session exposing (Session)
 import Html exposing (..)
@@ -14,50 +14,39 @@ import Url exposing (Url)
 
 
 type alias Model =
-    { playlists : Paging PlaylistSimplified
-    }
+    {}
 
 
 type Msg
-    = Fetched (Result ( Session, Http.Error ) Model)
+    = Fetched (Result ( Session, Http.Error ) (Paging PlaylistSimplified))
 
 
 defaultModel : Model
 defaultModel =
-    { playlists =
-        { items = []
-        , next = ""
-        , total = 0
-        , offset = 0
-        , limit = 0
-        }
-    }
+    {}
 
 
 init : Session -> ( Model, Cmd Msg )
 init session =
     ( defaultModel
-    , Task.map Model
-        (Request.Playlist.getAll session 0)
-        |> Task.attempt Fetched
+    , Task.attempt Fetched (Request.Playlist.getAll session 0)
     )
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update session msg ({ playlists } as model) =
+update ({ playlists } as session) msg model =
     case msg of
         Fetched (Ok newModel) ->
-            if newModel.playlists.total > newModel.playlists.offset then
-                ( { playlists =
+            if newModel.total > newModel.offset then
+                ( model
+                , { session
+                    | playlists =
                         { playlists
-                            | items = List.append playlists.items newModel.playlists.items
-                            , offset = newModel.playlists.offset
+                            | items = List.append playlists.items newModel.items
+                            , offset = newModel.offset
                         }
                   }
-                , session
-                , Task.map Model
-                    (Request.Playlist.getAll session (newModel.playlists.offset + 50))
-                    |> Task.attempt Fetched
+                , Task.attempt Fetched (Request.Playlist.getAll session (newModel.offset + 50))
                 )
 
             else
@@ -121,8 +110,8 @@ playlistItem currentUrl playlistList playlistType =
             ]
 
 
-view : Model -> Url -> Html Msg
-view { playlists } currentUrl =
+view : Session -> Html Msg
+view { playlists, currentUrl } =
     div [ class "Sidebar" ]
         [ playlistItem currentUrl playlists Collection
         , playlistItem currentUrl playlists List

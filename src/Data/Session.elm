@@ -21,6 +21,8 @@ module Data.Session exposing
 
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization exposing (Authorization)
+import Data.Paging exposing (Paging)
+import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified)
 import Data.Pocket exposing (Pocket)
 import Data.User exposing (User)
 import Json.Decode as Decode exposing (Decoder)
@@ -39,6 +41,7 @@ type alias Session =
     , user : Maybe User
     , currentUrl : Url
     , pocket : Pocket
+    , playlists : Paging PlaylistSimplified
     }
 
 
