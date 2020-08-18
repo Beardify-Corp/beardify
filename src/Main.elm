@@ -1,6 +1,7 @@
 module Main exposing (main)
 
 import Browser exposing (Document)
+import Browser.Events exposing (onKeyDown)
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization
 import Data.Device exposing (Device)
@@ -11,6 +12,8 @@ import Data.Session as Session exposing (Notif, Session)
 import Data.User exposing (User)
 import Html exposing (..)
 import Http
+import Json.Decode as Decode exposing (map)
+import Keyboard.Event exposing (KeyboardEvent, decodeKeyboardEvent)
 import Page.Album as Album
 import Page.Artist as Artist
 import Page.Collection as Collection
@@ -83,6 +86,7 @@ type Msg
     | UserFetched (Result ( Session, Http.Error ) ( User, Maybe Url ))
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
+    | HandleKeyboardEvent KeyboardEvent
 
 
 initComponent : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -254,7 +258,7 @@ init flags url navKey =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ page, session } as model) =
+update msg ({ page, session, search } as model) =
     let
         toPage toModel toMsg subUpdate subMsg subModel =
             let
@@ -480,6 +484,16 @@ update msg ({ page, session } as model) =
             , Cmd.none
             )
 
+        ( HandleKeyboardEvent event, _ ) ->
+            case ( event.shiftKey, event.key ) of
+                ( _, Just "Escape" ) ->
+                    ( { model | search = { search | searchQuery = "" } }
+                    , Cmd.none
+                    )
+
+                ( _, _ ) ->
+                    ( model, Cmd.none )
+
         -- Misc
         ( _, NotFound ) ->
             ( { model | page = NotFound }, Cmd.none )
@@ -492,6 +506,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Ports.storeChanged StoreChanged
+        , onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
         , if List.length model.session.notifications > 0 then
             Time.every Session.notificationTick RefreshNotifications
 
