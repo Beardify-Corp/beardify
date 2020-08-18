@@ -1,7 +1,7 @@
 module Views.Sidebar exposing (Model, Msg, defaultModel, init, update, view)
 
 import Data.Id exposing (idToString)
-import Data.Paging exposing (Paging, defaultPaging)
+import Data.Paging exposing (Paging)
 import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified)
 import Data.Session exposing (Session)
 import Html exposing (..)

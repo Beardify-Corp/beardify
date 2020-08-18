@@ -55,14 +55,13 @@ update ({ pocket } as session) msg model =
 
 
 view : Model -> Session -> Html Msg
-view model session =
-    HE.viewIf (model.pocket.albums == [])
+view _ session =
+    HE.viewIf (List.length session.pocket.albums > 0)
         (div [ class "Pocket" ]
-            [ div [ class "Pocket__head" ] [ button [ onClick Reset ] [ text "Reset" ] ]
-            , div []
-                (session.pocket.albums
-                    |> List.map (\e -> div [] [ text e ])
-                )
+            [ div [ class "Pocket__head" ]
+                [ div [] [ text <| String.fromInt (List.length session.pocket.albums) ++ " Album(s) in pocket" ]
+                , button [ onClick Reset ] [ text "X" ]
+                ]
             , div [ class "PocketPlaylists" ]
                 (session.playlists.items
                     |> List.filter (\playlist -> String.startsWith "#Collection" playlist.name)
