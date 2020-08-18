@@ -7,4 +7,19 @@
   right: 40px;
   top: 20px;
   z-index: 999;
+
+  &Playlists {
+    max-height: 400px;
+    overflow: auto;
+    padding: 10px;
+
+    &__item {
+      cursor: pointer;
+      padding: 5px 10px;
+
+      &:hover {
+        background-color: rgba(black, .2);
+      }
+    }
+  }
 }
