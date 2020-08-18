@@ -62,7 +62,7 @@ strong {
 *::after {
   box-sizing: border-box;
   -ms-overflow-style: -ms-autohiding-scrollbar;
-  scrollbar-color: color.scale(Color.$backgroundDarker, $lightness: -35%) rgba(0, 0, 0, 0);
+  scrollbar-color: color.scale(Color.$primary, $lightness: -50%) rgba(0, 0, 0, 0);
   scrollbar-width: thin;
 }
 

@@ -87,6 +87,11 @@
     vertical-align: middle;
     width: 100%;
 
+    &::-moz-range-thumb {
+      background: transparent;
+      border: none;
+    }
+
     &::-webkit-slider-thumb {
       $size: 12px;
       -webkit-appearance: none;
