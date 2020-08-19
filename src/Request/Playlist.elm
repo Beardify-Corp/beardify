@@ -11,10 +11,9 @@ import Data.Paging exposing (Paging, decodePaging)
 import Data.Playlist.Playlist exposing (Playlist, decodePlaylist)
 import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified, decodePlaylistSimplified)
 import Data.Session exposing (Session)
-import Data.Track.Track exposing (Track, decodeTrack)
+import Data.Track.Track exposing (Track)
 import Data.Track.TrackItem exposing (TrackItem, decodeTrackItem)
 import Http
-import Json.Decode as Decode
 import Json.Encode as Encode
 import Request.Api as Api
 import Task exposing (Task)
@@ -74,10 +73,6 @@ addAlbum session playlistId uris =
 
 removeAlbum : Session -> String -> Track -> Task ( Session, Http.Error ) Track
 removeAlbum session playlistId track =
-    -- let
-    --     _ =
-    --         Debug.log "" track
-    -- in
     Http.task
         { method = "DELETE"
         , headers = [ Api.authHeader session ]

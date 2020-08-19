@@ -13,7 +13,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
-import Json.Decode as Decode
 import List.Extra as LE
 import Random
 import Request.Album
@@ -57,7 +56,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update ({ pocket } as session) msg ({ trackList, playlist } as model) =
+update ({ pocket } as session) msg ({ trackList } as model) =
     case msg of
         InitPlaylistInfos (Ok playlistInfo) ->
             ( { model | playlist = Just playlistInfo }
@@ -128,10 +127,6 @@ update ({ pocket } as session) msg ({ trackList, playlist } as model) =
             ( model, session, Cmd.none )
 
         RemoveAlbum playlistId track ->
-            -- let
-            --     _ =
-            --         Debug.log "RemoveAlbum" track
-            -- in
             ( model
             , session
             , Task.attempt RefreshPlaylist (Request.Playlist.removeAlbum session playlistId track)
@@ -139,16 +134,13 @@ update ({ pocket } as session) msg ({ trackList, playlist } as model) =
 
         RefreshPlaylist (Ok bite) ->
             let
-                _ =
-                    Debug.log "RefreshPlaylist" bite
+                trackListFiltered =
+                    trackList.items
+                        |> List.filter (\e -> e.track.uri /= bite.uri)
             in
-            ( model, session, Cmd.none )
+            ( { model | trackList = { trackList | items = trackListFiltered } }, session, Cmd.none )
 
-        RefreshPlaylist (Err err) ->
-            let
-                _ =
-                    Debug.log "err" err
-            in
+        RefreshPlaylist (Err _) ->
             ( model, session, Cmd.none )
 
 
