@@ -15,7 +15,7 @@
   &__form {
     background: color.scale(Color.$background, $lightness: 2%);
     border-radius: 3px;
-    box-shadow: 0px 4px 20px rgba(0, 0, 0, .3);
+    box-shadow: Color.$dropShadow;
     margin: 30px;
     max-width: 500px;
   }

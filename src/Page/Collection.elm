@@ -216,9 +216,9 @@ view context { playlist, trackList, dieFace } =
                             (tracks
                                 |> List.map
                                     (\a ->
-                                        div []
+                                        div [ class "CollectionAlbum" ]
                                             [ Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context True a.track.album
-                                            , button [ onClick <| RemoveAlbum playlistId a.track ] [ text "bite" ]
+                                            , button [ class "CollectionAlbum__delete", onClick <| RemoveAlbum playlistId a.track ] [ i [ class "icon-del" ] [] ]
                                             ]
                                     )
                             )
