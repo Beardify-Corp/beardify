@@ -1,12 +1,13 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
 import Data.Album.Album exposing (Album)
-import Data.Id exposing (Id, createId, idToString)
+import Data.Id exposing (Id, idToString)
 import Data.Paging exposing (Paging, defaultPaging)
 import Data.Player exposing (..)
 import Data.Playlist.Playlist exposing (Playlist)
 import Data.Playlist.PlaylistOwner exposing (PlaylistOwner)
 import Data.Session exposing (Session)
+import Data.Track.Track exposing (Track)
 import Data.Track.TrackItem exposing (TrackItem)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -39,8 +40,8 @@ type Msg
     | NoOp Id
     | GetAlbum Id
     | AddToPocket (Result ( Session, Http.Error ) Album)
-    | RemoveAlbum String String
-    | RemoveAlbumDo (Result ( Session, Http.Error ) ())
+    | RemoveAlbum String Track
+    | RefreshPlaylist (Result ( Session, Http.Error ) Track)
 
 
 init : Id -> Session -> ( Model, Session, Cmd Msg )
@@ -55,7 +56,7 @@ init id session =
 
 
 update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
-update ({ pocket } as session) msg ({ trackList } as model) =
+update ({ pocket } as session) msg ({ trackList, playlist } as model) =
     case msg of
         InitPlaylistInfos (Ok playlistInfo) ->
             ( { model | playlist = Just playlistInfo }
@@ -125,13 +126,28 @@ update ({ pocket } as session) msg ({ trackList } as model) =
         AddToPocket (Err _) ->
             ( model, session, Cmd.none )
 
-        RemoveAlbum playlistId uri ->
-            ( model, session, Task.attempt RemoveAlbumDo (Request.Playlist.removeAlbum session playlistId uri) )
+        RemoveAlbum playlistId track ->
+            -- let
+            --     _ =
+            --         Debug.log "RemoveAlbum" track
+            -- in
+            ( model
+            , session
+            , Task.attempt RefreshPlaylist (Request.Playlist.removeAlbum session playlistId track)
+            )
 
-        RemoveAlbumDo (Ok _) ->
+        RefreshPlaylist (Ok track) ->
+            -- let
+            --     _ =
+            --         Debug.log "RefreshPlaylist" track
+            -- in
             ( model, session, Cmd.none )
 
-        RemoveAlbumDo (Err _) ->
+        RefreshPlaylist (Err err) ->
+            let
+                _ =
+                    Debug.log "err" err
+            in
             ( model, session, Cmd.none )
 
 
@@ -209,7 +225,7 @@ view context { playlist, trackList, dieFace } =
                                     (\a ->
                                         div []
                                             [ Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context True a.track.album
-                                            , button [ onClick <| RemoveAlbum playlistId a.track.uri ] [ text "bite" ]
+                                            , button [ onClick <| RemoveAlbum playlistId a.track ] [ text "bite" ]
                                             ]
                                     )
                             )

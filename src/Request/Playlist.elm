@@ -11,6 +11,7 @@ import Data.Paging exposing (Paging, decodePaging)
 import Data.Playlist.Playlist exposing (Playlist, decodePlaylist)
 import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified, decodePlaylistSimplified)
 import Data.Session exposing (Session)
+import Data.Track.Track exposing (Track, decodeTrack)
 import Data.Track.TrackItem exposing (TrackItem, decodeTrackItem)
 import Http
 import Json.Decode as Decode
@@ -71,8 +72,12 @@ addAlbum session playlistId uris =
         |> Api.mapError session
 
 
-removeAlbum : Session -> String -> String -> Task ( Session, Http.Error ) ()
-removeAlbum session playlistId uri =
+removeAlbum : Session -> String -> Track -> Task ( Session, Http.Error ) Track
+removeAlbum session playlistId track =
+    -- let
+    --     _ =
+    --         Debug.log "" track
+    -- in
     Http.task
         { method = "DELETE"
         , headers = [ Api.authHeader session ]
@@ -80,9 +85,9 @@ removeAlbum session playlistId uri =
         , body =
             Http.jsonBody
                 (Encode.object
-                    [ ( "tracks", Encode.list Encode.object [ [ ( "uri", Encode.string uri ) ] ] ) ]
+                    [ ( "tracks", Encode.list Encode.object [ [ ( "uri", Encode.string track.uri ) ] ] ) ]
                 )
-        , resolver = Api.valueResolver ()
+        , resolver = decodeTrack |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session
