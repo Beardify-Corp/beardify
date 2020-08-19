@@ -1,7 +1,7 @@
 module Page.Collection exposing (Model, Msg(..), init, update, view)
 
 import Data.Album.Album exposing (Album)
-import Data.Id exposing (Id)
+import Data.Id exposing (Id, createId, idToString)
 import Data.Paging exposing (Paging, defaultPaging)
 import Data.Player exposing (..)
 import Data.Playlist.Playlist exposing (Playlist)
@@ -10,7 +10,7 @@ import Data.Session exposing (Session)
 import Data.Track.TrackItem exposing (TrackItem)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Html.Events exposing (onClick)
 import Http
 import List.Extra as LE
 import Random
@@ -39,6 +39,8 @@ type Msg
     | NoOp Id
     | GetAlbum Id
     | AddToPocket (Result ( Session, Http.Error ) Album)
+    | RemoveAlbum String String
+    | RemoveAlbumDo (Result ( Session, Http.Error ) ())
 
 
 init : Id -> Session -> ( Model, Session, Cmd Msg )
@@ -123,6 +125,15 @@ update ({ pocket } as session) msg ({ trackList } as model) =
         AddToPocket (Err _) ->
             ( model, session, Cmd.none )
 
+        RemoveAlbum playlistId uri ->
+            ( model, session, Task.attempt RemoveAlbumDo (Request.Playlist.removeAlbum session playlistId uri) )
+
+        RemoveAlbumDo (Ok _) ->
+            ( model, session, Cmd.none )
+
+        RemoveAlbumDo (Err _) ->
+            ( model, session, Cmd.none )
+
 
 view : PlayerContext -> Model -> ( String, List (Html Msg) )
 view context { playlist, trackList, dieFace } =
@@ -163,6 +174,15 @@ view context { playlist, trackList, dieFace } =
         albumLength : String
         albumLength =
             tracks |> List.length |> String.fromInt
+
+        playlistId : String
+        playlistId =
+            case playlist of
+                Just a ->
+                    idToString a.id
+
+                Nothing ->
+                    ""
     in
     ( playlistName
     , [ div [ class "Flex fullHeight" ]
@@ -187,7 +207,10 @@ view context { playlist, trackList, dieFace } =
                             (tracks
                                 |> List.map
                                     (\a ->
-                                        Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context True a.track.album
+                                        div []
+                                            [ Views.Album.view { playAlbum = PlayAlbum, addToPocket = GetAlbum } context True a.track.album
+                                            , button [ onClick <| RemoveAlbum playlistId a.track.uri ] [ text "bite" ]
+                                            ]
                                     )
                             )
                         ]

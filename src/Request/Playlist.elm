@@ -3,6 +3,7 @@ module Request.Playlist exposing
     , get
     , getAll
     , getTracks
+    , removeAlbum
     )
 
 import Data.Id exposing (Id, idToString)
@@ -12,6 +13,8 @@ import Data.Playlist.PlaylistSimplified exposing (PlaylistSimplified, decodePlay
 import Data.Session exposing (Session)
 import Data.Track.TrackItem exposing (TrackItem, decodeTrackItem)
 import Http
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Request.Api as Api
 import Task exposing (Task)
 
@@ -62,6 +65,23 @@ addAlbum session playlistId uris =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "playlists/" ++ playlistId ++ "/tracks?uris=" ++ String.join "," uris
         , body = Http.emptyBody
+        , resolver = Api.valueResolver ()
+        , timeout = Nothing
+        }
+        |> Api.mapError session
+
+
+removeAlbum : Session -> String -> String -> Task ( Session, Http.Error ) ()
+removeAlbum session playlistId uri =
+    Http.task
+        { method = "DELETE"
+        , headers = [ Api.authHeader session ]
+        , url = Api.url ++ "playlists/" ++ playlistId ++ "/tracks"
+        , body =
+            Http.jsonBody
+                (Encode.object
+                    [ ( "tracks", Encode.list Encode.object [ [ ( "uri", Encode.string uri ) ] ] ) ]
+                )
         , resolver = Api.valueResolver ()
         , timeout = Nothing
         }
