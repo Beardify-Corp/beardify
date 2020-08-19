@@ -49,10 +49,11 @@
     color: #fff;
     cursor: pointer;
     font-size: 1.2rem;
-    padding: 0;
+    outline: 0;
+    padding: 10px 13px;
     position: absolute;
-    right: 15px;
-    top: 15px;
+    right: 5px;
+    top: 5px;
     transform: scale(0);
     transition: all ease .2s;
     z-index: 9;
