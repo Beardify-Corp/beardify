@@ -87,7 +87,7 @@ removeAlbum session playlistId track =
                 (Encode.object
                     [ ( "tracks", Encode.list Encode.object [ [ ( "uri", Encode.string track.uri ) ] ] ) ]
                 )
-        , resolver = decodeTrack |> Api.jsonResolver
+        , resolver = track |> Api.valueResolver
         , timeout = Nothing
         }
         |> Api.mapError session

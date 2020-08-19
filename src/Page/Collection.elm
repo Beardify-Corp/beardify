@@ -13,6 +13,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick)
 import Http
+import Json.Decode as Decode
 import List.Extra as LE
 import Random
 import Request.Album
@@ -136,11 +137,11 @@ update ({ pocket } as session) msg ({ trackList, playlist } as model) =
             , Task.attempt RefreshPlaylist (Request.Playlist.removeAlbum session playlistId track)
             )
 
-        RefreshPlaylist (Ok track) ->
-            -- let
-            --     _ =
-            --         Debug.log "RefreshPlaylist" track
-            -- in
+        RefreshPlaylist (Ok bite) ->
+            let
+                _ =
+                    Debug.log "RefreshPlaylist" bite
+            in
             ( model, session, Cmd.none )
 
         RefreshPlaylist (Err err) ->
