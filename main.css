@@ -350,12 +350,12 @@ template {
 }
 .Album__playing {
   animation: bounce 0.5s cubic-bezier(1, 0, 1, 0) 0s infinite alternate;
+  bottom: 10px;
   color: white;
   font-size: 2.2rem;
   left: 15px;
   position: absolute;
   text-shadow: 0 0 20px black;
-  top: 10px;
   z-index: 9;
 }
 .AlbumList {
@@ -377,16 +377,21 @@ template {
 .Album__add {
   background: transparent;
   border: 0;
+  border-radius: 5px;
   color: #fff;
   cursor: pointer;
   font-size: 1.2rem;
-  padding: 0;
+  outline: 0;
+  padding: 8px 9px 4px;
   position: absolute;
-  right: 15px;
-  top: 15px;
+  right: 5px;
+  top: 5px;
   transform: scale(0);
   transition: all ease 0.2s;
   z-index: 9;
+}
+.Album__add:hover {
+  background-color: rgba(0, 0, 0, 0.5);
 }
 .Album__play {
   border: 0;
@@ -395,7 +400,6 @@ template {
   font-size: 2rem;
   height: 60px;
   left: 50%;
-  opacity: 0.7;
   outline: 0;
   padding-top: 10px;
   position: absolute;
@@ -406,7 +410,7 @@ template {
   z-index: 9;
 }
 .Album__play:hover {
-  opacity: 1;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.4);
 }
 .Album__play:active {
   background-color: #1a9db2;
@@ -774,7 +778,7 @@ template {
 .Modal__form {
   background: #18272f;
   border-radius: 3px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.4);
   margin: 30px;
   max-width: 500px;
 }
@@ -995,7 +999,7 @@ template {
 }
 .Pocket {
   animation: bounce 0.2s ease 0s forwards alternate;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.4);
   position: absolute;
   right: 71px;
   top: -47px;
@@ -1079,7 +1083,7 @@ template {
 }
 .SearchBox__input:focus {
   background-image: linear-gradient(45deg, #20323e, transparent);
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.4);
 }
 .SearchBox__input::placeholder {
   color: rgba(163, 214, 241, 0.303);
@@ -1088,7 +1092,7 @@ template {
 .SearchResult {
   background: #182630;
   border-radius: 3px;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.4);
   display: grid;
   grid-template-columns: 1fr 1.5fr 2fr;
   left: -5px;
@@ -1437,6 +1441,30 @@ template {
 .Collection {
   justify-content: center;
   margin-bottom: 40px;
+}
+.CollectionAlbum {
+  position: relative;
+}
+.CollectionAlbum__delete {
+  background-color: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 1.6rem;
+  left: 5px;
+  outline: 0;
+  padding: 6px 8px 1px;
+  position: absolute;
+  top: 5px;
+  transform: scale(0);
+  transition: all ease 0.2s;
+}
+.CollectionAlbum__delete:hover {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.CollectionAlbum:hover .CollectionAlbum__delete {
+  transform: scale(1);
 }
 .CollectionHead {
   text-align: center;
