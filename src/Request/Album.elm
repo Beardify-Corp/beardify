@@ -1,6 +1,6 @@
 module Request.Album exposing (get, getTracks)
 
-import Data.Album.Album exposing (Album)
+import Data.Album.Album exposing (Album, decodeAlbum)
 import Data.Id exposing (Id, idToString)
 import Data.Paging exposing (Paging, decodePaging)
 import Data.Session exposing (Session)
@@ -17,7 +17,7 @@ get session id =
         , headers = [ Api.authHeader session ]
         , url = Api.url ++ "albums/" ++ idToString id
         , body = Http.emptyBody
-        , resolver = Data.Album.Album.decodeAlbum |> Api.jsonResolver
+        , resolver = decodeAlbum |> Api.jsonResolver
         , timeout = Nothing
         }
         |> Api.mapError session

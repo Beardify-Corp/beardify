@@ -13,7 +13,7 @@
 .Pocket {
   $radius: 5px;
   animation: bounce .2s ease 0s forwards alternate;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, .3);
+  box-shadow: Color.$dropShadow;
   position: absolute;
   right: 71px;
   top: -47px;

@@ -43,11 +43,11 @@ view config context showArtist album =
             [ a [ Route.href (Route.Album album.id) ] [ img [ attribute "loading" "lazy", class "Album__cover", src cover.url ] [] ]
             , button [ onClick <| config.playAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
             , button [ onClick <| config.addToPocket album.id, class "Album__add" ] [ i [ class "icon-add" ] [] ]
+            , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
             ]
         , div [ class "Album__name" ] [ text album.name ]
         , HE.viewIf showArtist (div [ class "Album__name" ] [ span [] (Views.Artist.view album.artists) ])
         , div [ class "Album__release" ] [ text <| releaseFormat album.releaseDate ]
-        , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
         ]
 
 
@@ -68,6 +68,6 @@ viewSolo config context album =
             [ img [ attribute "loading" "lazy", class "Album__cover", src cover.url ] []
             , button [ onClick <| config.playAlbum album.uri, class "Album__play" ] [ i [ class "icon-play" ] [] ]
             , button [ onClick <| config.addToPocket album.id, class "Album__add" ] [ i [ class "icon-add" ] [] ]
+            , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
             ]
-        , HE.viewIf isCurrentlyPlaying (i [ class "Album__playing icon-sound" ] [])
         ]
