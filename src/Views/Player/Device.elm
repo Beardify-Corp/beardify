@@ -16,13 +16,13 @@ type Msg
     | DeviceList (Result ( Session, Http.Error ) (List Device))
     | UpdateVolume String
     | SetVolume (Result ( Session, Http.Error ) ())
+    | RefreshDevices
 
 
 init : Session -> ( List Device, Cmd Msg )
 init session =
     ( []
-    , Cmd.batch
-        [ Task.attempt DeviceList (Request.getList session) ]
+    , Task.attempt DeviceList (Request.getList session)
     )
 
 
@@ -111,6 +111,9 @@ update session msg devices =
         SetVolume (Err ( newSession, _ )) ->
             ( devices, newSession, Cmd.none )
 
+        RefreshDevices ->
+            ( devices, session, Task.attempt DeviceList (Request.getList session) )
+
 
 head : Html msg
 head =
@@ -143,7 +146,8 @@ item ({ name, type_, active } as device) =
 view : List Device -> Html Msg
 view devices =
     div [ class "Device" ]
-        [ div [ class "Device__select" ]
+        [ button [ onClick RefreshDevices ] [ text "refresh" ]
+        , div [ class "Device__select" ]
             [ i [ class "Device__active icon-computer" ] []
             , List.map item devices
                 |> (::) head

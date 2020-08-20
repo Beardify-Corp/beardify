@@ -13,4 +13,6 @@ scope =
     , "playlist-modify-public"
     , "user-follow-modify"
     , "user-follow-read"
+    , "streaming"
+    , "user-read-email"
     ]

@@ -7,12 +7,13 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:200,200i,300,300i,400,400i,700,700i,800,800i&display=swap" rel="stylesheet" />
     <link href="icons/styles.css" rel="stylesheet" />
     <link href="main.css" rel="stylesheet" />
+    <script src="https://sdk.scdn.co/spotify-player.js"></script>
     <link rel="icon" type="image/png" href="img/favicon.png" />
-    <!-- <meta name="google-site-verification" content="8bf6Oa9OC9HZI2ymukfNSg-80EX4T2tKQ0o89AZElqA" /> -->
   </head>
 
   <body>
     <script src="app.js"></script>
+    <script></script>
     <script>
       // The localStorage key to use to store serialized session data
       const storeKey = "beardifyStore";
@@ -37,6 +38,7 @@
 
       app.ports.saveStore.subscribe((rawStore) => {
         localStorage[storeKey] = rawStore;
+        console.log(rawStore);
       });
 
       // Ensure session is refreshed when it changes in another tab/window
@@ -49,6 +51,26 @@
         },
         false
       );
+
+      window.onSpotifyWebPlaybackSDKReady = () => {
+        let auth = localStorage[storeKey];
+        let access_token = JSON.parse(auth).auth.access_token;
+        var player = new Spotify.Player({
+          getOAuthToken: (callback) => {
+            callback(access_token);
+          },
+        });
+
+        player.setName("Beardify").then(() => {
+          console.log("Player name updated!");
+        });
+
+        player.connect().then((success) => {
+          if (success) {
+            console.log("The Web Playback SDK successfully connected to Spotify!");
+          }
+        });
+      };
     </script>
   </body>
 </html>
