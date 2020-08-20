@@ -20,7 +20,7 @@ type alias Image =
 default : Image
 default =
     { height = 0
-    , url = ""
+    , url = "./img/default.png"
     , width = 0
     }
 
