@@ -66,10 +66,10 @@ update session msg model =
                         |> List.map
                             (\d ->
                                 if d.id == device.id then
-                                    { d | active = True }
+                                    { d | active = True, volume = 1 }
 
                                 else
-                                    { d | active = False }
+                                    { d | active = False, volume = 1 }
                             )
             in
             ( { model | devices = updateDevicess }
@@ -78,7 +78,7 @@ update session msg model =
             )
 
         Activated (Ok _) ->
-            ( model, session, Cmd.none )
+            ( model, session, Task.attempt DeviceList (Request.getList session) )
 
         Activated (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )

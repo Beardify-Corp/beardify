@@ -90,14 +90,6 @@ view _ _ =
                     , p [] [ text "C'est chiant hein ? Bah je ne peux actuellement rien faire pour ca, les outils que mette à disposition Spotify (Web API) ne nous mettent pas disposition vos dossiers, donc... On ne peut pas les afficher :(" ]
                     , h3 [ class "Home__title" ] [ text "Attends mais sur le client web officiel, ils les affichent !" ]
                     , p [] [ text "Ouais, sauf qu'ils n'utilisent pas la même API que celle qu'ils mettent à disposition publiquement les radins !" ]
-                    , h3 [ class "Home__title" ] [ text "Attends mais ca marche pas ton truc, je ne voit rien qui se lance, pas même le player !" ]
-                    , p []
-                        [ text "Il faut comprendre une chose. Beardify se comporte actuellement (en espérant qu'on puisse remédier a ce problème rapidement) comme une sorte de 'télécommande'. C'est à dire qu'en soit, Beardify n'est"
-                        , b [] [ text " pas encore " ]
-                        , text "un client Spotify complet. Ce qui veux dire (ouais je sais c'est chiant mais pour l'instant faudra faire avec) qu'"
-                        , b [] [ text "il faut lancer le client Spotify sur votre ordi en fond" ]
-                        , text " pour qu'il comprenne que votre ordinateur est un périphérique de lecture actif."
-                        ]
                     , h3 [ class "Home__title" ] [ text "Mais du coup, il est prévu quoi dans le futur ?" ]
                     , p [] [ text "Dans un futur plus ou moins proche, voici les choses qui sont prévues :" ]
                     , ul []
