@@ -1,4 +1,4 @@
-module Views.Player.Device exposing (Msg(..), init, update, view)
+module Views.Player.Device exposing (Model, Msg(..), defaultModel, init, update, view)
 
 import Data.Device as Device exposing (Device)
 import Data.Session exposing (Session)
@@ -10,18 +10,31 @@ import Request.Device as Request
 import Task
 
 
+type alias Model =
+    { open : Bool
+    , devices : List Device
+    }
+
+
+defaultModel : Model
+defaultModel =
+    { devices = []
+    , open = False
+    }
+
+
 type Msg
     = Activate Device
     | Activated (Result ( Session, Http.Error ) ())
     | DeviceList (Result ( Session, Http.Error ) (List Device))
     | UpdateVolume String
     | SetVolume (Result ( Session, Http.Error ) ())
-    | RefreshDevices
+    | ToggleDevices
 
 
-init : Session -> ( List Device, Cmd Msg )
+init : Session -> ( Model, Cmd Msg )
 init session =
-    ( []
+    ( defaultModel
     , Task.attempt DeviceList (Request.getList session)
     )
 
@@ -34,49 +47,46 @@ initVolume =
         >> Maybe.withDefault 0
 
 
-update : Session -> Msg -> List Device -> ( List Device, Session, Cmd Msg )
-update session msg devices =
+update : Session -> Msg -> Model -> ( Model, Session, Cmd Msg )
+update session msg model =
     case msg of
         DeviceList (Ok newDevices) ->
-            ( newDevices
+            ( { model | devices = newDevices }
             , session
             , Cmd.none
             )
 
         DeviceList (Err ( newSession, _ )) ->
-            ( devices, newSession, Cmd.none )
+            ( model, newSession, Cmd.none )
 
         Activate device ->
             let
-                inactive device_ =
-                    { device_ | active = False }
+                updateDevicess =
+                    model.devices
+                        |> List.map
+                            (\d ->
+                                if d.id == device.id then
+                                    { d | active = True }
 
-                active =
-                    \d ->
-                        if d.id == device.id then
-                            { d | active = True }
-
-                        else
-                            d
-
-                updateDevices =
-                    List.map inactive >> List.map active
+                                else
+                                    { d | active = False }
+                            )
             in
-            ( updateDevices devices
+            ( { model | devices = updateDevicess }
             , session
             , Task.attempt Activated (Request.set session device)
             )
 
         Activated (Ok _) ->
-            ( devices, session, Cmd.none )
+            ( model, session, Cmd.none )
 
         Activated (Err ( newSession, _ )) ->
-            ( devices, newSession, Cmd.none )
+            ( model, newSession, Cmd.none )
 
         UpdateVolume volume ->
             let
                 activeDevice =
-                    List.filter .active devices
+                    List.filter .active model.devices
                         |> List.head
 
                 newDevice =
@@ -93,9 +103,9 @@ update session msg devices =
                                 Nothing ->
                                     d
                         )
-                        devices
+                        model.devices
             in
-            ( newDevice
+            ( { model | devices = newDevice }
             , session
             , case activeDevice of
                 Just _ ->
@@ -106,13 +116,17 @@ update session msg devices =
             )
 
         SetVolume (Ok _) ->
-            ( devices, session, Cmd.none )
+            ( model, session, Cmd.none )
 
         SetVolume (Err ( newSession, _ )) ->
-            ( devices, newSession, Cmd.none )
+            ( model, newSession, Cmd.none )
 
-        RefreshDevices ->
-            ( devices, session, Task.attempt DeviceList (Request.getList session) )
+        ToggleDevices ->
+            let
+                currentState =
+                    model.open
+            in
+            ( { model | open = not model.open }, session, Task.attempt DeviceList (Request.getList session) )
 
 
 head : Html msg
@@ -143,15 +157,14 @@ item ({ name, type_, active } as device) =
         ]
 
 
-view : List Device -> Html Msg
-view devices =
+view : Model -> Html Msg
+view model =
     div [ class "Device" ]
-        [ button [ onClick RefreshDevices ] [ text "refresh" ]
-        , div [ class "Device__select" ]
-            [ i [ class "Device__active icon-computer" ] []
-            , List.map item devices
+        [ div [ class "Device__select" ]
+            [ i [ onClick ToggleDevices, class "Device__active icon-computer" ] []
+            , List.map item model.devices
                 |> (::) head
-                |> div [ class "DeviceList" ]
+                |> div [ class "DeviceList", classList [ ( "active", model.open ) ] ]
             ]
         , div [ class "DeviceVolume" ]
             [ i [ class "DeviceVolume__icon icon-sound" ] []
@@ -163,10 +176,10 @@ view devices =
                     , Html.Attributes.max "100"
                     , step "1"
                     , onInput UpdateVolume
-                    , value (String.fromInt (initVolume devices))
+                    , value (String.fromInt (initVolume model.devices))
                     ]
                     []
-                , div [ class "Range__progress", style "width" (String.fromInt (initVolume devices) ++ "%") ] []
+                , div [ class "Range__progress", style "width" (String.fromInt (initVolume model.devices) ++ "%") ] []
                 ]
             ]
         ]

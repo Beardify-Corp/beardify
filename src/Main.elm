@@ -59,7 +59,7 @@ type alias Model =
     { page : Page
     , session : Session
     , player : PlayerContext
-    , devices : List Device
+    , devices : Device.Model
     , sidebar : Sidebar.Model
     , topbar : Topbar.Model
     , search : Search.Model
@@ -203,7 +203,7 @@ init flags url navKey =
         model =
             { page = Blank
             , session = session
-            , devices = []
+            , devices = Device.defaultModel
             , player = PlayerData.defaultPlayerContext
             , sidebar = Sidebar.defaultModel
             , topbar = Topbar.defaultModel
@@ -452,7 +452,7 @@ update msg ({ page, session, search } as model) =
                 Just url_ ->
                     setRoute (Route.fromUrl url_)
                         { page = Blank
-                        , devices = []
+                        , devices = Device.defaultModel
                         , player = PlayerData.defaultPlayerContext
                         , session = Session.updateUser user model.session
                         , sidebar = Sidebar.defaultModel

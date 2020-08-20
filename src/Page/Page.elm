@@ -26,7 +26,7 @@ type alias Config msg =
     , playerMsg : Player.Msg -> msg
     , deviceMsg : Device.Msg -> msg
     , player : PlayerContext
-    , devices : List Device
+    , devices : Device.Model
     , sidebar : Sidebar.Model
     , sidebarMsg : Sidebar.Msg -> msg
     , topbarMsg : Nav.Msg -> msg
