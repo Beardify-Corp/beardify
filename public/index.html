@@ -61,15 +61,8 @@
           },
         });
 
-        player.setName("Beardify").then(() => {
-          console.log("Player name updated!");
-        });
-
-        player.connect().then((success) => {
-          if (success) {
-            console.log("The Web Playback SDK successfully connected to Spotify!");
-          }
-        });
+        player.setName("Beardify");
+        player.connect();
       };
     </script>
   </body>
