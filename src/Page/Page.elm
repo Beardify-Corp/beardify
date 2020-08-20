@@ -3,7 +3,6 @@ module Page.Page exposing (Config, frame)
 -- import Views.Modal as Modal
 
 import Browser exposing (Document)
-import Data.Device exposing (Device)
 import Data.Player exposing (PlayerContext)
 import Data.Session exposing (Notif, Session)
 import Html exposing (..)

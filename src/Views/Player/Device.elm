@@ -126,7 +126,7 @@ update session msg model =
                 currentState =
                     model.open
             in
-            ( { model | open = not model.open }, session, Task.attempt DeviceList (Request.getList session) )
+            ( { model | open = not currentState }, session, Task.attempt DeviceList (Request.getList session) )
 
 
 head : Html msg

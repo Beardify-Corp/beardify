@@ -4,7 +4,6 @@ import Browser exposing (Document)
 import Browser.Events exposing (onKeyDown)
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization
-import Data.Device exposing (Device)
 import Data.Paging exposing (defaultPaging)
 import Data.Player as PlayerData exposing (PlayerContext)
 import Data.Pocket exposing (defaultPocket)
