@@ -132,13 +132,8 @@ relatedArtistsView artists =
     let
         relatedArtistView : Artist -> Html msg
         relatedArtistView artist =
-            let
-                cover : Image.Image
-                cover =
-                    Image.filterByWidth Image.Medium artist.images
-            in
             a [ class "ArtistSimilar__item", Route.href (Route.Artist artist.id) ]
-                [ img [ class "ArtistSimilar__avatar", src cover.url ] []
+                [ img [ class "ArtistSimilar__avatar", src (Image.filterByWidth Image.Small artist.images).url ] []
                 , span [ class "ArtistSimilar__name" ] [ text artist.name ]
                 ]
     in
