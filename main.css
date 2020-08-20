@@ -588,6 +588,10 @@ template {
   width: 280px;
   z-index: 999;
 }
+.DeviceList.active {
+  opacity: 1;
+  visibility: visible;
+}
 .DeviceList__icon {
   font-size: 1.8rem;
   line-height: 0;
@@ -653,17 +657,14 @@ template {
   color: #1a9db2;
 }
 .Device__select {
+  border-radius: 3px;
+  cursor: pointer;
   display: flex;
+  padding: 10px;
   position: relative;
 }
-.Device__select:hover .DeviceList {
-  opacity: 1;
-  transform: translateX(-50%) translateY(-10px);
-  visibility: visible;
-}
-.Device__select:hover .DeviceListHead {
-  height: 150px;
-  padding: 10px;
+.Device__select:hover {
+  background-color: rgba(0, 0, 0, 0.2);
 }
 .DeviceVolume {
   align-items: center;
@@ -886,6 +887,22 @@ template {
   flex: 1;
   justify-content: space-between;
   padding: 0 15px;
+}
+.PlayerError {
+  justify-content: center;
+  text-align: center;
+}
+.PlayerError__item {
+  align-items: center;
+  background-color: rgba(192, 61, 10, 0.18);
+  border-radius: 5px;
+  color: #c03d0a;
+  display: flex;
+  font-weight: bold;
+  padding: 10px 15px;
+}
+.PlayerError__icon {
+  font-size: 1.5rem;
 }
 .PlayerControl {
   align-items: center;

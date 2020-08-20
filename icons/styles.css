@@ -188,3 +188,15 @@
 .icon-caret-down:before {
   content: "\58";
 }
+.icon-arrow-left:before {
+  content: "\59";
+}
+.icon-arrow-down:before {
+  content: "\5a";
+}
+.icon-arrow-right:before {
+  content: "\30";
+}
+.icon-arrow-up:before {
+  content: "\31";
+}
