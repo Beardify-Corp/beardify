@@ -133,12 +133,23 @@ relatedArtistsView artists =
         relatedArtistView : Artist -> Html msg
         relatedArtistView artist =
             let
-                cover : Image.Image
+                cover : String
                 cover =
-                    Image.filterByWidth Image.Medium artist.images
+                    let
+                        test =
+                            (Image.filterByWidth Image.Small artist.images).url
+                    in
+                    if test /= "" then
+                        test
+
+                    else
+                        "./img/default.png"
+
+                _ =
+                    Debug.log "cover" cover
             in
             a [ class "ArtistSimilar__item", Route.href (Route.Artist artist.id) ]
-                [ img [ class "ArtistSimilar__avatar", src cover.url ] []
+                [ img [ class "ArtistSimilar__avatar", src cover ] []
                 , span [ class "ArtistSimilar__name" ] [ text artist.name ]
                 ]
     in
