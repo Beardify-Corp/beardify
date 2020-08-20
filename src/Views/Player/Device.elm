@@ -160,8 +160,8 @@ item ({ name, type_, active } as device) =
 view : Model -> Html Msg
 view model =
     div [ class "Device" ]
-        [ div [ class "Device__select" ]
-            [ i [ onClick ToggleDevices, class "Device__active icon-computer" ] []
+        [ div [ onClick ToggleDevices, class "Device__select" ]
+            [ i [ class "Device__active icon-computer" ] []
             , List.map item model.devices
                 |> (::) head
                 |> div [ class "DeviceList", classList [ ( "active", model.open ) ] ]
