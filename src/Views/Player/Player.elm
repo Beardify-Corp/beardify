@@ -206,4 +206,6 @@ view { player } =
                 ]
 
         Nothing ->
-            div [ class "Player" ] []
+            div [ class "Player PlayerError" ]
+                [ div [ class "PlayerError__item" ] [ text "You don't have an active player, please select one ", i [ class "PlayerError__icon icon-arrow-right" ] [] ]
+                ]

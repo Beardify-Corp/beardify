@@ -3,7 +3,6 @@ module Page.Page exposing (Config, frame)
 -- import Views.Modal as Modal
 
 import Browser exposing (Document)
-import Data.Device exposing (Device)
 import Data.Player exposing (PlayerContext)
 import Data.Session exposing (Notif, Session)
 import Html exposing (..)
@@ -26,7 +25,7 @@ type alias Config msg =
     , playerMsg : Player.Msg -> msg
     , deviceMsg : Device.Msg -> msg
     , player : PlayerContext
-    , devices : List Device
+    , devices : Device.Model
     , sidebar : Sidebar.Model
     , sidebarMsg : Sidebar.Msg -> msg
     , topbarMsg : Nav.Msg -> msg

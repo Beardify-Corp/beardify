@@ -30,6 +30,11 @@
     width: 280px;
     z-index: 999;
 
+    &.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
     &__icon {
       font-size: 1.8rem;
       line-height: 0;
@@ -107,20 +112,14 @@
   }
 
   &__select {
+    border-radius: 3px;
+    cursor: pointer;
     display: flex;
+    padding: 10px;
     position: relative;
 
     &:hover {
-      .DeviceList {
-        opacity: 1;
-        transform: translateX(-50%) translateY(-10px);
-        visibility: visible;
-
-        &Head {
-          height: 150px;
-          padding: 10px;
-        }
-      }
+      background-color: rgba(black, .2);
     }
   }
 
