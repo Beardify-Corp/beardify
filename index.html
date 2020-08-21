@@ -13,7 +13,6 @@
 
   <body>
     <script src="app.js"></script>
-    <script></script>
     <script>
       // The localStorage key to use to store serialized session data
       const storeKey = "beardifyStore";
@@ -55,14 +54,38 @@
       window.onSpotifyWebPlaybackSDKReady = () => {
         let auth = localStorage[storeKey];
         let access_token = JSON.parse(auth).auth.access_token;
-        var player = new Spotify.Player({
+        let randomId = Math.floor(Math.random() * Math.floor(100000000));
+        let player = new Spotify.Player({
           getOAuthToken: (callback) => {
             callback(access_token);
           },
         });
 
-        player.setName("Beardify");
-        player.connect();
+        player.on("playback_error", ({ message }) => {
+          console.error("Failed to perform playback", message);
+        });
+
+        player.on("account_error", ({ message }) => {
+          console.error("Failed to validate Spotify account", message);
+        });
+
+        player.on("initialization_error", ({ message }) => {
+          console.error("Failed to initialize", message);
+        });
+
+        player.on("authentication_error", ({ message }) => {
+          console.error("Failed to authenticate", message);
+        });
+
+        player.setName(`Beardify-${randomId}`).then(() => {
+          console.log("Player name updated!");
+        });
+
+        player.connect().then((success) => {
+          if (success) {
+            console.log("The Web Playback SDK successfully connected to Spotify!");
+          }
+        });
       };
     </script>
   </body>
