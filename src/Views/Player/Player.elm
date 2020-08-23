@@ -6,6 +6,7 @@ module Views.Player.Player exposing
     , view
     )
 
+import Browser.Events exposing (onKeyDown)
 import Data.Image as Image
 import Data.Player as Player exposing (Player, PlayerContext)
 import Data.Session exposing (Session)
@@ -14,6 +15,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
+import Json.Decode as Decode exposing (map)
+import Keyboard.Event exposing (KeyboardEvent, decodeKeyboardEvent)
 import Request.Player as Request
 import Route
 import String.Extra as SE
@@ -34,6 +37,7 @@ type Msg
     | Seek String
     | Seeked (Result ( Session, Http.Error ) ())
     | SkipTrack (Result ( Session, Http.Error ) ())
+    | HandleKeyboardEvent KeyboardEvent
 
 
 init : Session -> ( PlayerContext, Cmd Msg )
@@ -133,10 +137,52 @@ update session msg model =
         SkipTrack (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
+        HandleKeyboardEvent event ->
+            case ( event.shiftKey, event.key ) of
+                ( _, Just " " ) ->
+                    let
+                        _ =
+                            Debug.log "space" "space"
+
+                        playPlaying =
+                            Maybe.map (\player -> { player | playing = True })
+
+                        pausePlaying =
+                            Maybe.map (\player -> { player | playing = False })
+                    in
+                    case model.player of
+                        Just a ->
+                            if a.playing then
+                                ( { model
+                                    | player = pausePlaying model.player
+                                    , refreshTick = Player.defaultTick
+                                  }
+                                , session
+                                , Task.attempt Paused (Request.pause session)
+                                )
+
+                            else
+                                ( { model
+                                    | player = playPlaying model.player
+                                    , refreshTick = Player.defaultTick
+                                  }
+                                , session
+                                , Task.attempt Played (Request.play session)
+                                )
+
+                        Nothing ->
+                            ( model, session, Cmd.none )
+
+                ( _, _ ) ->
+                    ( model, session, Cmd.none )
+
 
 subscriptions : PlayerContext -> Sub Msg
 subscriptions model =
-    Sub.batch [ Time.every model.refreshTick Refresh ]
+    Sub.batch
+        [ Time.every model.refreshTick Refresh
+        , onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
+        ]
 
 
 view : PlayerContext -> Html Msg

@@ -5,7 +5,7 @@ import Browser.Events exposing (onKeyDown)
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization
 import Data.Paging exposing (defaultPaging)
-import Data.Player as PlayerData exposing (PlayerContext)
+import Data.Player as PlayerData exposing (Player, PlayerContext)
 import Data.Pocket exposing (defaultPocket)
 import Data.Session as Session exposing (Notif, Session)
 import Data.User exposing (User)
@@ -21,6 +21,7 @@ import Page.Login as Login
 import Page.Page as Page
 import Page.Playlist as Playlist
 import Ports
+import Request.Player
 import Request.User as RequestUser
 import Route exposing (Route)
 import Task

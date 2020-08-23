@@ -13,7 +13,6 @@
 
   <body>
     <script src="app.js"></script>
-    <script></script>
     <script>
       // The localStorage key to use to store serialized session data
       const storeKey = "beardifyStore";
@@ -38,7 +37,6 @@
 
       app.ports.saveStore.subscribe((rawStore) => {
         localStorage[storeKey] = rawStore;
-        console.log(rawStore);
       });
 
       // Ensure session is refreshed when it changes in another tab/window
@@ -64,6 +62,13 @@
         player.setName("Beardify");
         player.connect();
       };
+
+      // Disable space key
+      window.addEventListener("keydown", function (e) {
+        if (e.keyCode == 32 && e.target == document.body) {
+          e.preventDefault();
+        }
+      });
     </script>
   </body>
 </html>
