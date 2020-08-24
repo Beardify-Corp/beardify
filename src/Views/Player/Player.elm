@@ -1,8 +1,11 @@
 module Views.Player.Player exposing
-    ( Msg(..)
+    ( Controls(..)
+    , Msg(..)
     , init
     , subscriptions
+    , subscriptionsControls
     , update
+    , updateControls
     , view
     )
 
@@ -25,6 +28,10 @@ import Time exposing (Posix)
 import Views.Artist
 
 
+type Controls
+    = HandleKeyboardEvent KeyboardEvent
+
+
 type Msg
     = Next
     | Pause
@@ -37,7 +44,6 @@ type Msg
     | Seek String
     | Seeked (Result ( Session, Http.Error ) ())
     | SkipTrack (Result ( Session, Http.Error ) ())
-    | HandleKeyboardEvent KeyboardEvent
 
 
 init : Session -> ( PlayerContext, Cmd Msg )
@@ -45,6 +51,46 @@ init session =
     ( Player.defaultPlayerContext
     , Task.attempt Refreshed (Request.get session)
     )
+
+
+updateControls : Session -> Controls -> PlayerContext -> ( PlayerContext, Session, Cmd Msg )
+updateControls session msg model =
+    case msg of
+        HandleKeyboardEvent event ->
+            case ( event.shiftKey, event.key ) of
+                ( _, Just " " ) ->
+                    let
+                        playPlaying =
+                            Maybe.map (\player -> { player | playing = True })
+
+                        pausePlaying =
+                            Maybe.map (\player -> { player | playing = False })
+                    in
+                    case model.player of
+                        Just a ->
+                            if a.playing then
+                                ( { model
+                                    | player = pausePlaying model.player
+                                    , refreshTick = Player.defaultTick
+                                  }
+                                , session
+                                , Task.attempt Paused (Request.pause session)
+                                )
+
+                            else
+                                ( { model
+                                    | player = playPlaying model.player
+                                    , refreshTick = Player.defaultTick
+                                  }
+                                , session
+                                , Task.attempt Played (Request.play session)
+                                )
+
+                        Nothing ->
+                            ( model, session, Cmd.none )
+
+                ( _, _ ) ->
+                    ( model, session, Cmd.none )
 
 
 update : Session -> Msg -> PlayerContext -> ( PlayerContext, Session, Cmd Msg )
@@ -137,48 +183,16 @@ update session msg model =
         SkipTrack (Err ( newSession, _ )) ->
             ( model, newSession, Cmd.none )
 
-        HandleKeyboardEvent event ->
-            case ( event.shiftKey, event.key ) of
-                ( _, Just " " ) ->
-                    let
-                        playPlaying =
-                            Maybe.map (\player -> { player | playing = True })
-
-                        pausePlaying =
-                            Maybe.map (\player -> { player | playing = False })
-                    in
-                    case model.player of
-                        Just a ->
-                            if a.playing then
-                                ( { model
-                                    | player = pausePlaying model.player
-                                    , refreshTick = Player.defaultTick
-                                  }
-                                , session
-                                , Task.attempt Paused (Request.pause session)
-                                )
-
-                            else
-                                ( { model
-                                    | player = playPlaying model.player
-                                    , refreshTick = Player.defaultTick
-                                  }
-                                , session
-                                , Task.attempt Played (Request.play session)
-                                )
-
-                        Nothing ->
-                            ( model, session, Cmd.none )
-
-                ( _, _ ) ->
-                    ( model, session, Cmd.none )
-
 
 subscriptions : PlayerContext -> Sub Msg
 subscriptions model =
+    Sub.batch [ Time.every model.refreshTick Refresh ]
+
+
+subscriptionsControls : Sub Controls
+subscriptionsControls =
     Sub.batch
-        [ Time.every model.refreshTick Refresh
-        , onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
+        [ onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
         ]
 
 

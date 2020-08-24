@@ -81,6 +81,7 @@ type Msg
     | TopbarMsg Topbar.Msg
     | SearchMsg Search.Msg
     | PlayerMsg Player.Msg
+    | PlayerControls Player.Controls
     | RefreshNotifications Posix
     | StoreChanged String
     | UserFetched (Result ( Session, Http.Error ) ( User, Maybe Url ))
@@ -381,6 +382,30 @@ update msg ({ page, session, search } as model) =
                 ]
             )
 
+        ( PlayerControls playerControls, _ ) ->
+            let
+                ( componentModel, newSession, componentCmd ) =
+                    Player.updateControls session playerControls model.player
+            in
+            ( { model
+                | session = newSession
+                , player = componentModel
+              }
+            , Cmd.batch
+                [ Cmd.map PlayerMsg componentCmd
+                , if session.store /= newSession.store then
+                    newSession.store |> Session.serializeStore |> Ports.saveStore
+
+                  else
+                    Cmd.none
+                , if newSession.store.auth == Nothing then
+                    Route.pushUrl session.navKey Route.Login
+
+                  else
+                    Cmd.none
+                ]
+            )
+
         ( SidebarMsg componentMsg, _ ) ->
             let
                 ( componentModel, newSession, componentCmd ) =
@@ -512,12 +537,14 @@ subscriptions model =
 
           else
             Sub.none
+        , Player.subscriptions model.player
+            |> Sub.map PlayerMsg
         , if model.search.searchQuery /= "" then
             Sub.none
 
           else
-            Player.subscriptions model.player
-                |> Sub.map PlayerMsg
+            Player.subscriptionsControls
+                |> Sub.map PlayerControls
         , case model.page of
             HomePage homeModel ->
                 Home.subscriptions homeModel
