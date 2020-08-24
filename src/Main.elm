@@ -5,7 +5,7 @@ import Browser.Events exposing (onKeyDown)
 import Browser.Navigation as Nav
 import Data.Authorization as Authorization
 import Data.Paging exposing (defaultPaging)
-import Data.Player as PlayerData exposing (Player, PlayerContext)
+import Data.Player as PlayerData exposing (PlayerContext)
 import Data.Pocket exposing (defaultPocket)
 import Data.Session as Session exposing (Notif, Session)
 import Data.User exposing (User)
@@ -21,7 +21,6 @@ import Page.Login as Login
 import Page.Page as Page
 import Page.Playlist as Playlist
 import Ports
-import Request.Player
 import Request.User as RequestUser
 import Route exposing (Route)
 import Task
@@ -537,18 +536,16 @@ subscriptions model =
 
           else
             Sub.none
-        , Player.subscriptions model.player
-            |> Sub.map PlayerMsg
+        , Player.subscriptions model.player |> Sub.map PlayerMsg
         , if model.search.searchQuery /= "" then
             Sub.none
 
           else
-            Player.subscriptionsControls
-                |> Sub.map PlayerControls
+            Player.subscriptionsControls |> Sub.map PlayerControls
+        , Device.subscriptions model.devices |> Sub.map DeviceMsg
         , case model.page of
             HomePage homeModel ->
-                Home.subscriptions homeModel
-                    |> Sub.map HomeMsg
+                Home.subscriptions homeModel |> Sub.map HomeMsg
 
             _ ->
                 Sub.none

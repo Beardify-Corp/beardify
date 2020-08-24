@@ -1,11 +1,14 @@
-module Views.Player.Device exposing (Model, Msg(..), defaultModel, init, update, view)
+module Views.Player.Device exposing (Model, Msg(..), defaultModel, init, subscriptions, update, view)
 
+import Browser.Events exposing (onKeyDown)
 import Data.Device as Device exposing (Device)
 import Data.Session exposing (Session)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http
+import Json.Decode as Decode exposing (map)
+import Keyboard.Event exposing (KeyboardEvent, decodeKeyboardEvent)
 import Request.Device as Request
 import Task
 
@@ -30,6 +33,7 @@ type Msg
     | UpdateVolume String
     | SetVolume (Result ( Session, Http.Error ) ())
     | ToggleDevices
+    | HandleKeyboardEvent KeyboardEvent
 
 
 init : Session -> ( Model, Cmd Msg )
@@ -127,6 +131,52 @@ update session msg model =
                     model.open
             in
             ( { model | open = not currentState }, session, Task.attempt DeviceList (Request.getList session) )
+
+        HandleKeyboardEvent event ->
+            let
+                currentVolume =
+                    model.devices
+                        |> List.filter (\e -> e.active)
+                        |> List.map (\e -> e.volume)
+                        |> List.product
+
+                activeDevice =
+                    model.devices
+                        |> List.filter (\e -> e.active)
+
+                deltaValue =
+                    2
+
+                increaseDevicesVolume =
+                    activeDevice
+                        |> List.map (\d -> { d | volume = currentVolume + deltaValue })
+
+                decreaseDevicesVolume =
+                    activeDevice
+                        |> List.map (\d -> { d | volume = currentVolume - deltaValue })
+            in
+            case ( event.shiftKey, event.key ) of
+                ( _, Just "ArrowRight" ) ->
+                    if currentVolume + deltaValue > 100 then
+                        ( model, session, Cmd.none )
+
+                    else
+                        ( { model | devices = increaseDevicesVolume }, session, Task.attempt SetVolume (Request.setVolume session (currentVolume + deltaValue)) )
+
+                ( _, Just "ArrowLeft" ) ->
+                    if currentVolume - deltaValue < 0 then
+                        ( model, session, Cmd.none )
+
+                    else
+                        ( { model | devices = decreaseDevicesVolume }, session, Task.attempt SetVolume (Request.setVolume session (currentVolume - deltaValue)) )
+
+                ( _, _ ) ->
+                    ( model, session, Cmd.none )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
 
 
 head : Html msg

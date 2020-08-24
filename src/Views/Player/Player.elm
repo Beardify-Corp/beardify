@@ -186,14 +186,12 @@ update session msg model =
 
 subscriptions : PlayerContext -> Sub Msg
 subscriptions model =
-    Sub.batch [ Time.every model.refreshTick Refresh ]
+    Time.every model.refreshTick Refresh
 
 
 subscriptionsControls : Sub Controls
 subscriptionsControls =
-    Sub.batch
-        [ onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
-        ]
+    onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
 
 
 view : PlayerContext -> Html Msg
