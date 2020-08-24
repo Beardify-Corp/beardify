@@ -141,9 +141,6 @@ update session msg model =
             case ( event.shiftKey, event.key ) of
                 ( _, Just " " ) ->
                     let
-                        _ =
-                            Debug.log "space" "space"
-
                         playPlaying =
                             Maybe.map (\player -> { player | playing = True })
 

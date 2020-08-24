@@ -512,8 +512,12 @@ subscriptions model =
 
           else
             Sub.none
-        , Player.subscriptions model.player
-            |> Sub.map PlayerMsg
+        , if model.search.searchQuery /= "" then
+            Sub.none
+
+          else
+            Player.subscriptions model.player
+                |> Sub.map PlayerMsg
         , case model.page of
             HomePage homeModel ->
                 Home.subscriptions homeModel
