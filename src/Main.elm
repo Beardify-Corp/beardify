@@ -541,8 +541,10 @@ subscriptions model =
             Sub.none
 
           else
-            Player.subscriptionsControls |> Sub.map PlayerControls
-        , Device.subscriptions model.devices |> Sub.map DeviceMsg
+            Sub.batch
+                [ Player.subscriptionsControls |> Sub.map PlayerControls
+                , Device.subscriptions model.devices |> Sub.map DeviceMsg
+                ]
         , case model.page of
             HomePage homeModel ->
                 Home.subscriptions homeModel |> Sub.map HomeMsg
