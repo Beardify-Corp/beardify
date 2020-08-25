@@ -86,6 +86,7 @@ type Msg
     | UrlChanged Url
     | UrlRequested Browser.UrlRequest
     | HandleKeyboardEvent KeyboardEvent
+    | NoOp
 
 
 initComponent : ( Model, Cmd Msg ) -> ( Model, Cmd Msg )
@@ -505,6 +506,7 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Ports.storeChanged StoreChanged
+        , Ports.beardifyPlayer
         , onKeyDown (Decode.map HandleKeyboardEvent decodeKeyboardEvent)
         , if List.length model.session.notifications > 0 then
             Time.every Session.notificationTick RefreshNotifications
