@@ -1,5 +1,6 @@
 @use "Color";
 @use "sass:color";
+@use "Font";
 
 @use "../node_modules/normalize.css/normalize";
 
@@ -97,8 +98,11 @@ html {
 
 body {
   color: Color.$font;
-  font-family: "Nunito Sans", sans-serif;
+  @include fontRegular;
   font-weight: 400;
   line-height: 1.4;
   overflow: hidden;
 }
+
+
+
