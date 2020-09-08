@@ -98,7 +98,7 @@ html {
 
 body {
   color: Color.$font;
-  @include fontRegular;
+  @include Font.regular;
   font-weight: 400;
   line-height: 1.4;
   overflow: hidden;
